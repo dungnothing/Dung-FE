@@ -1,0 +1,58 @@
+const GUEST_PERMISSIONS = {
+  VIEW_BOARD: true,
+  CHANGE_BOARD_TITLE: false,
+  CHANGE_BOARD_STATUS: false,
+  CHANGE_BOARD_VISIBILITY: false,
+  DELETE_BOARD: false,
+  INVITE_MEMBER: false,
+  CREATE_COLUMN: false,
+  DELETE_COLUMN: false,
+  MOVING_COLUMN: false,
+  CREATE_CARD: false,
+  MOVING_CARD: false,
+  DELETE_CARD: false,
+  UPDATE_CARD: false,
+  JOIN_CARD: false,
+  LEAVE_CARD: false,
+  CHANGE_ADMIN: false
+}
+
+const ADMIN_PERMISSIONS = {
+  VIEW_BOARD: true,
+  CHANGE_BOARD_TITLE: true,
+  CHANGE_BOARD_STATUS: true,
+  CHANGE_BOARD_VISIBILITY: true,
+  DELETE_BOARD: true,
+  INVITE_MEMBER: true,
+  CREATE_COLUMN: true,
+  DELETE_COLUMN: true,
+  MOVING_COLUMN: true,
+  CREATE_CARD: true,
+  MOVING_CARD: true,
+  DELETE_CARD: true,
+  UPDATE_CARD: true,
+  JOIN_CARD: true,
+  LEAVE_CARD: true,
+  CHANGE_ADMIN: true
+}
+
+const MEMBER_PERMISSIONS = {
+  VIEW_BOARD: true,
+  CHANGE_BOARD_TITLE: false,
+  CHANGE_BOARD_STATUS: false,
+  CHANGE_BOARD_VISIBILITY: false,
+  DELETE_BOARD: false,
+  INVITE_MEMBER: false,
+  CREATE_COLUMN: false,
+  DELETE_COLUMN: false,
+  MOVING_COLUMN: false,
+  CREATE_CARD: true,
+  MOVING_CARD: true,
+  DELETE_CARD: true,
+  UPDATE_CARD: true,
+  JOIN_CARD: true,
+  LEAVE_CARD: true,
+  CHANGE_ADMIN: false
+}
+
+export { GUEST_PERMISSIONS, ADMIN_PERMISSIONS, MEMBER_PERMISSIONS }
