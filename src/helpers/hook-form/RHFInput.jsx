@@ -19,7 +19,7 @@ function RHFInput({ name, title, placeholder, eyeIcon = false, size }) {
             error={error?.[name]}
             size={size}
           />
-          {error?.[name] && <p className="text-red-500 text-sm pl-4">{error[name]?.message}</p>}
+          {error?.[name] && <p className="!text-red-500 text-sm pl-4">{error[name]?.message}</p>}
         </div>
       )}
     />

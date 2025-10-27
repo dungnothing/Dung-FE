@@ -42,6 +42,8 @@ function Profiles() {
 
   const changeAccount = () => {
     dispatch(logout())
+    document.cookie = 'accessToken=; path=/; max-age=0'
+    document.cookie = 'refreshToken=; path=/; max-age=0'
     navigate('/sign-in')
   }
 
