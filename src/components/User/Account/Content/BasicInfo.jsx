@@ -49,9 +49,9 @@ function BasicInfo() {
         organization: data.organization,
         address: data.address
       }
-      const res = await updateInfoAPI(input)
+      await updateInfoAPI(input)
+      toast.success('Cập nhật thông tin thành công')
       dipatch(updateUserInfo(input))
-      toast.success(res.message)
     } catch (error) {
       toast.error(error.message)
     }

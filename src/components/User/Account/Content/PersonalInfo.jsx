@@ -1,11 +1,50 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { Box, Avatar, Typography, LinearProgress, IconButton } from '@mui/material'
 import { Camera, Briefcase, MapPin, CalendarDays } from 'lucide-react'
-import BasicInfo from '../../components/User/Account/Content/Info/BasicInfo'
+import BasicInfo from './BasicInfo'
+import { toast } from 'react-toastify'
+import { updateAvatarAPI } from '~/apis/auth'
+import { useDispatch } from 'react-redux'
+import { updateUserInfo } from '~/redux/features/comon'
 
 function PersonalInfo() {
   const user = useSelector((state) => state.comon.user)
+  const avatarRef = useRef(null)
+  const dipatch = useDispatch()
+
+  const handleClick = () => {
+    avatarRef.current?.click()
+  }
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      toast.error('Chỉ chấp nhận các định dạng: JPG, PNG, WEBP!')
+      return
+    }
+
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      toast.error('Kích thước ảnh tối đa là 5MB!')
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('avatar', file)
+
+    try {
+      const res = await updateAvatarAPI(formData)
+      dipatch(updateUserInfo(res))
+      avatarRef.current.value = null
+      toast.success('Upload thành công')
+    } catch (error) {
+      toast.error('Upload thất bại:', error)
+    }
+  }
 
   // ✅ Tính tỷ lệ hoàn thành hồ sơ
   const rate = useMemo(() => {
@@ -16,7 +55,7 @@ function PersonalInfo() {
   }, [user])
 
   return (
-    <Box className="w-full flex flex-col gap-2">
+    <Box className="w-full flex flex-col gap-2 relative">
       {/* Card chính */}
       <Box
         className="relative flex flex-col bg-white rounded-[12px]"
@@ -33,28 +72,28 @@ function PersonalInfo() {
         />
 
         {/* Avatar */}
-        <Box className="absolute top-[70px] left-1/2 -translate-x-1/2">
-          <Box className="relative">
-            <Avatar
-              src={user?.avatar || '/default-avatar.png'}
-              sx={{ width: 96, height: 96, border: '4px solid white' }}
-            />
-            <IconButton
-              size="small"
-              sx={{
-                position: 'absolute',
-                bottom: 4,
-                right: 4,
-                bgcolor: '#7C3AED',
-                color: 'white',
-                width: 26,
-                height: 26,
-                '&:hover': { bgcolor: '#6D28D9' }
-              }}
-            >
-              <Camera size={14} />
-            </IconButton>
-          </Box>
+        <Box className="absolute top-2/5 left-1/2 -translate-x-1/2 -translate-y-1/2 w-fit flex justify-center items-center">
+          <Avatar
+            src={user?.avatar || '/default-avatar.png'}
+            sx={{ width: 96, height: 96, border: '4px solid white' }}
+          />
+          <IconButton
+            size="small"
+            onClick={handleClick}
+            sx={{
+              position: 'absolute',
+              bottom: 4,
+              right: 4,
+              bgcolor: '#7C3AED',
+              color: 'white',
+              width: 26,
+              height: 26,
+              '&:hover': { bgcolor: '#6D28D9' }
+            }}
+          >
+            <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} ref={avatarRef} />
+            <Camera size={14} />
+          </IconButton>
         </Box>
 
         {/* Thông tin cơ bản */}
