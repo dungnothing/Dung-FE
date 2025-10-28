@@ -35,13 +35,18 @@ export const getMemberAPI = async (cardId) => {
   return response.data
 }
 
-export const getCommentsAPI = async (cardId) => {
-  const response = await axiosInstance.get(`/v1/comments/${cardId}`)
+export const getCommentsAPI = async (cardId, page = 1, limit = 20) => {
+  const response = await axiosInstance.get(`/v1/comments/${cardId}?page=${page}&limit=${limit}`)
   return response.data
 }
 
 export const createCommentAPI = async (commentData) => {
   const response = await axiosInstance.post('/v1/comments', commentData)
+  return response.data
+}
+
+export const deleteCommentAPI = async (commentId) => {
+  const response = await axiosInstance.delete(`/v1/comments/delete/${commentId}`)
   return response.data
 }
 

@@ -18,7 +18,6 @@ import { CSS } from '@dnd-kit/utilities'
 import { toast } from 'react-toastify'
 import { textColor } from '~/utils/constants'
 import CardDialog from './CardDialog'
-import { getCommentsAPI } from '~/apis/cards'
 
 function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, board }) {
   const [hover, setHover] = useState(false)
@@ -76,16 +75,6 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
     day: '2-digit'
   })
 
-  const getComments = async (cardId) => {
-    try {
-      const comments = await getCommentsAPI(cardId)
-      const newComments = comments.reverse()
-      setComments(newComments)
-    } catch (error) {
-      toast.error('Lỗi lấy bình luận!')
-    }
-  }
-
   return (
     <>
       <MuiCard
@@ -108,10 +97,7 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
         }}
         onMouseEnter={() => !isDragging && setHover(true)}
         onMouseLeave={() => !isDragging && setHover(false)}
-        onClick={() => {
-          setOpenDialog(true)
-          getComments(card._id)
-        }}
+        onClick={() => setOpenDialog(true)}
       >
         {card?.background && <CardMedia sx={{ height: '140px' }} image={card?.background} />}
         <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>

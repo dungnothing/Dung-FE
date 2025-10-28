@@ -13,7 +13,9 @@ export const initBoardSocket = (
     onBoardUpdatedTitle,
     onBoardUpdatedVisibility,
     onBoardUpdatedState,
-    onCardUpdated
+    onCardUpdated,
+    onCommentCreated,
+    onCommentDeleted
   }
 ) => {
   if (socket.joinedBoardId !== boardId) {
@@ -36,9 +38,12 @@ export const initBoardSocket = (
     { event: 'card:updated', handler: onCardUpdated },
     { event: 'card:backgroundUpdated', handler: onCardUpdated },
     { event: 'card:fileUploaded', handler: onCardUpdated },
-    { event: 'card:fileRemoved', handler: onCardUpdated }
+    { event: 'card:fileRemoved', handler: onCardUpdated },
+    { event: 'comment:created', handler: onCommentCreated },
+    { event: 'comment:deleted', handler: onCommentDeleted }
   ]
 
+  // Đăng ký các lắng nghe
   // Đăng ký các lắng nghe
   listeners.forEach(({ event, handler }) => {
     if (handler) socket.on(event, handler)

@@ -1,10 +1,8 @@
-import { Dialog, IconButton, Typography, Box, TextField, DialogTitle, Avatar } from '@mui/material'
+import { Dialog, IconButton, Typography, Box, TextField, DialogTitle } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
-import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic'
-import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
-import { updateCardAPI, getMemberAPI, createCommentAPI } from '~/apis/cards'
+import { updateCardAPI, getMemberAPI } from '~/apis/cards'
 import { useState } from 'react'
 import EditTimeCard from './CardTime'
 import { useTheme } from '@mui/material/styles'
@@ -12,6 +10,7 @@ import { cloneDeep } from 'lodash'
 import CardButtonGroup from './CardButton/CardButtonGroup'
 import CardDescription from './CardDescription'
 import CardAttachment from './CardAttachment'
+import CardComments from './CardComments'
 
 function CardDialog({
   card,
@@ -26,7 +25,6 @@ function CardDialog({
   setComments,
   boardState
 }) {
-  const user = useSelector((state) => state.comon.user)
   const [openTimeDialog, setOpenTimeDialog] = useState(false)
   const [openMemberDialog, setOpenMemberDialog] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
@@ -35,9 +33,6 @@ function CardDialog({
   const [editTitle, setEditTitle] = useState(false)
   const [description, setDescription] = useState(card?.description)
   const [isEditting, setIsEditting] = useState(false)
-
-  const [isCommentLoading, setIsCommentLoading] = useState(false)
-  const [content, setContent] = useState('')
 
   const theme = useTheme()
   const iconColor = theme.palette.mode === 'dark' ? '#B6C2CF' : '#172b4d'
@@ -82,63 +77,6 @@ function CardDialog({
       setCardTitle(card?.title)
       setEditTitle(false)
     }
-  }
-
-  const handleCreateComment = async () => {
-    try {
-      setIsCommentLoading(true)
-      const formData = {
-        cardId: card._id,
-        columnId: card.columnId,
-        boardId: card.boardId,
-        content: content
-      }
-      const newComment = await createCommentAPI(formData)
-      const newCommentId = newComment._id
-      const newBoard = cloneDeep(board)
-      const column = newBoard.columns.find((col) => col._id === card.columnId)
-      const cardIndex = column.cards.findIndex((c) => c._id === card._id)
-      column.cards[cardIndex].commentIds.push(newCommentId)
-      setBoard(newBoard)
-      setContent('')
-      setComments([{ ...formData, _id: newCommentId, createdAt: new Date(), userInfo: user }, ...comments])
-    } catch (error) {
-      toast.error(error.response.data.message)
-    } finally {
-      setIsCommentLoading(false)
-    }
-  }
-
-  const checkTime = (time) => {
-    const currentTime = new Date().getTime()
-    const timeAgo = new Date(time).getTime()
-    const diffTime = (currentTime - timeAgo) / 1000
-    const diffMinutes = Math.floor(diffTime / 60)
-    const diffHours = Math.floor(diffTime / 3600)
-    const diffDays = Math.floor(diffTime / 86400)
-    const diffWeeks = Math.floor(diffTime / 604800)
-
-    if (diffMinutes == 0) {
-      return 'Vừa xong'
-    }
-
-    if (diffMinutes < 60) {
-      return `${diffMinutes}m trước`
-    }
-
-    if (diffHours < 24) {
-      return `${diffHours}h trước`
-    }
-
-    if (diffDays < 7) {
-      return `${diffDays}d trước`
-    }
-
-    if (diffWeeks < 4) {
-      return `${diffWeeks}w trước`
-    }
-
-    return `${Math.floor(diffTime / 2592000)} tháng trước`
   }
 
   return (
@@ -297,86 +235,7 @@ function CardDialog({
           {card?.files?.length > 0 && <CardAttachment card={card} fetchBoarData={fetchBoarData} />}
         </Box>
         {/**Comment */}
-        <Box sx={{ pt: 1, flexDirection: 'column', gap: 1.5, display: 'flex', width: '38%', pr: 2 }}>
-          <Box sx={{ display: 'flex' }}>
-            <AutoAwesomeMosaicIcon sx={{ color: textColor }} />
-            <Typography sx={{ pl: 1, color: textColor }}>Hoạt động</Typography>
-          </Box>
-          <TextField
-            fullWidth
-            placeholder="Viết bình luận..."
-            disabled={isCommentLoading || boardState !== 'OPEN'}
-            variant="outlined"
-            size="small"
-            value={content}
-            sx={{
-              pl: 4,
-              color: textColor,
-              '& .MuiInputBase-input': {
-                cursor: isCommentLoading || boardState !== 'OPEN' ? 'not-allowed' : 'text'
-              }
-            }}
-            onChange={(e) => setContent(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleCreateComment()
-              }
-            }}
-          />
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 1,
-              maxHeight: '320px',
-              pr: 1,
-              width: '100%',
-              height: '100%',
-              overflowY: 'auto'
-            }}
-          >
-            {comments?.map((comment) => (
-              <Box
-                key={comment._id}
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  pl: 2,
-                  alignItems: 'center',
-                  width: '100%'
-                }}
-              >
-                <Avatar
-                  alt={comment.userInfo?.userName}
-                  src={comment.userInfo?.avatar || ''}
-                  sx={{ width: 35, height: 35 }}
-                />
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    width: '100%',
-                    height: '100%',
-                    bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#E2E5E9'),
-                    p: 1,
-                    justifyContent: 'center',
-                    borderRadius: '12px'
-                  }}
-                >
-                  <div className="flex gap-1 items-center">
-                    <div style={{ color: textColor }} className="font-[500] text-[15px]">
-                      {comment.userInfo?.userName}
-                    </div>
-                    <div className={`text-[12px] color-${textColor}`}>{checkTime(comment.createdAt)}</div>
-                  </div>
-                  <div style={{ color: textColor }} className="text-[13px] whitespace-pre-line break-words break-all">
-                    {comment.content}
-                  </div>
-                </Box>
-              </Box>
-            ))}
-          </Box>
-        </Box>
+        <CardComments card={card} comments={comments} setComments={setComments} boardState={boardState} />
       </Box>
       <EditTimeCard
         board={board}

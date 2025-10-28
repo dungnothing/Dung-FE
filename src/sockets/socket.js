@@ -13,10 +13,8 @@ const socket = io(API_ROOT, {
 
 export const setupSocketListeners = () => {
   socket.auth.token = getCookie('accessToken')
-  socket.on('connect', () => {
-  })
-  socket.on('disconnect', () => {
-  })
+  socket.on('connect', () => {})
+  socket.on('disconnect', () => {})
 }
 
 export const sendMessage = (message) => {
