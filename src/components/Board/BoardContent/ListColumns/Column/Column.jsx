@@ -22,6 +22,7 @@ import { useConfirm } from 'material-ui-confirm'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import { Typography } from '@mui/material'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
+import { Plus } from 'lucide-react'
 
 function Column({
   column,
@@ -129,7 +130,7 @@ function Column({
           maxWidth: '270px',
           display: 'flex',
           flexDirection: 'column',
-          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#F1F2F4'),
+          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#f1f2f4'),
           ml: 2,
           borderRadius: '6px',
           height: 'fit-content',
@@ -239,12 +240,17 @@ function Column({
                 }}
               >
                 <Button
-                  variant="outlined"
-                  startIcon={<AddCardIcon />}
+                  startIcon={<Plus size={16} />}
                   onClick={toggleOpenNewCardForm}
-                  sx={{ color: textColor, borderColor: textColor }}
+                  sx={{
+                    color: textColor,
+                    borderColor: textColor,
+                    width: '100%',
+                    justifyContent: 'flex-start',
+                    '&:hover': { backgroundColor: (theme) => theme.palette.action.hover }
+                  }}
                 >
-                  Thêm thẻ mới
+                  Thêm mới
                 </Button>
                 <Box {...attributes} {...listeners}>
                   <DragIndicatorIcon sx={{ cursor: 'grab', color: textColor }} />

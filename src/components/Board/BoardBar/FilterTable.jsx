@@ -40,12 +40,6 @@ function FilterTable({ anchorFilter, setAnchorFilter, setFilters, filters, filte
             disableRipple
             onClick={() => {
               setAnchorFilter(null)
-              setFilters({
-                term: '',
-                overdue: '',
-                dueTomorrow: '',
-                noDue: ''
-              })
             }}
             sx={{
               position: 'absolute',
@@ -63,6 +57,7 @@ function FilterTable({ anchorFilter, setAnchorFilter, setFilters, filters, filte
             fullWidth
             size="small"
             placeholder="Nhập từ khóa..."
+            value={filters?.term || ''}
             onChange={(e) => setFilters({ ...filters, term: e.target.value })}
           />
         </Box>

@@ -25,6 +25,7 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
   const [isExpired, setIsExpired] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
   const [comments, setComments] = useState([])
+  const [commentCount, setCommentCount] = useState(card?.commentIds?.length || 0)
 
   useEffect(() => {
     setIsDone(card?.isDone)
@@ -55,7 +56,7 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
   }
 
   const shouldShowCardActions = () => {
-    return !!card?.memberIds?.length || !!card?.commentIds?.length || !!card?.attachments?.length
+    return !!card?.memberIds?.length || !!commentCount || !!card?.attachments?.length
   }
 
   const handleOnChange = async () => {
@@ -89,8 +90,8 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
           boxShadow: '0 1px 1px  rgba(0, 0, 0, 0.2)',
           opacity: card.FE_PlaceholderCard ? '0' : '1',
           minWidth: card.FE_PlaceholderCard ? '242px' : 'unset',
-          minHeight: card.FE_PlaceholderCard ? '1px' : 'unset',
-          height: card.FE_PlaceholderCard ? '1px' : 'unset',
+          minHeight: card.FE_PlaceholderCard ? '0px' : 'unset',
+          height: card.FE_PlaceholderCard ? '0px' : 'unset',
           pointerEvents: card.FE_PlaceholderCard ? 'none' : 'auto',
           border: '#A9B5DF',
           '&:hover': { borderColor: (theme) => theme.palette.primary.main }
@@ -111,7 +112,7 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {(hover || isDone) && !ghostMode && !openDialog && (
+              {(hover || isDone) && !ghostMode && !openDialog && boardState === 'OPEN' && (
                 <Checkbox
                   checked={isDone}
                   onChange={handleOnChange}
@@ -151,9 +152,9 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
                 {card?.memberIds?.length}
               </Button>
             )}
-            {!!card?.commentIds?.length && (
+            {!!commentCount && (
               <Button size="small" startIcon={<CommentIcon />} sx={{ color: textColor }}>
-                {card?.commentIds?.length}
+                {commentCount}
               </Button>
             )}
             {!!card?.attachments?.length && (
@@ -177,6 +178,7 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
         comments={comments}
         setComments={setComments}
         boardState={boardState}
+        onCommentCountChange={setCommentCount}
       />
     </>
   )

@@ -81,7 +81,8 @@ function ListColumns({
         ))}
         {/* Add new column .... */}
         {!openNewColumnForm ? (
-          permissions?.CREATE_COLUMN && (
+          permissions?.CREATE_COLUMN &&
+          boardState === 'OPEN' && (
             <Box
               sx={{
                 minWidth: '250px',

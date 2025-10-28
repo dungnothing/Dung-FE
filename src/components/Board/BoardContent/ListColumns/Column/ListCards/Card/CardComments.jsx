@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 import { checkTime } from '~/utils/formatters'
 import socket from '~/sockets/socket'
 
-function CardComments({ card, boardState }) {
+function CardComments({ card, boardState, onCommentCountChange }) {
   const user = useSelector((state) => state.comon.user)
   const [isCommentLoading, setIsCommentLoading] = useState(false)
   const [content, setContent] = useState('')
@@ -42,6 +42,13 @@ function CardComments({ card, boardState }) {
 
     loadInitialComments()
   }, [card._id])
+
+  // Notify parent when comment count changes
+  useEffect(() => {
+    if (onCommentCountChange) {
+      onCommentCountChange(totalCount)
+    }
+  }, [totalCount, onCommentCountChange])
 
   // Socket listener cho comment realtime
   useEffect(() => {
@@ -209,7 +216,7 @@ function CardComments({ card, boardState }) {
                   </div>
                   <div className={`text-[12px] color-${textColor}`}>{checkTime(comment.createdAt)}</div>
                 </div>
-                {user?.userId === comment.userInfo?._id && (
+                {user?.userId === comment.userInfo?._id && boardState === 'OPEN' && (
                   <IconButton size="small" onClick={() => handleDeleteComment(comment._id)} sx={{ p: 0.5 }}>
                     <DeleteIcon sx={{ fontSize: 14, color: '#ff4444' }} />
                   </IconButton>

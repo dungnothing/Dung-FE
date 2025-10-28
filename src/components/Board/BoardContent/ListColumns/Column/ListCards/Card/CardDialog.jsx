@@ -3,7 +3,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { toast } from 'react-toastify'
 import { updateCardAPI, getMemberAPI } from '~/apis/cards'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import EditTimeCard from './CardTime'
 import { useTheme } from '@mui/material/styles'
 import { cloneDeep } from 'lodash'
@@ -23,7 +23,8 @@ function CardDialog({
   setBoard,
   comments,
   setComments,
-  boardState
+  boardState,
+  onCommentCountChange
 }) {
   const [openTimeDialog, setOpenTimeDialog] = useState(false)
   const [openMemberDialog, setOpenMemberDialog] = useState(false)
@@ -33,6 +34,14 @@ function CardDialog({
   const [editTitle, setEditTitle] = useState(false)
   const [description, setDescription] = useState(card?.description)
   const [isEditting, setIsEditting] = useState(false)
+  const [commentCount, setCommentCount] = useState(card?.commentIds?.length || 0)
+
+  // Forward comment count changes to parent Card component
+  useEffect(() => {
+    if (onCommentCountChange) {
+      onCommentCountChange(commentCount)
+    }
+  }, [commentCount, onCommentCountChange])
 
   const theme = useTheme()
   const iconColor = theme.palette.mode === 'dark' ? '#B6C2CF' : '#172b4d'
@@ -235,7 +244,13 @@ function CardDialog({
           {card?.files?.length > 0 && <CardAttachment card={card} fetchBoarData={fetchBoarData} />}
         </Box>
         {/**Comment */}
-        <CardComments card={card} comments={comments} setComments={setComments} boardState={boardState} />
+        <CardComments
+          card={card}
+          comments={comments}
+          setComments={setComments}
+          boardState={boardState}
+          onCommentCountChange={setCommentCount}
+        />
       </Box>
       <EditTimeCard
         board={board}
