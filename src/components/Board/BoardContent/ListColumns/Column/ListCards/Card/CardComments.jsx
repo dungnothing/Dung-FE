@@ -7,7 +7,7 @@ import { createCommentAPI, getCommentsAPI, deleteCommentAPI } from '~/apis/cards
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { checkTime } from '~/utils/formatters'
-import socket from '~/sockets/socket'
+import { useCommentSocketHandlers } from '~/sockets/comment'
 
 function CardComments({ card, boardState, onCommentCountChange }) {
   const user = useSelector((state) => state.comon.user)
@@ -50,32 +50,8 @@ function CardComments({ card, boardState, onCommentCountChange }) {
     }
   }, [totalCount, onCommentCountChange])
 
-  // Socket listener cho comment realtime
-  useEffect(() => {
-    const handleCommentCreated = (newComment) => {
-      // Chỉ update nếu comment thuộc về card hiện tại và không phải từ user hiện tại
-      if (newComment.cardId?.toString() === card._id?.toString() && newComment.userInfo?._id !== user?.userId) {
-        setComments((prevComments) => [newComment, ...prevComments])
-        setTotalCount((prev) => prev + 1)
-      }
-    }
-
-    const handleCommentDeleted = (deletedData) => {
-      // Chỉ update nếu comment thuộc về card hiện tại (event từ người khác)
-      if (deletedData.cardId?.toString() === card._id?.toString()) {
-        setComments((prevComments) => prevComments.filter((comment) => comment._id !== deletedData.commentId))
-        setTotalCount((prev) => prev - 1)
-      }
-    }
-
-    socket.on('comment:created', handleCommentCreated)
-    socket.on('comment:deleted', handleCommentDeleted)
-
-    return () => {
-      socket.off('comment:created', handleCommentCreated)
-      socket.off('comment:deleted', handleCommentDeleted)
-    }
-  }, [card._id])
+  // Socket events for realtime comments
+  useCommentSocketHandlers(card._id, setComments, setTotalCount)
 
   // Load more comments
   const handleLoadMore = async () => {
