@@ -2,8 +2,10 @@ import { Navigate, Outlet } from 'react-router-dom'
 import getCookie from '~/utils/getcookie'
 
 const useAuth = () => {
-  const token = getCookie('refreshToken')
-  return !!token
+  const accessToken = getCookie('accessToken')
+  const refreshToken = getCookie('refreshToken')
+  // Đảm bảo có cả 2 token để xác định user đã đăng nhập
+  return !!(accessToken && refreshToken)
 }
 
 export const PublicRoute = () => {

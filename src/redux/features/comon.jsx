@@ -28,13 +28,13 @@ const commonSlice = createSlice({
     setUserInfo: (state, action) => {
       const { userName, email, avatar, vip, userId, address, phone, isGoogleAccount, organization, createdAt } =
         action.payload
-      state.isAuthenticated = true
       state.user = { userName, email, avatar, vip, userId, address, phone, isGoogleAccount, organization, createdAt }
     },
     logout: (state) => {
-      state.isAuthenticated = false
       state.user = initialState.user
       state.notifications = []
+      state.starBoards = []
+      state.recentBoards = []
     },
     updateUserInfo: (state, action) => {
       state.user = { ...state.user, ...action.payload }

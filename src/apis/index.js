@@ -9,23 +9,26 @@ const axiosInstance = axios.create({
   baseURL: API_ROOT,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    Accept: 'application/json'
   }
 })
 
 // Thêm interceptor để tự động gửi token trong header
-axiosInstance.interceptors.request.use((config) => {
-  const accessToken = getCookie('accessToken')
-  if (accessToken) {
-    config.headers = {
-      ...config.headers,
-      'Authorization': `Bearer ${accessToken}`
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const accessToken = getCookie('accessToken')
+    if (accessToken) {
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${accessToken}`
+      }
     }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
   }
-  return config
-}, (error) => {
-  return Promise.reject(error)
-})
+)
 
 // Hàm refresh token
 const refreshAccessToken = async () => {
@@ -57,7 +60,7 @@ axiosInstance.interceptors.response.use(
       const newAccessToken = await refreshAccessToken()
       if (newAccessToken) {
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
-        return axiosInstance(originalRequest) // Gửi lại request với token mới
+        return axiosInstance(originalRequest)
       }
     }
     return Promise.reject(error)
