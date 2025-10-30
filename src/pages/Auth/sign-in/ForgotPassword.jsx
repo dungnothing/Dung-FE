@@ -7,15 +7,28 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import { forgotPasswordAPI } from '~/apis/auth'
 import { toast } from 'react-toastify'
-import { TextField } from '@mui/material'
-import { useState } from 'react'
+import { valibotResolver } from '@hookform/resolvers/valibot'
+import * as v from 'valibot'
+import RHFInputCustom from '~/helpers/hook-form/RHFInputCustom'
+import { useForm, FormProvider } from 'react-hook-form'
+
+const schema = v.object({
+  email: v.pipe(v.string('Email là bắt buộc'), v.nonEmpty('Email là bắt buộc'), v.email('Email không hợp lệ'))
+})
 
 function ForgotPassword({ open, handleClose }) {
-  const [email, setEmail] = useState('')
-  const handleSubmit = async (event) => {
-    event.preventDefault()
+  const form = useForm({
+    resolver: valibotResolver(schema),
+    mode: 'all',
+    defaultValues: {
+      email: ''
+    }
+  })
+  const { handleSubmit } = form
+
+  const onSubmit = async (data) => {
     try {
-      const response = await forgotPasswordAPI({ email })
+      const response = await forgotPasswordAPI({ email: data.email })
       if (response && response.status === 200) {
         toast.success('Check email của bạn để reset password nhé!')
         handleClose()
@@ -30,46 +43,37 @@ function ForgotPassword({ open, handleClose }) {
   }
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      PaperProps={{
-        component: 'form',
-        onSubmit: handleSubmit,
-        sx: { backgroundImage: 'none' }
-      }}
-    >
-      <DialogTitle>Quên mật khẩu </DialogTitle>
-      <DialogContent
-        sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}
-      >
-        <DialogContentText>
-          Điền vào email của bạn. Chúng tôi sẽ gửi mật khẩu mới tới email của bạn.
-        </DialogContentText>
-        <TextField
-          required
-          id="forgot email"
-          name="forgot email"
-          label="Email address"
-          type="email"
-          placeholder="Email address"
-          fullWidth
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-      </DialogContent>
-      <DialogActions sx={{ pb: 3, px: 3 }}>
-        <Button variant="contained" type="submit">
-          Gửi
-        </Button>
-        <Button
-          onClick={() => {
-            handleClose()
-            setEmail('')
-          }}>
-          Hủy
-        </Button>
-      </DialogActions>
+    <Dialog open={open} onClose={handleClose}>
+      <FormProvider {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DialogTitle>Quên mật khẩu </DialogTitle>
+          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
+            <DialogContentText>
+              Điền vào email của bạn. Chúng tôi sẽ gửi mật khẩu mới tới email của bạn.
+            </DialogContentText>
+            <RHFInputCustom name="email" label="Email" />
+          </DialogContent>
+          <DialogActions sx={{ pb: 3, px: 3 }}>
+            <Button
+              variant="contained"
+              type="button"
+              onClick={handleSubmit}
+              sx={{ bgcolor: '#6733F7' }}
+              disabled={!form.formState.isValid}
+            >
+              Gửi
+            </Button>
+            <Button
+              onClick={() => {
+                handleClose()
+                form.reset({ email: '' })
+              }}
+            >
+              Hủy
+            </Button>
+          </DialogActions>
+        </form>
+      </FormProvider>
     </Dialog>
   )
 }
@@ -80,5 +84,3 @@ ForgotPassword.propTypes = {
 }
 
 export default ForgotPassword
-
-

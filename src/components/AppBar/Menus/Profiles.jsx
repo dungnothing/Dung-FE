@@ -9,7 +9,6 @@ import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
 import Settings from '@mui/icons-material/Settings'
 import { Typography, ListItemText } from '@mui/material'
-import LaunchIcon from '@mui/icons-material/Launch'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -38,13 +37,6 @@ function Profiles() {
 
   const profile = () => {
     navigate('/user/info')
-  }
-
-  const changeAccount = () => {
-    dispatch(logout())
-    document.cookie = 'accessToken=; path=/; max-age=0'
-    document.cookie = 'refreshToken=; path=/; max-age=0'
-    navigate('/sign-in')
   }
 
   return (
@@ -92,12 +84,7 @@ function Profiles() {
               {user.userName}
             </ListItemText>
           </MenuItem>
-          <MenuItem onClick={changeAccount}>
-            <ListItemText sx={{ pl: '4px', '&:hover': { color: '#722323' } }}>Đổi tài khoản</ListItemText>
-            <ListItemIcon>
-              <LaunchIcon sx={{ width: 20, height: 20 }} />
-            </ListItemIcon>
-          </MenuItem>
+
           <MenuItem onClick={handleClose}>
             <ListItemText sx={{ pl: '4px', '&:hover': { color: '#3498db' } }}>Cài đặt</ListItemText>
             <ListItemIcon>
