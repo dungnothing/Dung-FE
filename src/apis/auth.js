@@ -25,11 +25,6 @@ export const getUserInfoAPI = async () => {
   return response.data
 }
 
-export const forgotPasswordAPI = async (email) => {
-  const response = await axiosInstance.post('/v1/users/forgotPassword', email)
-  return response.data
-}
-
 export const updateInfoAPI = async (updateData) => {
   const response = await axiosInstance.put('/v1/users/updateInfo', updateData)
   return response.data
@@ -56,5 +51,21 @@ export const updateAvatarAPI = async (updateData) => {
 
 export const deleteAccountAPI = async () => {
   const response = await axiosInstance.delete('/v1/users/deleteAccount')
+  return response.data
+}
+
+// PassWord
+export const forgotPasswordAPI = async (email) => {
+  const response = await axiosInstance.post('/v1/users/forgotPassword', email)
+  return response.data
+}
+
+export const verifyOtpAPI = async (data) => {
+  const response = await axiosInstance.post('/v1/users/verifyOtp', data)
+  return response.data
+}
+
+export const resetPasswordAPI = async (data) => {
+  const response = await axiosInstance.post('/v1/users/resetPassword', data)
   return response.data
 }
