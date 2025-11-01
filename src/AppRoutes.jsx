@@ -14,6 +14,7 @@ import PersonalPassword from './components/User/Account/Content/PersonalPassword
 import DeleteAccount from './pages/User/DeleteAccount'
 import SignUp from '~/pages/Auth/sign-up/SignUp'
 import SignIn from '~/pages/Auth/sign-in/SignIn'
+import ActivateAccount from './pages/Auth/sign-up/ActivateAccount'
 
 function AppRoutes() {
   useFetchUserInfo()
@@ -27,6 +28,7 @@ function AppRoutes() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/google-callback" element={<GoogleCallback />} />
+        <Route path="activate" element={<ActivateAccount />} />
       </Route>
 
       <Route element={<PrivateRoute />}>

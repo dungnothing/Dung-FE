@@ -41,7 +41,7 @@ function SignUp() {
       setIsLoading(true)
       await signUpAPI({ email: data.email, password: data.password, userName: data.name })
       navigate('/sign-in')
-      toast.success('Đăng ký thành công')
+      toast.success('Đã đăng ký thành công, vui lòng kiểm tra email để kích hoạt')
     } catch (error) {
       toast.error(error.response.data.message)
     } finally {

@@ -15,6 +15,11 @@ export const signUpAPI = async (signUpData) => {
   return response.data
 }
 
+export const activateAccountAPI = async (data) => {
+  const response = await axiosInstance.post('/v1/users/activateAccount', data)
+  return response.data
+}
+
 export const signInAPI = async (signInData) => {
   const response = await axiosInstance.post('/v1/users/login', signInData)
   return response.data
