@@ -17,8 +17,9 @@ const DeleteAccountSection = () => {
       dispatch(logout())
       document.cookie = 'accessToken=; path=/; max-age=0'
       document.cookie = 'refreshToken=; path=/; max-age=0'
-      toast.success('Xóa thành công')
-      setTimeout(() => navigate('/'), 2000)
+      toast.success('Xóa thành công', {
+        onClose: () => navigate('/')
+      })
     } catch {
       toast.error('Xóa thất bại')
     }
