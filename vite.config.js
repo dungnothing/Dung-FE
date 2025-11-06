@@ -31,7 +31,8 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false
+    sourcemap: false,
+    minify: 'esbuild'
   },
   optimizeDeps: {
     exclude: ['@mui/x-date-pickers/AdapterDateFns']
