@@ -1,63 +1,66 @@
-import {
-  Box,
-  TextField,
-  Button,
-  Typography
-} from '@mui/material'
+import { Box, TextField, Button, Typography } from '@mui/material'
 import { toast } from 'react-toastify'
-import { updateVipAPI } from '~/apis/auth'
-import { useState } from 'react'
 import validation from '~/utils/validation'
-import { useDispatch } from 'react-redux'
-import { updateUserInfo } from '~/redux/features/comon'
+import { createSubcriptionAPI } from '~/apis/subcription'
+import * as v from 'valibot'
+import { FormProvider, useForm } from 'react-hook-form'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 
-function CreditCardForm({ pkg }) {
-  const dispatch = useDispatch()
-  const [cardNumber, setCardNumber] = useState('')
-  const [cardExpiryDate, setCardExpiryDate] = useState('')
-  const [cardCvv, setCardCvv] = useState('')
-  const [cardName, setCardName] = useState('')
-  const [errors, setErrors] = useState({})
+const schema = v.object({
+  cardName: v.pipe(
+    v.string(),
+    v.nonEmpty('Tên là bắt buộc'),
+    v.custom((value) => {
+      // Kiểm tra có dấu không
+      const hasDiacritics = /[^\u0000-\u007E]/.test(value) // ký tự ngoài ASCII
+      if (hasDiacritics) return false
+      return true
+    }, 'Tên không được có dấu'),
+    v.transform((value) => value.toUpperCase())
+  ),
+  cardNumber: v.pipe(
+    v.string(),
+    v.nonEmpty('Số thẻ là bắt buộc'),
+    v.custom((value) => validation.isCardNumber(value), 'Số thẻ phải là 16 số')
+  ),
+  cardExpiryDate: v.pipe(
+    v.string(),
+    v.nonEmpty('Ngày hết hạn là bắt buộc'),
+    v.custom((value) => validation.isCardExpiryDate(value), 'Không đúng định dạng MM/YY')
+  ),
+  cardCvv: v.pipe(
+    v.string(),
+    v.nonEmpty('CVV là bắt buộc'),
+    v.custom((value) => validation.isCardCvv(value), 'CVV phải là 3 số')
+  )
+})
 
-  const validateForm = () => {
-    const newErrors = {}
+function CreditCardForm({ pkg, getUserSubsription, setSelectedPackage }) {
+  const form = useForm({
+    resolver: valibotResolver(schema),
+    defaultValues: {
+      cardName: '',
+      cardNumber: '',
+      cardExpiryDate: '',
+      cardCvv: ''
+    },
+    mode: 'all'
+  })
 
-    if (!validation.isCardName(cardName)) {
-      newErrors.cardName = 'Tên chủ thẻ không hợp lệ'
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = form
 
-    if (!validation.isCardNumber(cardNumber)) {
-      newErrors.cardNumber = 'Số thẻ không hợp lệ (16 chữ số)'
-    }
-
-    if (!validation.isCardExpiryDate(cardExpiryDate)) {
-      newErrors.cardExpiryDate = 'Ngày hết hạn không hợp lệ (MM/YY)'
-    } else {
-      // Additional expiry date validation
-      const [month, year] = cardExpiryDate.split('/')
-      const expiryDate = new Date(2000 + parseInt(year), parseInt(month) - 1)
-      const currentDate = new Date()
-      if (expiryDate < currentDate) {
-        newErrors.cardExpiryDate = 'Thẻ đã hết hạn'
-      }
-    }
-
-    if (!validation.isCardCvv(cardCvv)) {
-      newErrors.cardCvv = 'Mã bảo mật không hợp lệ (3 chữ số)'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmitPayment = async (e) => {
-    e?.preventDefault()
-    if (!validateForm()) {
-      return
-    }
+  const handleSubmitPayment = async () => {
     try {
-      await updateVipAPI({ vip: true })
-      dispatch(updateUserInfo({ vip: true }))
+      await createSubcriptionAPI({
+        plan: pkg?.name.toUpperCase(),
+        price: pkg?.priceNumber
+      })
+      getUserSubsription()
+      setSelectedPackage(null)
       toast.success('Thanh toán thành công')
     } catch (error) {
       toast.error(error.response?.data?.message || 'Thanh toán thất bại')
@@ -65,121 +68,109 @@ function CreditCardForm({ pkg }) {
   }
 
   return (
-    <Box component="form" onSubmit={handleSubmitPayment}>
-      <Box className="w-full max-w-sm px-6 py-8 rounded-xl border border-gray-700 flex flex-col gap-3">
-        {/* Header */}
-        <Box className="flex items-center">
-          <Typography variant="h6" className="flex-grow text-center -ml-6">
-            Credit Card Details
-          </Typography>
-        </Box>
-
-        {/* Payment Method (placeholder icons) */}
-        <Box className="border border-dashed border-gray-600 rounded-md p-3 flex items-center">
-          <Typography className="text-sm mb-2 max-w-[90px]">Phương thức thanh toán</Typography>
-          <Box className="flex space-x-2">
-            {/* Bạn có thể thay bằng icon thực tế hoặc hình ảnh */}
-            <Box className="w-10 h-6 bg-red-500 rounded" />
-            <Box className="w-10 h-6 bg-blue-500 rounded" />
-            <Box className="w-10 h-6 bg-cyan-500 rounded" />
+    <FormProvider {...form}>
+      <Box component="form" onSubmit={handleSubmit(handleSubmitPayment)}>
+        <Box className="w-full max-w-sm px-6 py-8 rounded-xl border border-gray-700 flex flex-col gap-3">
+          <Box className="flex items-center">
+            <Typography variant="h6" className="flex-grow text-center -ml-6">
+              Credit Card Details
+            </Typography>
           </Box>
-        </Box>
 
-        {/* Form Fields */}
-        <Box className="flex flex-col gap-2">
-          <Typography className="text-sm mb-2 max-w-[90px]">Tên trên thẻ</Typography>
-          <TextField
-            variant="outlined"
+          <Box className="border border-dashed border-gray-600 rounded-md p-3 flex items-center">
+            <Typography className="text-sm mb-2 max-w-[90px]">Phương thức thanh toán</Typography>
+            <Box className="flex space-x-2">
+              <Box className="w-10 h-6 bg-red-500 rounded" />
+              <Box className="w-10 h-6 bg-blue-500 rounded" />
+              <Box className="w-10 h-6 bg-cyan-500 rounded" />
+            </Box>
+          </Box>
+
+          {/* Card Name */}
+          <Box className="flex flex-col gap-2">
+            <Typography className="text-sm mb-2 max-w-[90px]">Tên trên thẻ</Typography>
+            <TextField
+              variant="outlined"
+              fullWidth
+              size="small"
+              {...register('cardName')}
+              error={!!errors.cardName}
+              helperText={errors.cardName?.message}
+            />
+          </Box>
+
+          {/* Card Number */}
+          <Box className="flex flex-col gap-2">
+            <Typography className="text-sm mb-2 max-w-[90px]">Số thẻ</Typography>
+            <TextField
+              variant="outlined"
+              fullWidth
+              size="small"
+              placeholder="0000 0000 0000 0000"
+              {...register('cardNumber')}
+              error={!!errors.cardNumber}
+              helperText={errors.cardNumber?.message}
+            />
+          </Box>
+
+          {/* Expiration */}
+          <Box className="flex flex-col gap-2">
+            <Typography className="text-sm mb-2 max-w-[90px]">Hạn sử dụng</Typography>
+            <TextField
+              variant="outlined"
+              fullWidth
+              size="small"
+              placeholder="MM/YY"
+              {...register('cardExpiryDate')}
+              error={!!errors.cardExpiryDate}
+              helperText={errors.cardExpiryDate?.message}
+            />
+          </Box>
+
+          {/* CVV */}
+          <Box className="flex flex-col gap-2">
+            <Typography className="text-sm mb-2 max-w-[90px]">Mã bảo mật</Typography>
+            <TextField
+              variant="outlined"
+              fullWidth
+              size="small"
+              placeholder="Code"
+              {...register('cardCvv')}
+              error={!!errors.cardCvv}
+              helperText={errors.cardCvv?.message}
+            />
+          </Box>
+
+          {/* Package */}
+          <Box className="flex flex-col gap-2">
+            <Typography className="text-sm mb-2 max-w-[90px]">Gói VIP</Typography>
+            <TextField
+              variant="outlined"
+              fullWidth
+              size="small"
+              disabled
+              value={pkg?.name}
+              sx={{
+                '& .MuiInputBase-root': {
+                  bgcolor: '#F7F7F7',
+                  borderColor: '#DCDCDC',
+                  cursor: 'not-allowed'
+                }
+              }}
+            />
+          </Box>
+
+          <Button
             fullWidth
-            size="small"
-            InputLabelProps={{ style: { color: '#aaa' } }}
-            value={cardName}
-            onChange={(e) => setCardName(e.target.value)}
-            error={!!errors.cardName}
-            helperText={errors.cardName}
-          />
+            variant="contained"
+            className="bg-white text-black hover:bg-gray-200 rounded-md py-2"
+            type="submit"
+          >
+            Continue
+          </Button>
         </Box>
-        <Box className="flex flex-col gap-2">
-          <Typography className="text-sm mb-2 max-w-[90px]">Số thẻ</Typography>
-          <TextField
-            variant="outlined"
-            fullWidth
-            size="small"
-            placeholder="0000 0000 0000 0000"
-            InputLabelProps={{ style: { color: '#aaa' } }}
-            error={!!errors.cardNumber}
-            helperText={errors.cardNumber}
-            value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 16))}
-          />
-        </Box>
-
-        {/* Expiration */}
-        <Typography className="text-sm mb-2 max-w-[90px]">Hạn sử dụng</Typography>
-        <TextField
-          variant="outlined"
-          fullWidth
-          size="small"
-          placeholder="MM/YY"
-          value={cardExpiryDate}
-          onChange={(e) => {
-            let value = e.target.value.replace(/[^\d]/g, '')
-            if (value.length > 2) {
-              value = value.slice(0, 2) + '/' + value.slice(2, 4)
-            } else if (value.length === 2) {
-              value = value + '/'
-            }
-            setCardExpiryDate(value)
-          }}
-          error={!!errors.cardExpiryDate}
-          helperText={errors.cardExpiryDate}
-          InputLabelProps={{ style: { color: '#aaa' } }}
-        />
-
-        <Box className="flex flex-col gap-2">
-          <Typography className="text-sm mb-2 max-w-[90px]">Mã bảo mật</Typography>
-          <TextField
-            variant="outlined"
-            fullWidth
-            size="small"
-            placeholder="Code"
-            InputLabelProps={{ style: { color: '#aaa' } }}
-            value={cardCvv}
-            onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
-            error={!!errors.cardCvv}
-            helperText={errors.cardCvv}
-          />
-        </Box>
-
-        <Box className="flex flex-col gap-2">
-          <Typography className="text-sm mb-2 max-w-[90px]">Gói VIP</Typography>
-          <TextField
-            variant="outlined"
-            fullWidth
-            size="small"
-            disabled
-            value={pkg.name}
-            sx={{
-              '& .MuiInputBase-root': {
-                bgcolor: '#F7F7F7',
-                borderColor: '#DCDCDC',
-                cursor: 'not-allowed'
-              }
-            }}
-          />
-        </Box>
-
-        {/* Submit Button */}
-        <Button
-          fullWidth
-          type="submit"
-          variant="contained"
-          className="bg-white text-black hover:bg-gray-200 rounded-md py-2"
-        >
-          Continue
-        </Button>
       </Box>
-    </Box>
+    </FormProvider>
   )
 }
 
