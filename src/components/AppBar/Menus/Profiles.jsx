@@ -68,21 +68,16 @@ function Profiles() {
           horizontal: 'left'
         }}
       >
-        <Box sx={{ width: '250px', py: 1 }}>
+        <Box sx={{ width: '250px', py: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           <Typography sx={{ fontWeight: 'bold', pl: '20px' }}>TÀI KHOẢN</Typography>
           <MenuItem onClick={profile} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <ListItemIcon>
-              <Avatar src={user.avatar} sx={{ width: 40, height: 40 }} />
+              <Avatar src={user.avatar} sx={{ width: 36, height: 36 }} />
             </ListItemIcon>
-            <ListItemText
-              sx={{
-                '&:hover': {
-                  color: '#07bc0c'
-                }
-              }}
-            >
-              {user.userName}
-            </ListItemText>
+            <div className="flex flex-col ">
+              <p className="text-lg font-medium">{user?.userName}</p>
+              <p className="text-sm font-light">{user?.email}</p>
+            </div>
           </MenuItem>
 
           <MenuItem onClick={handleClose}>

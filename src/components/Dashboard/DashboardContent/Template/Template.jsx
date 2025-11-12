@@ -57,18 +57,18 @@ function BoardTemplateCreator() {
       <Typography variant="h4" sx={{ color: textColor }}>
         Chọn mẫu bảng
       </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+      <Box className="grid grid-cols-3 gap-4 mt-4 w-full">
         {templateData.map((template, index) => (
           <Card
             key={index}
             sx={{
-              maxWidth: 320,
-              maxHeight: 330,
               cursor: 'pointer',
               '&:hover': {
                 transform: 'translateY(-4px)',
-                boxShadow: 3
-              }
+                boxShadow: 4
+              },
+              width: '100%',
+              boxShadow: 2
             }}
             onClick={() => {
               setTemplateId(template._id)

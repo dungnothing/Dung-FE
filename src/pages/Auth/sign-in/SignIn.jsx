@@ -12,6 +12,8 @@ import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
 import RHFInput from '~/helpers/hook-form/RHFInput'
 import { FormProvider } from 'react-hook-form'
+import Cookies from 'js-cookie'
+import { useFetchUserInfo } from '~/helpers/hooks/useFetchUserInfo'
 
 const loginSchema = v.object({
   email: v.pipe(v.string('Email là bắt buộc'), v.nonEmpty('Email là bắt buộc'), v.email('Email không hợp lệ')),
@@ -22,6 +24,8 @@ function SignIn() {
   const [isLoading, setIsLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
+
+  const { fetchUserInfo } = useFetchUserInfo()
 
   const form = useForm({
     resolver: valibotResolver(loginSchema),
@@ -36,10 +40,9 @@ function SignIn() {
     try {
       setIsLoading(true)
       const response = await signInAPI({ email: data.email, password: data.password })
-
-      document.cookie = `accessToken=${response.accessToken}; path=/; max-age=${60 * 60}`
-      document.cookie = `refreshToken=${response.refreshToken}; path=/; max-age=${7 * 24 * 60 * 60}`
-
+      Cookies.set('accessToken', response.accessToken, { expires: 1, secure: true, sameSite: 'strict' })
+      Cookies.set('refreshToken', response.refreshToken, { expires: 7, secure: true, sameSite: 'strict' })
+      await fetchUserInfo()
       navigate('/dashboard')
     } catch (error) {
       if (error?.response?.data?.message) {

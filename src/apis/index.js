@@ -2,9 +2,10 @@ import axios from 'axios'
 import { API_ROOT } from '~/utils/constants'
 import store from '~/redux/store'
 import { logout } from '~/redux/features/comon'
-import getCookie from '~/utils/getcookie'
+import Cookie from 'js-cookie'
 
-// Tạo instance axios với config mặc định
+const getCookie = (name) => Cookie.get(name)
+
 const axiosInstance = axios.create({
   baseURL: API_ROOT,
   headers: {
@@ -13,7 +14,9 @@ const axiosInstance = axios.create({
   }
 })
 
-// Thêm interceptor để tự động gửi token trong header
+let isRefreshing = false
+let refreshTokenPromise = null
+
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = getCookie('accessToken')
@@ -25,19 +28,16 @@ axiosInstance.interceptors.request.use(
     }
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
-// Hàm refresh token
 const refreshAccessToken = async () => {
   try {
     const refreshToken = getCookie('refreshToken')
     if (!refreshToken) {
       throw new Error('No refresh token available')
     }
-    const response = await axios.post(`${API_ROOT}/v1/users/refreshToken`, { refreshToken: refreshToken })
+    const response = await axios.post(`${API_ROOT}/v1/users/refreshToken`, { refreshToken })
     if (response.status === 200) {
       const newAccessToken = response.data.accessToken
       document.cookie = `accessToken=${newAccessToken}; path=/; max-age=${60 * 60}`
@@ -49,7 +49,6 @@ const refreshAccessToken = async () => {
   }
 }
 
-// Interceptor để refresh token nếu token hết hạn
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -57,10 +56,31 @@ axiosInstance.interceptors.response.use(
 
     if (error?.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-      const newAccessToken = await refreshAccessToken()
-      if (newAccessToken) {
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
-        return axiosInstance(originalRequest)
+
+      if (!isRefreshing) {
+        isRefreshing = true
+        refreshTokenPromise = refreshAccessToken()
+          .then((newAccessToken) => {
+            isRefreshing = false
+            refreshTokenPromise = null
+            return newAccessToken
+          })
+          .catch((err) => {
+            isRefreshing = false
+            refreshTokenPromise = null
+            throw err
+          })
+      }
+
+      try {
+        const newAccessToken = await refreshTokenPromise
+        if (newAccessToken) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+          return axiosInstance(originalRequest)
+        }
+        return Promise.reject(error)
+      } catch (err) {
+        return Promise.reject(error)
       }
     }
     return Promise.reject(error)

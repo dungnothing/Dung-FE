@@ -13,31 +13,13 @@ import AddCircleIcon from '@mui/icons-material/AddCircle'
 import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
-import { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
-import { getRecentBoardsAPI } from '~/apis/boards'
-import { toast } from 'react-toastify'
 import { textColor } from '~/utils/constants'
-import { setRecentBoards } from '~/redux/features/comon'
 import CreateBoard from '~/helpers/components/CreateBoard'
 import Notification from './Menus/Notification'
 import { Trello } from 'lucide-react'
 
 function AppBar({ searchValue, setSearchValue, showSearch }) {
   const [open, setOpen] = useState(false)
-  const dispatch = useDispatch()
-
-  useEffect(() => {
-    const loadRecentBoards = async () => {
-      try {
-        const recentBoardsData = await getRecentBoardsAPI()
-        dispatch(setRecentBoards(recentBoardsData))
-      } catch (error) {
-        toast.error('Có lỗi xảy ra khi tải bảng')
-      }
-    }
-    loadRecentBoards()
-  }, [dispatch])
 
   return (
     <Box

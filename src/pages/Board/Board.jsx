@@ -83,6 +83,7 @@ function Board() {
     } catch (error) {
       if (error.status === 404 || error.status === 403) {
         navigate('/dashboard')
+        toast.error(error.response.data.message)
         return
       }
       toast.error('Lỗi khi lấy dữ liệu bảng')

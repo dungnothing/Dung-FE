@@ -29,6 +29,7 @@ const BasicInput = forwardRef(({ value, onChange, placeholder, title, eyeIcon = 
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        autoComplete="all"
         className={cn(
           'w-full px-6 rounded-full bg-[#fdfcf7] shadow-sm focus:outline-none focus:ring-0',
           error && 'border border-red-300',
