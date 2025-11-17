@@ -35,7 +35,7 @@ const schema = v.object({
   )
 })
 
-function CreditCardForm({ pkg, getUserSubsription, setSelectedPackage }) {
+function PaymentForm({ pkg, getUserSubsription, setSelectedPackage }) {
   const form = useForm({
     resolver: valibotResolver(schema),
     defaultValues: {
@@ -174,4 +174,4 @@ function CreditCardForm({ pkg, getUserSubsription, setSelectedPackage }) {
   )
 }
 
-export default CreditCardForm
+export default PaymentForm
