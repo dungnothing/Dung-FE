@@ -1,7 +1,7 @@
 import { Box, TextField, Button, Typography } from '@mui/material'
 import { toast } from 'react-toastify'
 import validation from '~/utils/validation'
-import { createSubcriptionAPI } from '~/apis/subcription'
+import { createSubcriptionAPI } from '~/apis/v2/subcription'
 import * as v from 'valibot'
 import { FormProvider, useForm } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'

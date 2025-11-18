@@ -4,7 +4,7 @@ import DoneIcon from '@mui/icons-material/Done'
 import CloseIcon from '@mui/icons-material/Close'
 import PaymentForm from '../../components/Dashboard/DashboardContent/Payment/PaymentForm'
 import { textColor } from '~/utils/constants'
-import { getSubcriptionAPI } from '~/apis/subcription'
+import { getSubcriptionAPI } from '~/apis/v2/subcription'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
 
@@ -15,23 +15,23 @@ const PaymentComponent = () => {
   const packages = [
     {
       id: 1,
-      name: 'Basic',
-      price: '29.99$',
+      name: 'Pro',
+      price: '6.99$',
       limitedBoard: false,
       limitedMember: false,
       support: false,
       bdcolor: '#FF9D00',
-      priceNumber: 30
+      priceNumber: 7
     },
     {
       id: 2,
-      name: 'Pro',
-      price: '49.99$',
+      name: 'Premium',
+      price: '11.99$',
       limitedBoard: false,
       limitedMember: false,
       support: true,
       bdcolor: '#3A6F43',
-      priceNumber: 50
+      priceNumber: 12
     }
   ]
 
@@ -112,7 +112,7 @@ const PaymentComponent = () => {
                     <Typography variant="h4" sx={{ fontWeight: 700 }}>
                       {pkg?.price}
                     </Typography>
-                    <Typography sx={{ pb: '4px', color: 'text.secondary' }}>/năm</Typography>
+                    <Typography sx={{ pb: '4px', color: 'text.secondary' }}>/tháng</Typography>
                   </Box>
 
                   {/* Tính năng */}
