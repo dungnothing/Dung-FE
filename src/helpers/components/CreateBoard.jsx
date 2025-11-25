@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form'
 function CreateBoard({ open, onClose }) {
   const navigate = useNavigate()
   const [listBackground, setListBackground] = useState([])
+  const [loading, setLoading] = useState(false)
 
   const defaultValues = {
     title: '',
@@ -43,12 +44,15 @@ function CreateBoard({ open, onClose }) {
 
   const handleCreateNewBoard = async (data) => {
     try {
+      setLoading(true)
       const newBoard = await createNewBoardAPI(data)
       await addRecentBoardAPI(newBoard._id)
       navigate(`/boards/${newBoard._id}`)
       toast.success('Tạo bảng mới thành công!')
     } catch (error) {
       toast.error(error.response.data.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -134,7 +138,7 @@ function CreateBoard({ open, onClose }) {
           <Button
             variant="outlined"
             type="submit"
-            disabled={form.watch('title').length < 3}
+            disabled={form.watch('title').length < 3 || loading}
             sx={{
               color: textColor,
               borderColor: textColor,
