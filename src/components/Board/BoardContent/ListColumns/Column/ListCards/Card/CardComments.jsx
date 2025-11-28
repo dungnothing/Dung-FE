@@ -75,8 +75,6 @@ function CardComments({ card, boardState, onCommentCountChange }) {
       setIsCommentLoading(true)
       const formData = {
         cardId: card._id,
-        columnId: card.columnId,
-        boardId: card.boardId,
         content: content
       }
 

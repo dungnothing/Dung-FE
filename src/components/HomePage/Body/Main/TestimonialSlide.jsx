@@ -31,7 +31,7 @@ function TestimonialSlide({ quote, author, title, stat, source }) {
         sx={{
           width: { xs: '100%', lg: '34%' },
           p: 4,
-          bgcolor: '#0049B7',
+          bgcolor: '#91BAFE',
           color: 'white',
           display: 'flex',
           flexDirection: 'column',

@@ -17,7 +17,6 @@ function ListColumns({
   createNewCard,
   deleteColumnDetails,
   boardState,
-  filters,
   fetchBoarData,
   permissions,
   setBoard
@@ -73,7 +72,6 @@ function ListColumns({
             createNewCard={createNewCard}
             deleteColumnDetails={deleteColumnDetails}
             boardState={boardState}
-            filters={filters}
             fetchBoarData={fetchBoarData}
             permissions={permissions}
             setBoard={setBoard}

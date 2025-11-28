@@ -14,7 +14,8 @@ function EditTimeCard({ openTimeDialog, handleCloseTimeDialog, card, board, setB
 
   const setNewTime = (time) => {
     const newBoard = cloneDeep(board)
-    const column = newBoard.columns.find((col) => col._id === card.columnId)
+    const column = newBoard.columns.find((col) => col.cardOrderIds?.includes(card._id))
+    if (!column) return
     const cardIndex = column.cards.findIndex((c) => c._id === card._id)
     column.cards[cardIndex].endTime = time?.toISOString()
     setTime(time)

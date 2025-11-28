@@ -48,7 +48,8 @@ function CardDialog({
 
   const setNewData = (type, data) => {
     const newBoard = cloneDeep(board)
-    const column = newBoard.columns.find((col) => col._id === card.columnId)
+    const column = newBoard.columns.find((col) => col.cardOrderIds?.includes(card._id))
+    if (!column) return
     const cardIndex = column.cards.findIndex((c) => c._id === card._id)
     column.cards[cardIndex][type] = data
     setBoard(newBoard)

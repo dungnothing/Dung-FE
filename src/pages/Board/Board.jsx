@@ -26,6 +26,7 @@ import { useNavigate } from 'react-router-dom'
 function Board() {
   const { boardId } = useParams()
   const [board, setBoard] = useState(null)
+  // console.log('board', board)
   const navigate = useNavigate()
   const [permissions, setPermissions] = useState(null)
   const [allUserInBoard, setAllUserInBoard] = useState({ admin: {}, members: [] })
@@ -94,7 +95,7 @@ function Board() {
   }
 
   useEffect(() => {
-    fetchBoardData(true) // load lần đầu
+    fetchBoardData(true)
   }, [boardId])
 
   useEffect(() => {
@@ -167,7 +168,7 @@ function Board() {
       })
       setBoard((prev) => {
         const newBoard = { ...prev }
-        const col = newBoard.columns.find((col) => col._id === newCard.columnId)
+        const col = newBoard.columns.find((col) => col._id === newCardData.columnId)
         if (col) {
           if (col.cards.some((card) => card.FE_PlaceholderCard)) {
             col.cards = [newCard]
@@ -247,14 +248,15 @@ function Board() {
       // Xu li van de khi keo Card cuoi cung ra khoi Column, column rong se co placehorlder-card, can xoa di truoc khi gui du lieu cho BE
       if (prevCardOrderIds[0].includes('placehorlder-card')) prevCardOrderIds = []
 
-      await moveCardToDifferentColumnAPI({
+      const data = {
         currentCardId,
         prevColumnId,
         prevCardOrderIds,
         nextColumnId,
-        nextCardOrderIds: dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds,
-        boardId: boardId
-      })
+        nextCardOrderIds: dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds
+      }
+
+      await moveCardToDifferentColumnAPI(data)
     } catch (error) {
       toast.error('Lỗi khi di chuyển card')
       setBoard(rollBackData)
@@ -262,19 +264,21 @@ function Board() {
   }
 
   const deleteColumnDetails = async (columnId) => {
-    if (!permissions.DELETE_COLUMN) {
-      toast.error('Bạn không có quyền')
-      return
-    }
-    // Update cho chuan du lieu state Board
-    const newBoard = { ...board }
-    newBoard.columns = newBoard.columns.filter((c) => c._id !== columnId)
-    newBoard.columnOrderIds = newBoard.columnOrderIds.filter((_id) => _id !== columnId)
-    setBoard(newBoard)
+    try {
+      if (!permissions.DELETE_COLUMN) {
+        toast.error('Bạn không có quyền')
+        return
+      }
+      const newBoard = { ...board }
+      newBoard.columns = newBoard.columns.filter((c) => c._id !== columnId)
+      newBoard.columnOrderIds = newBoard.columnOrderIds.filter((_id) => _id !== columnId)
+      setBoard(newBoard)
 
-    // Goi API xu li
-    await deleteColumnDetailsAPI(columnId)
-    toast.success('Xóa cột thành công')
+      await deleteColumnDetailsAPI(columnId, boardId)
+      toast.success('Xóa cột thành công')
+    } catch (error) {
+      toast.error('Lỗi khi xóa cột')
+    }
   }
 
   if (!board || isLoading)

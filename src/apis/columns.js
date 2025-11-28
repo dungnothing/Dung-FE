@@ -10,8 +10,9 @@ export const updateColumnDetailsAPI = async (columnId, updateData) => {
   return response.data
 }
 
-export const deleteColumnDetailsAPI = async (columnId) => {
-  const response = await axiosInstance.delete(`/v1/columns/${columnId}`)
+export const deleteColumnDetailsAPI = async (columnId, boardId) => {
+  const response = await axiosInstance.delete(`/v1/columns/${columnId}`, {
+    data: { boardId }
+  })
   return response.data
 }
-

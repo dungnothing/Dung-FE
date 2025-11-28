@@ -24,17 +24,7 @@ import { Typography } from '@mui/material'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { Plus } from 'lucide-react'
 
-function Column({
-  column,
-  createNewCard,
-  deleteColumnDetails,
-  boardState,
-  filters,
-  fetchBoarData,
-  isOverlay,
-  setBoard,
-  board
-}) {
+function Column({ column, createNewCard, deleteColumnDetails, boardState, fetchBoarData, isOverlay, setBoard, board }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
     data: { ...column }
@@ -59,7 +49,7 @@ function Column({
   const handleClick = (event) => setAnchorEl(event.currentTarget)
   const handleClose = () => setAnchorEl(null)
 
-  const orderedCards = column.cards
+  const orderedCards = column?.cards || []
   const [openNewCardForm, setOpenNewCardForm] = useState(false)
   const [newCardTitle, setNewCardTitle] = useState('')
   const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm)
@@ -104,7 +94,6 @@ function Column({
           <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>{column?.title}</span> chứ?
         </span>
       ),
-      // content: 'Xóa không anh ơi',
       confirmationText: 'Xóa',
       cancellationText: 'Hủy'
 
@@ -116,7 +105,6 @@ function Column({
       // Con nhieu tinh nang muon thi tu tim hieu
     })
       .then(() => {
-        // Goi len props function deleteColumnDetails nam o component cha cao nhat (boards/_id.jsx)
         deleteColumnDetails(column._id)
       })
       .catch(() => {})
@@ -141,7 +129,6 @@ function Column({
         {/* Box Column Header */}
         <Box
           sx={{
-            // height: theme.trello.columnHeaderHeight,
             p: 2,
             alignItems: 'center',
             display: 'flex',
@@ -217,7 +204,6 @@ function Column({
           board={board}
           cards={orderedCards}
           boardState={boardState}
-          filters={filters}
           fetchBoarData={fetchBoarData}
           setBoard={setBoard}
         />

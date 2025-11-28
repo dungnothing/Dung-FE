@@ -15,7 +15,6 @@ function CreateBoard({ open, onClose }) {
   const defaultValues = {
     title: '',
     visibility: 'PRIVATE',
-    description: 'de do chua biet lam gi',
     boardBackground: ''
   }
 
