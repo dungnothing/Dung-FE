@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { Card as MuiCard } from '@mui/material'
@@ -12,20 +12,29 @@ import AttachmentIcon from '@mui/icons-material/Attachment'
 import Checkbox from '@mui/material/Checkbox'
 import Box from '@mui/material/Box'
 import { updateCardAPI } from '~/apis/cards'
-import { useEffect } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { toast } from 'react-toastify'
 import { textColor } from '~/utils/constants'
 import CardDialog from './CardDialog'
+import { useSearchParams } from 'react-router-dom'
 
 function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, board }) {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [hover, setHover] = useState(false)
   const [isDone, setIsDone] = useState(card?.isDone)
   const [isExpired, setIsExpired] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
   const [comments, setComments] = useState([])
   const [commentCount, setCommentCount] = useState(card?.commentIds?.length || 0)
+
+  // Tự động mở dialog nếu URL có ?card=cardId
+  useEffect(() => {
+    const cardIdFromUrl = searchParams.get('card')
+    if (cardIdFromUrl === card._id) {
+      setOpenDialog(true)
+    }
+  }, [searchParams, card._id])
 
   useEffect(() => {
     setIsDone(card?.isDone)
@@ -98,7 +107,10 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
         }}
         onMouseEnter={() => !isDragging && setHover(true)}
         onMouseLeave={() => !isDragging && setHover(false)}
-        onClick={() => setOpenDialog(true)}
+        onClick={() => {
+          setOpenDialog(true)
+          setSearchParams({ card: card._id })
+        }}
       >
         {card?.background && <CardMedia sx={{ height: '140px' }} image={card?.background} />}
         <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
@@ -170,7 +182,11 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
         board={board}
         card={card}
         openDialog={openDialog}
-        setOpenDialog={() => setOpenDialog(false)}
+        setOpenDialog={() => {
+          setOpenDialog(false)
+          searchParams.delete('card')
+          setSearchParams(searchParams)
+        }}
         time={card?.endTime}
         fetchBoarData={fetchBoarData}
         isExpired={isExpired}

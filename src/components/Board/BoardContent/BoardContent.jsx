@@ -34,7 +34,8 @@ function BoardContent({
   deleteColumnDetails,
   fetchBoarData,
   permissions,
-  setBoard
+  setBoard,
+  isFiltering
 }) {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: { distance: 10 }
@@ -173,6 +174,11 @@ function BoardContent({
     if (activeDragType === ACTIVE_DRAG_ITEM_TYPE.CARD) {
       if (!permissions.MOVING_CARD) {
         toast.error('Bạn không có quyền')
+        return
+      }
+
+      if (isFiltering) {
+        toast.error('Không thể thực hiện khi đang lọc')
         return
       }
 

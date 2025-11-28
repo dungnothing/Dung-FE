@@ -40,6 +40,8 @@ function Board() {
   })
   const debouncedFilters = useDebounce(filters, 500)
   const firstFilterRun = useRef(true)
+  const isFiltering =
+    !!debouncedFilters.term || !!debouncedFilters.overdue || !!debouncedFilters.dueTomorrow || !!debouncedFilters.noDue
 
   const fetchBoardData = async (firstLoad = false) => {
     try {
@@ -106,8 +108,6 @@ function Board() {
     fetchBoardData(false)
   }, [debouncedFilters])
 
-  // console.log('board', board)
-
   // Socket
   useEffect(() => {
     if (!boardId) return
@@ -157,6 +157,10 @@ function Board() {
   }
 
   const createNewCard = async (newCardData) => {
+    if (isFiltering) {
+      toast.error('Không thể thực hiện khi đang lọc')
+      return
+    }
     try {
       if (!permissions.CREATE_CARD) {
         toast.error('Bạn không có quyền')
@@ -205,6 +209,10 @@ function Board() {
   }
 
   const moverCardInTheSameColumn = async (dndOrderedCards, dndOrderedCardIds, columnId) => {
+    if (isFiltering) {
+      toast.error('Không thể thực hiện khi đang lọc')
+      return
+    }
     if (!permissions.MOVING_CARD) {
       toast.error('Bạn không có quyền')
       return
@@ -213,6 +221,10 @@ function Board() {
 
     try {
       // Update cho chuan du lieu
+      if (isFiltering) {
+        toast.error('Không thể thực hiện khi đang lọc')
+        return
+      }
       const newBoard = { ...board }
       const columnToUpdate = newBoard.columns.find((column) => column._id === columnId)
       if (columnToUpdate) {
@@ -221,8 +233,9 @@ function Board() {
         newBoard.cards = dndOrderedCards
       }
       setBoard(newBoard)
+
       // Goi API update Column
-      await updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds })
+      await updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds, boardId: board._id })
     } catch (error) {
       toast.error('Lỗi khi di chuyển card')
       setBoard(rollBackData)
@@ -236,6 +249,10 @@ function Board() {
     }
     const rollBackData = { ...board }
     try {
+      if (isFiltering) {
+        toast.error('Không thể thực hiện khi đang lọc')
+        return
+      }
       // Update cho chuan du lieu state Board
       const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
       const newBoard = { ...board }
@@ -253,7 +270,8 @@ function Board() {
         prevColumnId,
         prevCardOrderIds,
         nextColumnId,
-        nextCardOrderIds: dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds
+        nextCardOrderIds: dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds,
+        boardId: board._id
       }
 
       await moveCardToDifferentColumnAPI(data)
@@ -312,6 +330,7 @@ function Board() {
         deleteColumnDetails={deleteColumnDetails}
         fetchBoarData={fetchBoardData}
         permissions={permissions}
+        isFiltering={isFiltering}
       />
     </Container>
   )
