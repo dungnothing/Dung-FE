@@ -8,11 +8,13 @@ import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { checkTime } from '~/utils/formatters'
 import { useCommentSocketHandlers } from '~/sockets/comment'
+import { useParams } from 'react-router-dom'
 
 function CardComments({ card, boardState, onCommentCountChange }) {
   const user = useSelector((state) => state.comon.user)
   const [isCommentLoading, setIsCommentLoading] = useState(false)
   const [content, setContent] = useState('')
+  const { boardId } = useParams()
 
   // Pagination states
   const [comments, setComments] = useState([])
@@ -43,17 +45,14 @@ function CardComments({ card, boardState, onCommentCountChange }) {
     loadInitialComments()
   }, [card._id])
 
-  // Notify parent when comment count changes
   useEffect(() => {
     if (onCommentCountChange) {
       onCommentCountChange(totalCount)
     }
   }, [totalCount, onCommentCountChange])
 
-  // Socket events for realtime comments
   useCommentSocketHandlers(card._id, setComments, setTotalCount)
 
-  // Load more comments
   const handleLoadMore = async () => {
     try {
       setIsLoadingMore(true)
@@ -75,17 +74,12 @@ function CardComments({ card, boardState, onCommentCountChange }) {
       setIsCommentLoading(true)
       const formData = {
         cardId: card._id,
+        boardId: boardId,
         content: content
       }
-
-      // Gọi API tạo comment
       const newComment = await createCommentAPI(formData)
-
-      // Update local state ngay lập tức (vì backend emit với except sender)
       setComments((prevComments) => [newComment, ...prevComments])
       setTotalCount((prev) => prev + 1)
-
-      // Clear input
       setContent('')
     } catch (error) {
       toast.error(error.response?.data?.message || 'Lỗi tạo comment')
@@ -96,9 +90,8 @@ function CardComments({ card, boardState, onCommentCountChange }) {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await deleteCommentAPI(commentId)
+      await deleteCommentAPI(commentId, boardId)
 
-      // Update local state ngay lập tức (vì backend emit với except sender)
       setComments((prevComments) => prevComments.filter((comment) => comment._id !== commentId))
       setTotalCount((prev) => prev - 1)
 
@@ -149,7 +142,7 @@ function CardComments({ card, boardState, onCommentCountChange }) {
           display: 'flex',
           flexDirection: 'column',
           gap: 1,
-          maxHeight: '320px',
+          maxHeight: '420px',
           pr: 1,
           width: '100%',
           height: '100%',

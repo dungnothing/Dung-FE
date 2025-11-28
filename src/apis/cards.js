@@ -45,8 +45,8 @@ export const createCommentAPI = async (commentData) => {
   return response.data
 }
 
-export const deleteCommentAPI = async (commentId) => {
-  const response = await axiosInstance.delete(`/v1/comments/delete/${commentId}`)
+export const deleteCommentAPI = async (commentId, boardId) => {
+  const response = await axiosInstance.delete(`/v1/comments/delete/${commentId}`, { data: { boardId } })
   return response.data
 }
 
