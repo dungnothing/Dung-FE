@@ -45,6 +45,7 @@ export const getBoardSocketCallbacks = (setBoard, navigate) => ({
   },
 
   onMoveCardToDifferentColumn: (data) => {
+    console.log('data', data)
     setBoard((prev) => {
       const newBoard = { ...prev }
       // Xu li next column
@@ -148,11 +149,11 @@ export const getBoardSocketCallbacks = (setBoard, navigate) => ({
     // Chỉ cần update commentIds trong card
     setBoard((prev) => {
       const newBoard = { ...prev }
-      const col = newBoard.columns.find((col) => col._id === newComment.columnId)
+      const col = newBoard.columns.find((c) => c.cards.some((card) => card._id === newComment.cardId))
       if (col) {
         const card = col.cards.find((card) => card._id === newComment.cardId)
         if (card) {
-          // Chỉ thêm commentId nếu chưa có
+          if (!card.commentIds) card.commentIds = []
           if (!card.commentIds.includes(newComment._id)) {
             card.commentIds.push(newComment._id)
           }
@@ -166,11 +167,10 @@ export const getBoardSocketCallbacks = (setBoard, navigate) => ({
     // Xử lý xóa commentId khỏi card
     setBoard((prev) => {
       const newBoard = { ...prev }
-      const col = newBoard.columns.find((col) => col._id === deletedData.columnId)
+      const col = newBoard.columns.find((c) => c.cards.some((card) => card._id === deletedData.cardId))
       if (col) {
         const card = col.cards.find((card) => card._id === deletedData.cardId)
-        if (card) {
-          // Xóa commentId khỏi card
+        if (card && card.commentIds) {
           card.commentIds = card.commentIds.filter((id) => id !== deletedData.commentId)
         }
       }
