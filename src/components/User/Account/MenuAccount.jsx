@@ -1,13 +1,13 @@
 import { Box, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
-import { User, Lock, CreditCard, Trash2 } from 'lucide-react'
+import { User, Lock, Trash2 } from 'lucide-react'
 import { InstagramIcon as Instagram } from '~/icon/Icon'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { textColor } from '~/utils/constants'
 
 const tabsData = [
   { label: 'Thông tin cơ bản', icon: <User size={18} />, path: '/user/info' },
-  { label: 'Password', icon: <Lock size={18} />, path: '/user/password' },
+  { label: 'Mật khẩu', icon: <Lock size={18} />, path: '/user/password' },
   { label: 'Mạng xã hội (Incoming)', icon: <Instagram size={18} /> },
-  { label: 'Billing', icon: <CreditCard size={18} /> },
   { label: 'Xóa tài khoản', icon: <Trash2 size={18} />, path: '/user/delete' }
 ]
 
@@ -52,7 +52,10 @@ export default function ProfileSidebar() {
             }}
           >
             <ListItemIcon sx={{ minWidth: 24, color: '#64748b' }}>{tab.icon}</ListItemIcon>
-            <ListItemText primary={tab.label} sx={{ fontSize: 14, fontWeight: 500 }} />
+            <ListItemText
+              primary={tab.label}
+              sx={{ fontSize: 14, fontWeight: 500, color: location.pathname === tab.path ? '#7C3AED' : textColor }}
+            />
           </ListItemButton>
         ))}
       </List>

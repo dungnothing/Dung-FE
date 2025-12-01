@@ -56,7 +56,6 @@ function Profiles() {
       <Menu
         id="demo-positioned-menu"
         aria-labelledby="demo-positioned-button-profils"
-        disableRestoreFocus
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}

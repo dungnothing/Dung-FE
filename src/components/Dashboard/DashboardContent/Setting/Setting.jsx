@@ -12,7 +12,7 @@ function Setting() {
     try {
       await deleteManyBoardAPI()
       setOpenDeleteDialog(false)
-      toast.success('Xóa hết lun roài!')
+      toast.success('Đã xóa hết bảng!')
     } catch (error) {
       toast.error('Lỗi rồi bạn hiền')
     }
@@ -28,9 +28,15 @@ function Setting() {
 
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant='h5' fontWeight='bold' gutterBottom>CÀI ĐẶT </Typography>
-      <Typography variant="body6" sx={{ color: textColor }}>Xóa hết bảng luôn nhá, đừng có tiếc chi</Typography>
-      <Button onClick={handleOpenDeleteDialog} variant="contained" sx={{ m: 2 }} >Xóa đây</Button>
+      <Typography variant="h5" fontWeight="bold" gutterBottom>
+        CÀI ĐẶT{' '}
+      </Typography>
+      <Typography variant="body6" sx={{ color: textColor }}>
+        Xóa hết tất cả các bảng
+      </Typography>
+      <Button onClick={handleOpenDeleteDialog} variant="contained" sx={{ m: 2 }}>
+        Xóa
+      </Button>
       {/**Dialog xac nhan xoa */}
       <Dialog
         open={openDeleteDialog}
@@ -45,15 +51,15 @@ function Setting() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteAllBoard} color="error" autoFocus variant='contained'>
+          <Button onClick={handleDeleteAllBoard} color="error" autoFocus variant="contained">
             Xác nhận
           </Button>
-          <Button onClick={handleCloseDeleteDialog} color="primary" variant='outlined'>
+          <Button onClick={handleCloseDeleteDialog} color="primary" variant="outlined">
             Hủy
           </Button>
         </DialogActions>
       </Dialog>
-    </Box >
+    </Box>
   )
 }
 

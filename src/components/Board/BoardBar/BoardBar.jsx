@@ -1,8 +1,6 @@
 import Box from '@mui/material/Box'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import { RotateCcw } from 'lucide-react'
-
-// Components
 import AddNewUser from './AddNewUser'
 import DialogChangeAdmin from './DialogChangeAdmin'
 import FilterTable from './FilterTable'
@@ -11,36 +9,20 @@ import VisibilityToggle from './components/VisibilityToggle'
 import StarButton from './components/StarButton'
 import BoardActionsMenu from './components/BoardActionsMenu'
 import UserAvatars from './components/UserAvatars'
-
-// Hooks
 import { useBoardOperations } from './hooks/useBoardOperations'
 import { useStarBoard } from './hooks/useStarBoard'
 import { useMenuStates } from './hooks/useMenuStates'
-
-// Utils
 import { textColor } from '~/utils/constants'
 
-function BoardBar({
-  board,
-  setBoard,
-  allUserInBoard,
-  getAllUserInBoard,
-  permissions,
-  setFilters,
-  filters,
-  filterLoading
-}) {
-  // Custom hooks
+function BoardBar({ board, setBoard, allUserInBoard, permissions, setFilters, filters, filterLoading }) {
   const boardOps = useBoardOperations(board, setBoard)
   const starBoard = useStarBoard(board)
   const menuStates = useMenuStates()
 
-  // Check if any filter is active
   const hasActiveFilters = () => {
     return filters?.term || filters?.overdue || filters?.dueTomorrow || filters?.noDue
   }
 
-  // Reset all filters
   const handleResetFilters = () => {
     setFilters({
       term: '',
@@ -154,7 +136,7 @@ function BoardBar({
         />
 
         {/*  Invite */}
-        <AddNewUser board={board} getAllUserInBoard={getAllUserInBoard} allUserInBoard={allUserInBoard} />
+        <AddNewUser board={board} allUserInBoard={allUserInBoard} />
 
         {/*  Avatar */}
         <UserAvatars allUserInBoard={allUserInBoard} />
@@ -175,7 +157,6 @@ function BoardBar({
           open={boardOps.openDialog}
           onClose={() => boardOps.setOpenDialog(false)}
           board={board}
-          getAllUserInBoard={getAllUserInBoard}
           allUserInBoard={allUserInBoard}
           setMemberId={boardOps.setMemberId}
           handleConfirmChangeAdmin={boardOps.handleConfirmChangeAdmin}

@@ -8,8 +8,10 @@ import { toast } from 'react-toastify'
 import { findUserInBoardAPI } from '~/apis/boards'
 import { updateCardAPI } from '~/apis/cards'
 import useDebounce from '~/helpers/hooks/useDebonce'
+import { useParams } from 'react-router-dom'
 
-function AddMemberInCard({ disabled, boardId, card, fetchBoarData }) {
+function AddMemberInCard({ disabled, card, fetchBoarData }) {
+  const { boardId } = useParams()
   const [openAnchor, setOpenAnchor] = useState(null)
   const [term, setTerm] = useState('')
   const debouncedTerm = useDebounce(term, 500)
@@ -37,7 +39,7 @@ function AddMemberInCard({ disabled, boardId, card, fetchBoarData }) {
 
   const handleSubmit = async () => {
     try {
-      await updateCardAPI(card._id, { memberIds: selectedUsers, cardId: card._id })
+      await updateCardAPI(card._id, { memberIds: selectedUsers, cardId: card._id, boardId })
       fetchBoarData()
       setOpenAnchor(null)
     } catch (error) {
@@ -127,10 +129,9 @@ function AddMemberInCard({ disabled, boardId, card, fetchBoarData }) {
           )}
         </Box>
 
-        {/* Footer: nút submit */}
         <Box sx={{ p: 1, borderTop: '1px solid #eee', display: 'flex', justifyContent: 'flex-end' }}>
           <Button variant="contained" sx={{ bgcolor: '#C38FFF' }} onClick={handleSubmit}>
-            Thêm
+            Lưu
           </Button>
         </Box>
       </Popover>

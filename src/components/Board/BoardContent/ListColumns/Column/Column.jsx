@@ -155,6 +155,7 @@ function Column({ column, createNewCard, deleteColumnDetails, boardState, fetchB
               <Menu
                 anchorEl={anchorEl}
                 disableRestoreFocus
+                disableAutoFocusItem
                 open={open}
                 onClose={handleClose}
                 anchorOrigin={{

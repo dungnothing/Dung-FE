@@ -241,7 +241,10 @@ function SignIn() {
                     >
                       Quên mật khẩu?
                     </Link>
-                    <Typography variant="body2" sx={{ textAlign: 'center', fontFamily: 'inter', fontSize: '1rem' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ textAlign: 'center', fontFamily: 'inter', fontSize: '1rem', color: '#1E1E1E' }}
+                    >
                       Chưa có tài khoản?{' '}
                       <Link
                         onClick={() => navigate('/sign-up')}

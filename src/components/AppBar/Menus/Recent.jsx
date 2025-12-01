@@ -36,7 +36,6 @@ function Recent() {
         Gần đây
       </Button>
       <Menu
-        disableRestoreFocus
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}

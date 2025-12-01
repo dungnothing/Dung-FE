@@ -9,255 +9,280 @@ import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
 import { useState, useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
-import { addMemberToBoardAPI, removeMemberFromBoardAPI, searchUserAPI } from '~/apis/boards'
-import { IconButton } from '@mui/material'
+import { addMemberToBoardAPI, removeMemberFromBoardAPI, searchUserAPI, getAllUserInBoardAPI } from '~/apis/boards'
+import { IconButton, Popper, Paper, MenuList, MenuItem } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import CircularProgress from '@mui/material/CircularProgress'
-import validation from '~/utils/validation'
 import { textColor } from '~/utils/constants'
-import { useConfirm } from 'material-ui-confirm'
 import { useSelector } from 'react-redux'
+import { useParams } from 'react-router-dom'
+import Loading from '~/helpers/components/Loading'
+import useDebounce from '~/helpers/hooks/useDebonce'
+import { useConfirm } from 'material-ui-confirm'
+import validation from '~/utils/validation'
 
-function AddNewUser({ board, getAllUserInBoard, allUserInBoard }) {
-  const [openInviteDialog, setOpenInviteDialog] = useState(false)
-  const [inviteInput, setInviteInput] = useState('')
-  const [searchResult, setSearchResult] = useState([])
-  const [anchorElSearch, setAnchorElSearch] = useState(null)
-  const [isSearchingUser, setIsSearchingUser] = useState(false)
-  const userRedux = useSelector((state) => state.comon.user)
+function AddNewUser({ board }) {
+  const { boardId } = useParams()
+  const user = useSelector((state) => state.user)
   const confirm = useConfirm()
+  const [loading, setLoading] = useState(false)
+  const [loadingUser, setLoadingUser] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [input, setInput] = useState('')
+  const [searchResult, setSearchResult] = useState([])
+  const [allUser, setAllUser] = useState([])
+  const searchTerm = useDebounce(input, 500)
+  const inputRef = useRef(null)
 
-  const inviteTextFieldRef = useRef(null)
-
-  const handleInvite = async () => {
-    if (!validation.isEmail(inviteInput)) {
-      toast.error('Email không hợp lệ')
+  const handleSearchUser = async () => {
+    if (!searchTerm || searchTerm.trim() === '') {
+      setSearchResult([])
       return
     }
+
     try {
-      await addMemberToBoardAPI(board._id, { email: inviteInput })
-      await getAllUserInBoard()
-      toast.success('Mời thành viên thành công')
-      setInviteInput('')
+      setLoading(true)
+      const response = await searchUserAPI(searchTerm)
+      setSearchResult(response)
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        toast.error(`${error.response.data.message}`)
-      } else {
-        toast.error('Lỗi khi mời thành viên')
+      toast.error('Lỗi khi tìm kiếm người dùng')
+      setSearchResult([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getAllUser = async () => {
+    try {
+      setLoadingUser(true)
+      const response = await getAllUserInBoardAPI(boardId)
+      setAllUser(response)
+    } catch (error) {
+      toast.error('Lỗi khi lấy thông tin người dùng')
+    } finally {
+      setLoadingUser(false)
+    }
+  }
+
+  const handleInvite = async () => {
+    try {
+      if (!validation.isEmail(input)) {
+        toast.error('Email không hợp lệ')
+        return
       }
+      setLoading(true)
+      await addMemberToBoardAPI(boardId, { email: input })
+      toast.success('Mời thành công')
+    } catch (error) {
+      toast.error('Lỗi khi mời người dùng')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRemove = async (userId) => {
+    try {
+      setLoading(true)
+      await removeMemberFromBoardAPI(userId)
+      toast.success('Mời thành công')
+    } catch (error) {
+      toast.error('Lỗi khi mời người dùng')
+    } finally {
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    const trimmedInput = inviteInput.trim()
-    if (validation.isEmail(trimmedInput) || !trimmedInput) {
-      setSearchResult([])
-      setAnchorElSearch(null)
-      setIsSearchingUser(false)
-      return
-    }
-    setIsSearchingUser(true)
-    const timeOutId = setTimeout(async () => {
-      try {
-        const res = await searchUserAPI(trimmedInput)
-        const existingMemberIds = new Set([
-          allUserInBoard.admin._id,
-          ...(allUserInBoard.members || []).map((m) => m._id)
-        ])
-        const filteredUsers = res.filter((user) => !existingMemberIds.has(user._id))
-        setSearchResult(filteredUsers)
-        if (inviteTextFieldRef.current) {
-          setAnchorElSearch(inviteTextFieldRef.current)
-          inviteTextFieldRef.current.focus()
-        }
-      } catch (error) {
-        setSearchResult([])
-        toast.error('Lỗi khi tìm kiếm người dùng')
-      } finally {
-        setIsSearchingUser(false)
-      }
-    }, 1000)
-    return () => clearTimeout(timeOutId)
-  }, [inviteInput, allUserInBoard])
+    handleSearchUser()
+  }, [searchTerm])
 
-  const handleSelectUser = (user) => {
-    setInviteInput(user.email)
-    setAnchorElSearch(null)
-  }
-
-  const handleRemoveMember = async (memberId) => {
-    try {
-      if (!memberId) {
-        toast.error('Không tìm thấy')
-        return
-      }
-      await removeMemberFromBoardAPI(board._id, memberId)
-      await getAllUserInBoard()
-      toast.success('Xóa thành viên thành công')
-    } catch (error) {
-      toast.error('Lỗi khi xóa thành viên')
-    }
-  }
+  useEffect(() => {
+    if (!boardId || !open) return
+    getAllUser()
+  }, [boardId, open])
 
   return (
-    <Box>
-      <Button
-        variant="outlined"
-        startIcon={<PersonAddIcon />}
-        sx={{
-          color: textColor,
-          borderColor: textColor,
-          '&:hover': { borderColor: textColor }
-        }}
-        onClick={() => setOpenInviteDialog(true)}
-      >
-        Mời
-      </Button>
-      <Dialog
-        open={openInviteDialog}
-        onClose={() => setOpenInviteDialog(false)}
-        sx={{
-          '& .MuiDialog-paper': {
-            width: '1060px',
-            height: '400px'
-          }
-        }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <DialogTitle sx={{ pb: 0, color: textColor }}>Mời thêm các thành viên</DialogTitle>
-          <IconButton onClick={() => setOpenInviteDialog(false)} sx={{ pr: 3, '&:hover': { bgcolor: 'transparent' } }}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
-        <Box>
-          <DialogContent sx={{ display: 'flex', gap: 1 }}>
-            <TextField
-              fullWidth
-              placeholder="Tên/Email"
-              variant="outlined"
-              value={inviteInput}
-              onChange={(e) => setInviteInput(e.target.value)}
-              ref={inviteTextFieldRef}
-              InputProps={{
-                sx: {
-                  height: 40,
-                  alignItems: 'center',
-                  '& input': {
-                    padding: '0 14px',
-                    fontSize: '14px',
-                    color: textColor
-                  }
-                }
-              }}
-            />
-            <Button
-              variant="outlined"
-              onClick={handleInvite}
-              sx={{ color: textColor, borderColor: textColor }}
-              disabled={isSearchingUser || inviteInput.trim() === ''}
-            >
-              Mời
-            </Button>
-            <Menu
-              anchorEl={anchorElSearch}
-              open={Boolean(anchorElSearch) && inviteInput.trim() !== ''}
-              disableRestoreFocus
-              onClose={() => setAnchorElSearch(null)}
-              sx={{
-                '& .MuiPaper-root': {
-                  width: inviteTextFieldRef.current ? inviteTextFieldRef.current.clientWidth + 8 : 'auto',
-                  maxHeight: 200,
-                  overflowY: 'auto',
-                  maxWidth: '481px'
-                },
-                zIndex: (theme) => theme.zIndex.modal + 1
-              }}
-            >
-              {isSearchingUser ? (
-                <MenuItem disabled>
-                  <CircularProgress size={20} sx={{ mr: 1, color: textColor }} />
-                  Đang tìm kiếm...
-                </MenuItem>
-              ) : searchResult.length > 0 ? (
-                searchResult.map((user) => (
-                  <MenuItem
-                    key={user._id}
-                    onClick={() => handleSelectUser(user)}
-                    sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                  >
-                    <Avatar
-                      alt={user.userName || user.email}
-                      src={user.avatar || ''}
-                      sx={{ width: 24, height: 24, mr: 1 }}
-                    />
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Typography variant="body2" sx={{ color: textColor }}>
-                        {user.userName}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: textColor }}>
-                        {user.email}
-                      </Typography>
-                    </Box>
-                  </MenuItem>
-                ))
-              ) : (
-                inviteInput.trim() !== '' && (
-                  <MenuItem disabled sx={{ color: textColor }}>
-                    Không tìm thấy người dùng phù hợp
-                  </MenuItem>
-                )
-              )}
-            </Menu>
-          </DialogContent>
-        </Box>
-        <DialogTitle sx={{ pt: 0, color: textColor }}>Thành viên</DialogTitle>
-        <Box sx={{ maxHeight: '200px', overflowY: 'auto', px: 3, gap: 2, display: 'flex', flexDirection: 'column' }}>
-          {/* Hiển thị admin nếu có */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Avatar alt={allUserInBoard.admin.adminName} src={allUserInBoard.admin.adminAvatar || ''} />
-            <Typography sx={{ color: textColor }}>{allUserInBoard.admin.adminName} (Admin)</Typography>
+    <>
+      {loadingUser && <Loading />}
+      <Box>
+        <Button
+          variant="outlined"
+          startIcon={<PersonAddIcon />}
+          sx={{
+            color: textColor,
+            borderColor: textColor,
+            '&:hover': { borderColor: textColor }
+          }}
+          onClick={() => setOpen(true)}
+        >
+          Mời
+        </Button>
+        <Dialog
+          open={open}
+          onClose={() => {
+            setOpen(false)
+            setInput('')
+          }}
+          sx={{
+            '& .MuiDialog-paper': {
+              width: '1060px',
+              height: '400px'
+            }
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <DialogTitle sx={{ pb: 0, color: textColor }}>Mời thêm các thành viên</DialogTitle>
+            <IconButton onClick={() => setOpen(false)} sx={{ pr: 3, '&:hover': { bgcolor: 'transparent' } }}>
+              <CloseIcon />
+            </IconButton>
           </Box>
-
-          {/* Hiển thị danh sách members */}
           <Box>
-            {allUserInBoard.members.map((member, index) => (
-              <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar alt={member.memberName} src={member.memberAvatar || ''} />
-                  <Typography sx={{ color: textColor }}>{member.memberName}</Typography>
-                </Box>
-                {userRedux?.userId === board?.adminId && (
-                  <IconButton
-                    onClick={() => {
-                      confirm({
-                        title: 'Xóa thành viên',
-                        description: (
-                          <span>
-                            Bạn có chắc muốn xóa thành viên{' '}
-                            <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>
-                              {member.memberName}
-                            </span>{' '}
-                            chứ?
-                          </span>
-                        ),
-                        confirmationText: 'Xóa',
-                        cancellationText: 'Hủy'
-                      }).then(() => {
-                        handleRemoveMember(member.memberId)
-                      })
+            <DialogContent sx={{ display: 'flex', gap: 1, position: 'relative' }}>
+              <Box sx={{ flex: 1, position: 'relative' }}>
+                <TextField
+                  fullWidth
+                  ref={inputRef}
+                  placeholder="Tên/Email"
+                  variant="outlined"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  slotProps={{
+                    input: {
+                      sx: {
+                        height: 40,
+                        '& input': {
+                          padding: '0 14px',
+                          fontSize: '14px',
+                          color: textColor
+                        }
+                      }
+                    }
+                  }}
+                />
+                <Popper
+                  open={Boolean(inputRef.current) && input.trim() !== ''}
+                  anchorEl={inputRef.current}
+                  placement="bottom-start"
+                  style={{ zIndex: 1300, width: inputRef.current?.offsetWidth }}
+                  disablePortal={false}
+                >
+                  <Paper
+                    elevation={3}
+                    sx={{
+                      maxHeight: 300,
+                      overflowY: 'auto',
+                      mt: 0.5,
+                      boxShadow: '0px 4px 20px rgba(0,0,0,0.1)'
                     }}
                   >
-                    <CloseIcon />
-                  </IconButton>
-                )}
+                    <MenuList>
+                      {loading ? (
+                        <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
+                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            Đang tìm kiếm...
+                          </Typography>
+                        </MenuItem>
+                      ) : searchResult?.length > 0 ? (
+                        searchResult?.map((user, index) => (
+                          <MenuItem
+                            key={index}
+                            onClick={() => {
+                              setInput(user?.email || user?.userName)
+                              inputRef.current = null
+                            }}
+                            sx={{
+                              display: 'flex',
+                              gap: 1.5,
+                              alignItems: 'center',
+                              py: 1.5
+                            }}
+                          >
+                            <Avatar alt={user?.userName} src={user?.userAvatar || ''} sx={{ width: 36, height: 36 }} />
+                            <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                              <Typography variant="body2" sx={{ color: textColor, fontWeight: 500 }}>
+                                {user?.userName}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                {user?.email}
+                              </Typography>
+                            </Box>
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
+                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            Không tìm thấy người dùng
+                          </Typography>
+                        </MenuItem>
+                      )}
+                    </MenuList>
+                  </Paper>
+                </Popper>
               </Box>
-            ))}
+              <Button
+                variant="outlined"
+                onClick={handleInvite}
+                sx={{ color: textColor, borderColor: textColor }}
+                disabled={loading || input.trim() === ''}
+              >
+                Mời
+              </Button>
+            </DialogContent>
           </Box>
-        </Box>
-      </Dialog>
-    </Box>
+          <DialogTitle sx={{ pt: 0, color: textColor }}>Thành viên</DialogTitle>
+          <Box sx={{ maxHeight: '200px', overflowY: 'auto', px: 3, gap: 2, display: 'flex', flexDirection: 'column' }}>
+            {/* Hiển thị admin nếu có */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Avatar alt={allUser?.admin?.adminName} src={allUser?.admin?.adminAvatar || ''} />
+              <div className="flex flex-col gap-1">
+                <p>
+                  {allUser?.admin?.adminName} <span>(Admin)</span>
+                </p>
+                <p className="text-xs opacity-50">{allUser?.admin?.adminEmail}</p>
+              </div>
+            </Box>
+
+            {/* Hiển thị danh sách members */}
+            <Box>
+              {allUser?.members?.map((member, index) => (
+                <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Avatar alt={member?.memberName} src={member?.memberAvatar || ''} />
+                    <div className="flex flex-col gap-1">
+                      <p>{member?.memberName}</p>
+                      <p className="text-xs opacity-50">{member?.memberEmail}</p>
+                    </div>
+                  </Box>
+                  {user?.userId === board?.adminId && (
+                    <IconButton
+                      onClick={() => {
+                        confirm({
+                          title: 'Xóa thành viên',
+                          description: (
+                            <span>
+                              Bạn có chắc muốn xóa thành viên{' '}
+                              <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>
+                                {member?.memberName}
+                              </span>{' '}
+                              chứ?
+                            </span>
+                          ),
+                          confirmationText: 'Xóa',
+                          cancellationText: 'Hủy'
+                        }).then(() => {
+                          handleRemove(member?.memberId)
+                        })
+                      }}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  )}
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Dialog>
+      </Box>
+    </>
   )
 }
 

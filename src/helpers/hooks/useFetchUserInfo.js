@@ -3,7 +3,6 @@ import { useEffect, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import { setUserInfo, setStarBoards, setNotifications, setRecentBoards } from '~/redux/features/comon'
 import { getUserInfoAPI } from '~/apis/auth'
-import { getRecentBoardsAPI, getStarBoardAPI } from '~/apis/boards'
 import { getNotificationAPI } from '~/apis/notification'
 import { toast } from 'react-toastify'
 import Cookie from 'js-cookie'
@@ -25,17 +24,12 @@ export const useFetchUserInfo = () => {
   const fetchUserInfo = useCallback(async () => {
     if (!refreshToken) return
     try {
-      const [userInfo, starBoards, notifications, recentBoards] = await Promise.all([
-        getUserInfoAPI(),
-        getStarBoardAPI(),
-        getNotificationAPI(),
-        getRecentBoardsAPI()
-      ])
+      const [userInfo, notifications] = await Promise.all([getUserInfoAPI(), getNotificationAPI()])
 
-      dispatch(setUserInfo(userInfo))
-      dispatch(setStarBoards(starBoards))
+      dispatch(setUserInfo({ ...userInfo, userId: userInfo._id }))
+      dispatch(setStarBoards(userInfo.starBoards))
+      dispatch(setRecentBoards(userInfo.recentBoards))
       dispatch(setNotifications(notifications))
-      dispatch(setRecentBoards(recentBoards))
     } catch (err) {
       if (err.response?.status === 404) {
         toast.error('Tài khoản không tồn tại')
@@ -47,7 +41,7 @@ export const useFetchUserInfo = () => {
         toast.error('Lỗi tải dữ liệu người dùng')
       }
     }
-  }, [dispatch, refreshToken])
+  }, [refreshToken])
 
   useEffect(() => {
     fetchUserInfo()

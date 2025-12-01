@@ -7,6 +7,7 @@ import { toast } from 'react-toastify'
 import { updateAvatarAPI } from '~/apis/auth'
 import { useDispatch } from 'react-redux'
 import { updateUserInfo } from '~/redux/features/comon'
+import { textColor } from '~/utils/constants'
 
 function PersonalInfo() {
   const user = useSelector((state) => state.comon.user)
@@ -58,8 +59,9 @@ function PersonalInfo() {
     <Box className="w-full flex flex-col gap-2 relative">
       {/* Card chính */}
       <Box
-        className="relative flex flex-col bg-white rounded-[12px]"
+        className="relative flex flex-col rounded-[12px]"
         sx={{
+          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1e1e1e' : '#ffffff'),
           boxShadow:
             '0px 2px 1px -1px rgba(107, 114, 128, 0.03), 0px 1px 1px 0px rgba(107, 114, 128, 0.04), 0px 1px 3px 0px rgba(107, 114, 128, 0.08)'
         }}
@@ -75,7 +77,11 @@ function PersonalInfo() {
         <Box className="absolute top-2/5 left-1/2 -translate-x-1/2 -translate-y-1/2 w-fit flex justify-center items-center">
           <Avatar
             src={user?.avatar || '/default-avatar.png'}
-            sx={{ width: 96, height: 96, border: '4px solid white' }}
+            sx={{
+              width: 96,
+              height: 96,
+              border: (theme) => `4px solid ${theme.palette.mode === 'dark' ? '#1e1e1e' : '#ffffff'}`
+            }}
           />
           <IconButton
             size="small"
@@ -98,11 +104,11 @@ function PersonalInfo() {
 
         {/* Thông tin cơ bản */}
         <Box className="flex flex-col items-center mt-[60px] mb-4">
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: textColor }}>
             {user?.userName || 'Chưa có tên'}
           </Typography>
 
-          <Box className="flex items-center gap-6 mt-1 text-gray-500 text-sm">
+          <Box className="flex items-center gap-6 mt-1 text-sm" sx={{ color: textColor, opacity: 0.7 }}>
             <Box className="flex items-center gap-1">
               <Briefcase size={14} /> {user?.organization || 'Chưa có chức vụ'}
             </Box>
@@ -126,7 +132,7 @@ function PersonalInfo() {
         {/* Thanh hoàn thành hồ sơ + nút hành động */}
         <Box className="flex items-center justify-between h-full">
           <Box className="px-6 pb-4 w-80">
-            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+            <Typography variant="body2" sx={{ color: textColor, opacity: 0.7, mb: 1 }}>
               Mức độ hoàn thiện
             </Typography>
             <Box className="flex items-center gap-2">
@@ -143,7 +149,7 @@ function PersonalInfo() {
                   }
                 }}
               />
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              <Typography variant="body2" sx={{ color: textColor, opacity: 0.7 }}>
                 {rate}%
               </Typography>
             </Box>
@@ -151,7 +157,7 @@ function PersonalInfo() {
 
           {/* Action buttons */}
           <Box className="px-6 pb-4 w-80">
-            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+            <Typography variant="body2" sx={{ color: textColor, opacity: 0.7, mb: 1 }}>
               Trạng thái vip
             </Typography>
             <Box className="flex items-center gap-2">

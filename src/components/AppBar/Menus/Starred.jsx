@@ -46,7 +46,6 @@ function Starred() {
         sx={{ minWidth: '200px', minHeight: '200px' }}
         anchorEl={anchorEl}
         open={open}
-        disableRestoreFocus
         onClose={handleClose}
         anchorOrigin={{
           vertical: 'bottom',

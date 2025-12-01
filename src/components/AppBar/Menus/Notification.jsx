@@ -6,8 +6,8 @@ import { useState } from 'react'
 import { CheckCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { markAllAsReadAPI } from '~/apis/notification'
-import { setNotifications } from '~/redux/features/comon'
+import { markAllAsReadAPI, markAsReadAPI } from '~/apis/notification'
+import { setMarkAsRead, setNotifications } from '~/redux/features/comon'
 
 function Notification() {
   const navigate = useNavigate()
@@ -24,9 +24,15 @@ function Notification() {
     setAnchorEl(null)
   }
 
-  const handleChooseClick = (data) => {
-    if (data.boardId) {
-      navigate(`/boards/${data.boardId}`)
+  const handleChooseClick = async (data) => {
+    try {
+      await markAsReadAPI(data._id)
+      if (data.boardId) {
+        navigate(`/boards/${data.boardId}`)
+      }
+      dipatch(setMarkAsRead(data._id))
+    } catch (error) {
+      toast.error('Đánh dấu thất bại')
     }
   }
 
@@ -54,6 +60,7 @@ function Notification() {
       <Menu
         anchorEl={anchorEl}
         disableRestoreFocus
+        disableAutoFocusItem
         open={open}
         onClose={handleClose}
         keepMounted={false}
@@ -66,7 +73,7 @@ function Notification() {
             <p className="text-[20px] font-semibold ">Thông báo</p>
             <Button
               startIcon={<CheckCheck size={16} />}
-              sx={{ color: '#adb5bd' }}
+              sx={{ color: '#456882' }}
               size="small"
               onClick={handleMarkAllAsRead}
             >
@@ -95,8 +102,13 @@ function Notification() {
                     whiteSpace: 'normal'
                   }}
                 >
-                  <img src="https://picsum.photos/32/32" alt="" className="w-[32px] h-[32px] rounded-full" />
+                  <img
+                    src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQSHe1S_e3h0g9AEdRKpXovMPgIEJZttOjnq_sQ6JY3MRJT2onDxMSCUNqvVs5oML-Tf4Sp7Svm"
+                    alt=""
+                    className="w-[32px] h-[32px] rounded-full"
+                  />
                   <p className="flex-1 break-words">{notification.content}</p>
+                  {!notification.isRead && <Badge variant="dot" color="error" overlap="circular" />}
                 </MenuItem>
               ))
             )}

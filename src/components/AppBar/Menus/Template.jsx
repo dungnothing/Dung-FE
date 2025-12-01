@@ -38,7 +38,6 @@ function Template() {
       <Menu
         id="demo-positioned-menu"
         aria-labelledby="demo-positioned-button-template"
-        disableRestoreFocus
         anchorEl={anchorEl}
         open={open}
         onClose={() => setAnchorEl(null)}

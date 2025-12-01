@@ -1,4 +1,3 @@
-
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
@@ -17,17 +16,17 @@ function DialogChangeAdmin({ open, onClose, allUserInBoard, setMemberId, handleC
           placeholder="Chọn thành viên"
           variant="outlined"
           options={allUserInBoard?.members}
-          getOptionLabel={(option) => option.memberName || ''}
+          getOptionLabel={(option) => option.userName || ''}
           onChange={(event, value) => {
-            setMemberId(value?.memberId || '')
+            setMemberId(value?._id || '')
           }}
-          renderInput={(params) => (
-            <TextField {...params} placeholder="Chọn thành viên" variant="outlined" />
-          )}
+          renderInput={(params) => <TextField {...params} placeholder="Chọn thành viên" variant="outlined" />}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} sx={{ color: textColor }}>Hủy</Button>
+        <Button onClick={onClose} sx={{ color: textColor }}>
+          Hủy
+        </Button>
         <Button
           variant="outlined"
           onClick={handleConfirmChangeAdmin}

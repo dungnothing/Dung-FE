@@ -1,89 +1,72 @@
-import { Box, Tooltip, Menu, MenuItem, ListItemText, Typography } from '@mui/material'
+import { Box, Tooltip, Menu, MenuItem, ListItemText, Typography, IconButton } from '@mui/material'
 import LockIcon from '@mui/icons-material/Lock'
 import PublicIcon from '@mui/icons-material/Public'
 import DoneIcon from '@mui/icons-material/Done'
 import { textColor } from '~/utils/constants'
 
 function VisibilityToggle({ visibility, setVisibility, anchorEl, setAnchorEl, open, setOpen, handleVisibilityChange }) {
+  const handleOpen = (e) => {
+    setAnchorEl(e.currentTarget)
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+    setOpen(false)
+  }
+
   return (
     <>
-      <Box
-        ref={(el) => setAnchorEl(el)}
-        sx={{
-          bgcolor: open ? '#DCDFE4' : 'transparent',
-          width: '30px',
-          height: '30px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer'
-        }}
-        onClick={() => setOpen(!open)}
-      >
+      <IconButton onClick={handleOpen}>
         <Tooltip title="Trạng thái xem" placement="bottom">
           {visibility === 'PRIVATE' ? <LockIcon sx={{ color: textColor }} /> : <PublicIcon sx={{ color: textColor }} />}
         </Tooltip>
-      </Box>
+      </IconButton>
 
-      <Menu
-        disableRestoreFocus
-        anchorEl={anchorEl}
-        open={open}
-        onClose={() => setOpen(false)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left'
-        }}
-      >
-        <Box sx={{ width: '400px' }}>
-          <MenuItem
-            sx={{ whiteSpace: 'normal' }}
-            onClick={() => {
-              handleVisibilityChange(false)
-              setVisibility('PUBLIC')
-              setOpen(false)
-            }}
-          >
-            <Box>
-              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-                <PublicIcon fontSize="small" />
-                <ListItemText sx={{ marginLeft: '10px' }}>Public</ListItemText>
-                {visibility === 'PUBLIC' && <DoneIcon fontSize="small" />}
-              </Box>
-              <Box>
-                <Typography>
-                  Bất kì ai sử dụng web này đều có thể nhìn thấy. Chỉ thành viên trong nhóm mới có thể chỉnh sửa
-                </Typography>
-              </Box>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose} slotProps={{ paper: { sx: { width: '450px' } } }}>
+        <MenuItem
+          sx={{ maxWidth: '450px' }}
+          onClick={() => {
+            handleVisibilityChange(false)
+            setVisibility('PUBLIC')
+            handleClose()
+          }}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <PublicIcon fontSize="small" />
+              <ListItemText>Public</ListItemText>
+              {visibility === 'PUBLIC' && <DoneIcon fontSize="small" />}
             </Box>
-          </MenuItem>
-          <MenuItem
-            sx={{ whiteSpace: 'normal' }}
-            onClick={() => {
-              handleVisibilityChange(true)
-              setVisibility('PRIVATE')
-              setOpen(false)
-            }}
-          >
-            <Box>
-              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-                <LockIcon fontSize="small" />
-                <ListItemText sx={{ marginLeft: '10px' }}>Private</ListItemText>
-                {visibility === 'PRIVATE' && <DoneIcon fontSize="small" />}
-              </Box>
-              <Box>
-                <Typography>
-                  Chỉ thành viên của bảng này mới được xem. Chủ bảng có thể tắt chỉnh sửa thông tin và thêm xóa thành
-                  viên
-                </Typography>
-              </Box>
+            <Typography
+              sx={{
+                width: '100%',
+                wordBreak: 'break-word',
+                whiteSpace: 'normal'
+              }}
+            >
+              Bất kì ai sử dụng web này đều có thể nhìn thấy. Chỉ thành viên nhóm mới được chỉnh sửa.
+            </Typography>
+          </Box>
+        </MenuItem>
+
+        <MenuItem
+          sx={{ maxWidth: '450px' }}
+          onClick={() => {
+            handleVisibilityChange(true)
+            setVisibility('PRIVATE')
+            handleClose()
+          }}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LockIcon fontSize="small" />
+              <ListItemText sx={{ width: '100%' }}>Private</ListItemText>
+              {visibility === 'PRIVATE' && <DoneIcon fontSize="small" />}
             </Box>
-          </MenuItem>
-        </Box>
+            <Typography>Chỉ thành viên bảng mới được xem.</Typography>
+          </Box>
+        </MenuItem>
       </Menu>
     </>
   )

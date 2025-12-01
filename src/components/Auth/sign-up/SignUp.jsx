@@ -215,7 +215,10 @@ function SignUp() {
                       Google
                     </Button>
                   </Box>
-                  <Typography variant="body2" sx={{ textAlign: 'center', fontFamily: 'inter', fontSize: '1rem' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ textAlign: 'center', fontFamily: 'inter', fontSize: '1rem', color: '#1E1E1E' }}
+                  >
                     Đã có tài khoản?{' '}
                     <Link
                       onClick={() => navigate('/sign-in')}

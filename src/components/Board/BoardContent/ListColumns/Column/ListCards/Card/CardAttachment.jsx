@@ -93,6 +93,7 @@ function CardAttachment({ card, fetchBoarData }) {
               open={Boolean(anchorElMore)}
               onClose={() => setAnchorElMore(null)}
               disableRestoreFocus
+              disableAutoFocusItem
             >
               <MenuItem
                 onClick={() => {

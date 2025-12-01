@@ -8,13 +8,14 @@ import { updateInfoAPI } from '~/apis/auth'
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { updateUserInfo } from '~/redux/features/comon'
+import { textColor } from '~/utils/constants'
 
 const fieldConfigs = [
-  { name: 'userName', label: 'Tên', defaultValue: 'Pixy', disable: false },
-  { name: 'email', label: 'Email', defaultValue: 'uilib@gmail.com', disable: true },
-  { name: 'phone', label: 'Số điện thoại', defaultValue: '+443322221111', disable: false },
-  { name: 'organization', label: 'Tổ chức', defaultValue: 'UiLib', disable: false },
-  { name: 'address', label: 'Address', defaultValue: 'Corverview, Michigan', disable: false }
+  { name: 'userName', label: 'Tên', disable: false },
+  { name: 'email', label: 'Email', disable: true },
+  { name: 'phone', label: 'Số điện thoại', disable: false },
+  { name: 'organization', label: 'Tổ chức', disable: false },
+  { name: 'address', label: 'Địa chỉ', disable: false }
 ]
 
 const schema = v.object({
@@ -69,14 +70,15 @@ function BasicInfo() {
   return (
     <FormProvider {...form}>
       <Box
-        className="w-full bg-white rounded-[12px] mt-6 p-6"
+        className="w-full rounded-[12px] mt-6 p-6"
         sx={{
+          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1e1e1e' : '#ffffff'),
           boxShadow:
             '0px 2px 1px -1px rgba(107, 114, 128, 0.03), 0px 1px 1px 0px rgba(107, 114, 128, 0.04), 0px 1px 3px 0px rgba(107, 114, 128, 0.08)'
         }}
       >
-        <Typography variant="h6" fontWeight="600" mb={3}>
-          Basic Information
+        <Typography variant="h6" fontWeight="600" mb={3} sx={{ color: textColor }}>
+          Thông tin cơ bản
         </Typography>
 
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -92,11 +94,18 @@ function BasicInfo() {
             ))}
           </div>
           <Box className="flex gap-3 mt-6">
-            <Button type="submit" variant="contained" sx={{ bgcolor: '#6C63FF', textTransform: 'none' }}>
-              Save Changes
+            <Button type="submit" variant="contained" sx={{ bgcolor: '#6C63FF' }}>
+              Lưu
             </Button>
-            <Button variant="outlined" sx={{ textTransform: 'none' }} onClick={handleReset}>
-              Cancel
+            <Button
+              variant="outlined"
+              onClick={handleReset}
+              sx={{
+                borderColor: (theme) => (theme.palette.mode === 'dark' ? '#666' : '#989898'),
+                color: textColor
+              }}
+            >
+              Hủy
             </Button>
           </Box>
         </form>

@@ -138,7 +138,8 @@ function MainBoard({ searchValue }) {
                     color: 'white',
                     width: '24px',
                     height: '24px',
-                    minWidth: 'unset'
+                    minWidth: 'unset',
+                    '&:hover': { bgcolor: '#234C6A' }
                   }}
                 >
                   {starBoards?.some((item) => item._id === board._id) ? (

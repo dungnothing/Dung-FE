@@ -4,12 +4,7 @@ import BoardBar from '../../components/Board/BoardBar/BoardBar'
 import BoardContent from '../../components/Board/BoardContent/BoardContent'
 import { useParams } from 'react-router-dom'
 import { useEffect, useState, useRef } from 'react'
-import {
-  fetchBoardDetailsAPI,
-  updateBoardDetailsAPI,
-  moveCardToDifferentColumnAPI,
-  getAllUserInBoardAPI
-} from '~/apis/boards'
+import { fetchBoardDetailsAPI, updateBoardDetailsAPI, moveCardToDifferentColumnAPI } from '~/apis/boards'
 import { createNewCardAPI } from '~/apis/cards'
 import { createNewColumnAPI, deleteColumnDetailsAPI, updateColumnDetailsAPI } from '~/apis/columns'
 import { generatePlaceholderCard } from '~/utils/formatters'
@@ -17,7 +12,7 @@ import { isEmpty } from 'lodash'
 import { mapOrder } from '~/utils/sort'
 import Loading from '~/helpers/components/Loading'
 import { toast } from 'react-toastify'
-import { GUEST_PERMISSIONS, ADMIN_PERMISSIONS, MEMBER_PERMISSIONS } from '~/utils/permissions'
+import { PERMISSIONS_MAP } from '~/utils/permissions'
 import { initBoardSocket, getBoardSocketCallbacks } from '~/sockets/board'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { Box } from '@mui/material'
@@ -72,17 +67,8 @@ function Board() {
       })
 
       setBoard(boardRes)
-      switch (boardRes.userRole) {
-        case 'GUEST':
-          setPermissions(GUEST_PERMISSIONS)
-          break
-        case 'MEMBER':
-          setPermissions(MEMBER_PERMISSIONS)
-          break
-        case 'ADMIN':
-          setPermissions(ADMIN_PERMISSIONS)
-          break
-      }
+      setPermissions(PERMISSIONS_MAP[boardRes.userRole])
+      setAllUserInBoard({ admin: boardRes.admin, members: boardRes.members })
     } catch (error) {
       if (error.status === 404 || error.status === 403) {
         navigate('/dashboard')
@@ -114,27 +100,6 @@ function Board() {
     const socketHandlers = getBoardSocketCallbacks(setBoard, navigate)
     const cleanup = initBoardSocket(boardId, socketHandlers)
     return cleanup
-  }, [boardId])
-
-  const getAllUserInBoard = async () => {
-    try {
-      const users = await getAllUserInBoardAPI(boardId)
-      setAllUserInBoard(users)
-    } catch (error) {
-      toast.error('Lỗi khi lấy danh sách thành viên')
-    }
-  }
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const users = await getAllUserInBoardAPI(boardId)
-        setAllUserInBoard(users)
-      } catch (error) {
-        toast.error('Lỗi lấy thành viên!')
-      }
-    }
-    getUser()
   }, [boardId])
 
   const createNewColumn = async (newColumnData) => {
@@ -312,7 +277,6 @@ function Board() {
       <BoardBar
         board={board}
         setBoard={setBoard}
-        getAllUserInBoard={getAllUserInBoard}
         allUserInBoard={allUserInBoard}
         permissions={permissions}
         setFilters={setFilters}

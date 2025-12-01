@@ -5,6 +5,7 @@ import { deleteAccountAPI } from '~/apis/auth'
 import { logout } from '~/redux/features/comon'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { textColor } from '~/utils/constants'
 
 const DeleteAccountSection = () => {
   const [checked, setChecked] = useState(false)
@@ -26,17 +27,29 @@ const DeleteAccountSection = () => {
   }
 
   return (
-    <Box className="bg-white flex flex-col w-full">
-      <Box className="flex flex-col gap-1 border-b border-gray-200 p-6">
-        <p className="text-[16px] font-medium">Xóa tài khoản</p>
-        <p className="text-[14px] font-normal text-gray-300">
+    <Box
+      className="flex flex-col w-full"
+      sx={{
+        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1e1e1e' : '#ffffff')
+      }}
+    >
+      <Box
+        className="flex flex-col gap-1 p-6"
+        sx={{
+          borderBottom: (theme) => `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#e5e7eb'}`
+        }}
+      >
+        <p className="text-[16px] font-medium" style={{ color: textColor }}>
+          Xóa tài khoản
+        </p>
+        <p className="text-[14px] font-normal" style={{ color: textColor, opacity: 0.6 }}>
           Tài khoản của bạn sẽ bị xóa vĩnh viễn, không thể khôi phục lại
         </p>
       </Box>
       <Box className="flex flex-col gap-2 p-6">
         <Box className="flex items-center gap-2">
           <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} />
-          <p>Xác nhận xóa tài khoản</p>
+          <p style={{ color: textColor }}>Xác nhận xóa tài khoản</p>
         </Box>
         <Button
           className="w-fit"

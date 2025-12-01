@@ -9,3 +9,8 @@ export const markAllAsReadAPI = async () => {
   const response = await axiosInstance.put('/v1/notifications/mark-all')
   return response.data
 }
+
+export const markAsReadAPI = async (id) => {
+  const response = await axiosInstance.put(`/v1/notifications/${id}`)
+  return response.data
+}

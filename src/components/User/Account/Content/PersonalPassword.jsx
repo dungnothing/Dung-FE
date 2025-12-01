@@ -6,6 +6,7 @@ import { FormProvider } from 'react-hook-form'
 import RHFInputCustom from '~/helpers/hook-form/RHFInputCustom'
 import { updatePasswordAPI } from '~/apis/auth'
 import { toast } from 'react-toastify'
+import { textColor } from '~/utils/constants'
 
 const ChangePasswordSchema = v.object({
   currentPassword: v.pipe(v.string('Mật cũ là bắt buộc'), v.nonEmpty('Mật cũ là bắt buộc')),
@@ -42,9 +43,22 @@ const ChangePasswordForm = () => {
   }
 
   return (
-    <Box className="bg-white rounded-lg shadow-sm ">
-      <Typography variant="h6" fontWeight={600} className="px-6 py-4 border-b border-gray-200">
-        Change Your Password
+    <Box
+      className="rounded-lg shadow-sm"
+      sx={{
+        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1e1e1e' : '#ffffff')
+      }}
+    >
+      <Typography
+        variant="h6"
+        fontWeight={600}
+        className="px-6 py-4"
+        sx={{
+          color: textColor,
+          borderBottom: (theme) => `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#e5e7eb'}`
+        }}
+      >
+        Thay đổi mật khẩu
       </Typography>
 
       <FormProvider {...form}>
@@ -57,25 +71,30 @@ const ChangePasswordForm = () => {
 
           <div className="flex items-center gap-3 pt-2">
             <Button type="submit" variant="contained" sx={{ backgroundColor: '#6C63FF', textTransform: 'none', px: 3 }}>
-              Save Changes
+              Lưu
             </Button>
-            <Button variant="outlined" sx={{ textTransform: 'none' }}>
-              Cancel
+            <Button
+              variant="outlined"
+              sx={{
+                textTransform: 'none',
+                borderColor: (theme) => (theme.palette.mode === 'dark' ? '#666' : '#989898'),
+                color: textColor
+              }}
+            >
+              Hủy
             </Button>
           </div>
         </form>
       </FormProvider>
 
-      <div className="p-6 pt-3">
-        <Typography variant="subtitle2" fontWeight={600}>
+      <div className="p-6 pt-3 flex flex-col gap-2">
+        <Typography variant="subtitle2" fontWeight={600} sx={{ color: textColor }}>
           Yêu cầu:
         </Typography>
-        <ul className="mt-2 space-y-1 text-sm text-gray-700">
-          <li className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-purple-500 rounded-full" />
-            Tối thiểu 6 ký tự
-          </li>
-        </ul>
+        <p className="flex items-center gap-2 text-sm">
+          <span className="w-2 h-2 bg-purple-500 rounded-full" />
+          Tối thiểu 6 ký tự
+        </p>
       </div>
     </Box>
   )

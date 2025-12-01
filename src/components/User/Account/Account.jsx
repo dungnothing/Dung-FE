@@ -7,7 +7,8 @@ function Account() {
   return (
     <Box
       sx={{
-        backgroundColor: '#f4f4f4',
+        // backgroundColor: '#f4f4f4',
+        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#f4f4f4'),
         width: '100%',
         minHeight: theme.trello.dashboardContentHeight,
         pt: 6,

@@ -1,4 +1,4 @@
-import { Box, Menu, MenuItem } from '@mui/material'
+import { Box, IconButton, Menu, MenuItem } from '@mui/material'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { textColor } from '~/utils/constants'
 
@@ -13,13 +13,10 @@ function BoardActionsMenu({
 }) {
   return (
     <Box>
-      <MoreVertIcon sx={{ color: textColor, cursor: 'pointer' }} onClick={(e) => setAnchorElMore(e.currentTarget)} />
-      <Menu
-        anchorEl={anchorElMore}
-        open={Boolean(anchorElMore)}
-        onClose={() => setAnchorElMore(null)}
-        disableRestoreFocus
-      >
+      <IconButton onClick={(e) => setAnchorElMore(e.currentTarget)}>
+        <MoreVertIcon sx={{ color: textColor, cursor: 'pointer' }} />
+      </IconButton>
+      <Menu anchorEl={anchorElMore} open={Boolean(anchorElMore)} onClose={() => setAnchorElMore(null)}>
         <MenuItem
           onClick={() => {
             handleChangStateBoard()

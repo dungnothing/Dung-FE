@@ -58,7 +58,7 @@ function CardDialog({
   const handleChangeDescription = async () => {
     try {
       const newDescription = description?.trim() === '' ? '' : description
-      const formData = { cardId: card._id, description: newDescription }
+      const formData = { cardId: card._id, description: newDescription, boardId: board._id }
       await updateCardAPI(card._id, formData)
       setIsEditting(false)
       setNewData('description', newDescription)

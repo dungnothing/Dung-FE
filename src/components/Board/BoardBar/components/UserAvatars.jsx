@@ -18,16 +18,12 @@ function UserAvatars({ allUserInBoard }) {
           }
         }}
       >
-        <Tooltip title={allUserInBoard.admin.adminName + ' (Admin)'}>
-          <Avatar
-            alt={allUserInBoard.admin.adminName}
-            src={allUserInBoard.admin.adminAvatar}
-            sx={{ position: 'relative' }}
-          />
+        <Tooltip title={allUserInBoard.admin.userName + ' (Admin)'}>
+          <Avatar alt={allUserInBoard.admin.userName} src={allUserInBoard.admin.avatar} sx={{ position: 'relative' }} />
         </Tooltip>
         {allUserInBoard.members.map((user, index) => (
-          <Tooltip title={user.memberName} key={index}>
-            <Avatar alt={user.memberName} src={user.memberAvatar} />
+          <Tooltip title={user.userName} key={index}>
+            <Avatar alt={user.userName} src={user.avatar} />
           </Tooltip>
         ))}
       </AvatarGroup>

@@ -76,6 +76,13 @@ const PaymentComponent = () => {
             const remainingDays = isSubscribed ? getRemainingDays(supData.expiresAt) : null
             const noSubscription = !supData // chưa có gói nào
 
+            // Logic nâng cấp: Nếu đang dùng PRO thì có thể mua PREMIUM
+            const isPro = supData?.plan === 'PRO'
+            const canUpgrade = isPro && pkg?.name === 'Premium'
+
+            // Điều kiện để hiển thị active (không bị mờ)
+            const isActive = noSubscription || isSubscribed || canUpgrade
+
             return (
               <Card
                 key={pkg?.id}
@@ -84,10 +91,10 @@ const PaymentComponent = () => {
                   borderRadius: '20px',
                   border: '1px solid #E5E7EB',
                   transition: '0.3s',
-                  opacity: noSubscription ? 1 : isSubscribed ? 1 : 0.4,
+                  opacity: isActive ? 1 : 0.4,
                   '&:hover': {
-                    transform: noSubscription || isSubscribed ? 'translateY(-4px)' : 'none',
-                    boxShadow: noSubscription || isSubscribed ? '0 6px 20px rgba(0,0,0,0.08)' : 'none'
+                    transform: isActive ? 'translateY(-4px)' : 'none',
+                    boxShadow: isActive ? '0 6px 20px rgba(0,0,0,0.08)' : 'none'
                   }
                 }}
               >
@@ -127,7 +134,7 @@ const PaymentComponent = () => {
                     <Typography sx={{ mt: 2, fontWeight: 600, textAlign: 'center', color: textColor }}>
                       Gói này còn {remainingDays} ngày
                     </Typography>
-                  ) : noSubscription ? (
+                  ) : noSubscription || canUpgrade ? (
                     <Button
                       fullWidth
                       variant={pkg?.id === 2 ? 'contained' : 'outlined'}
@@ -143,7 +150,7 @@ const PaymentComponent = () => {
                         }
                       }}
                     >
-                      Thanh toán ngay
+                      {canUpgrade ? 'Nâng cấp ngay' : 'Thanh toán ngay'}
                     </Button>
                   ) : null}
                 </CardContent>
