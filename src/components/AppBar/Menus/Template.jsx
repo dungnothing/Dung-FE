@@ -38,6 +38,7 @@ function Template() {
       <Menu
         id="demo-positioned-menu"
         aria-labelledby="demo-positioned-button-template"
+        disableRestoreFocus
         anchorEl={anchorEl}
         open={open}
         onClose={() => setAnchorEl(null)}
@@ -52,14 +53,15 @@ function Template() {
       >
         <Box sx={{ width: '300px' }}>
           <ListItemText
-            display='flex'
+            display="flex"
             sx={{
               alignItems: 'center',
               opacity: '0.65',
               width: '100%',
               paddingLeft: '50px',
               color: textColor
-            }}>
+            }}
+          >
             Top Template
           </ListItemText>
           <MenuItem onClick={handleGoToTemplate}>
@@ -70,7 +72,9 @@ function Template() {
                 sx={{ width: 40, height: 40 }}
               />
             </ListItemIcon>
-            <ListItemText sx={{ paddingLeft: '10px', justifyContent: 'center', color: textColor }} >Kế hoạch hàng ngày</ListItemText>
+            <ListItemText sx={{ paddingLeft: '10px', justifyContent: 'center', color: textColor }}>
+              Kế hoạch hàng ngày
+            </ListItemText>
           </MenuItem>
           <MenuItem onClick={handleGoToTemplate}>
             <ListItemIcon>
@@ -80,7 +84,9 @@ function Template() {
                 sx={{ width: 40, height: 40 }}
               />
             </ListItemIcon>
-            <ListItemText sx={{ paddingLeft: '10px', justifyContent: 'center', color: textColor }}>Học tập</ListItemText>
+            <ListItemText sx={{ paddingLeft: '10px', justifyContent: 'center', color: textColor }}>
+              Học tập
+            </ListItemText>
           </MenuItem>
           <MenuItem onClick={handleGoToTemplate}>
             <ListItemIcon>
@@ -90,7 +96,9 @@ function Template() {
                 sx={{ width: 40, height: 40 }}
               />
             </ListItemIcon>
-            <ListItemText sx={{ paddingLeft: '10px', justifyContent: 'center', color: textColor }}>Quản lý dự án</ListItemText>
+            <ListItemText sx={{ paddingLeft: '10px', justifyContent: 'center', color: textColor }}>
+              Quản lý dự án
+            </ListItemText>
           </MenuItem>
           <MenuItem onClick={handleGoToTemplate}>
             <ListItemIcon>
@@ -100,7 +108,9 @@ function Template() {
                 sx={{ width: 40, height: 40 }}
               />
             </ListItemIcon>
-            <ListItemText sx={{ paddingLeft: '10px', justifyContent: 'center', color: textColor }}>Sổ tay nhân viên</ListItemText>
+            <ListItemText sx={{ paddingLeft: '10px', justifyContent: 'center', color: textColor }}>
+              Sổ tay nhân viên
+            </ListItemText>
           </MenuItem>
         </Box>
       </Menu>

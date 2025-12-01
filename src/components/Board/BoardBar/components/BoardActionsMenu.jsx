@@ -14,7 +14,12 @@ function BoardActionsMenu({
   return (
     <Box>
       <MoreVertIcon sx={{ color: textColor, cursor: 'pointer' }} onClick={(e) => setAnchorElMore(e.currentTarget)} />
-      <Menu anchorEl={anchorElMore} open={Boolean(anchorElMore)} onClose={() => setAnchorElMore(null)}>
+      <Menu
+        anchorEl={anchorElMore}
+        open={Boolean(anchorElMore)}
+        onClose={() => setAnchorElMore(null)}
+        disableRestoreFocus
+      >
         <MenuItem
           onClick={() => {
             handleChangStateBoard()

@@ -16,6 +16,7 @@ function FilterTable({ anchorFilter, setAnchorFilter, setFilters, filters, filte
   return (
     <Menu
       anchorEl={anchorFilter}
+      disableRestoreFocus
       open={Boolean(anchorFilter)}
       onClose={() => setAnchorFilter(null)}
       anchorOrigin={{

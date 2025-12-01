@@ -14,7 +14,7 @@ import { toast } from 'react-toastify'
 
 function Starred() {
   const [anchorEl, setAnchorEl] = useState(null)
-  const starredBoards = useSelector(state => state.comon.starBoards)
+  const starredBoards = useSelector((state) => state.comon.starBoards)
   const open = Boolean(anchorEl)
   const navigate = useNavigate()
 
@@ -46,6 +46,7 @@ function Starred() {
         sx={{ minWidth: '200px', minHeight: '200px' }}
         anchorEl={anchorEl}
         open={open}
+        disableRestoreFocus
         onClose={handleClose}
         anchorOrigin={{
           vertical: 'bottom',
@@ -64,10 +65,14 @@ function Starred() {
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, px: 2, py: 1 }}>
-          <Typography variant="body3" sx={{ opacity: 0.65, color: textColor }}>Mục đánh dấu</Typography>
+          <Typography variant="body3" sx={{ opacity: 0.65, color: textColor }}>
+            Mục đánh dấu
+          </Typography>
           {starredBoards?.map((board, index) => (
             <MenuItem key={index} sx={{ pl: 1 }} onClick={() => handleGoToBoardStarred(board._id)}>
-              <Typography variant="body3" sx={{ color: textColor }}>{board.title}</Typography>
+              <Typography variant="body3" sx={{ color: textColor }}>
+                {board.title}
+              </Typography>
             </MenuItem>
           ))}
           {starredBoards?.length === 0 && (

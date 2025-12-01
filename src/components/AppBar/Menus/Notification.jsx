@@ -53,6 +53,7 @@ function Notification() {
 
       <Menu
         anchorEl={anchorEl}
+        disableRestoreFocus
         open={open}
         onClose={handleClose}
         keepMounted={false}

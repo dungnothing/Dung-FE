@@ -71,9 +71,9 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
   const handleOnChange = async () => {
     try {
       const newStatus = !isDone
-      setIsDone(newStatus)
-      const formData = { cardId: card._id, isDone: newStatus }
+      const formData = { cardId: card._id, isDone: newStatus, boardId: board._id }
       await updateCardAPI(card._id, formData)
+      setIsDone(newStatus)
     } catch (error) {
       toast.error('Đổi nội dung thất bại')
     }

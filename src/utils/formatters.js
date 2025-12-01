@@ -1,3 +1,5 @@
+import { cloneDeep, findIndex } from 'lodash'
+
 export const capitalizeFirstLetter = (val) => {
   if (!val) return ''
   return `${val.charAt(0).toUpperCase()}${val.slice(1)}`
@@ -44,4 +46,24 @@ export const generatePlaceholderCard = (column) => {
     columnId: column._id,
     FE_PlaceholderCard: true
   }
+}
+
+export const updateCardInBoard = (board, cardId, updatedCard) => {
+  const nextBoard = cloneDeep(board)
+
+  for (let col of nextBoard.columns) {
+    const idx = findIndex(col.cards, { _id: cardId })
+    if (idx !== -1) {
+      col.cards[idx] = {
+        ...col.cards[idx],
+        ...updatedCard
+      }
+
+      col.cardOrderIds = col.cards.map((c) => c._id)
+
+      return nextBoard
+    }
+  }
+
+  return nextBoard
 }

@@ -7,7 +7,6 @@ import ListItemText from '@mui/material/ListItemText'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
-import AddCardIcon from '@mui/icons-material/AddCard'
 import Button from '@mui/material/Button'
 import ListCards from './ListCards/ListCards'
 import theme from '~/theme'
@@ -86,6 +85,7 @@ function Column({ column, createNewCard, deleteColumnDetails, boardState, fetchB
   // Xu li xoa mot column va card ben trong no
   const confirmDeleteColumn = useConfirm()
   const handleDeleteColumn = () => {
+    handleClose()
     confirmDeleteColumn({
       title: 'Xóa cột',
       description: (
@@ -154,6 +154,7 @@ function Column({ column, createNewCard, deleteColumnDetails, boardState, fetchB
               </Tooltip>
               <Menu
                 anchorEl={anchorEl}
+                disableRestoreFocus
                 open={open}
                 onClose={handleClose}
                 anchorOrigin={{
@@ -172,23 +173,7 @@ function Column({ column, createNewCard, deleteColumnDetails, boardState, fetchB
                   }
                 }}
               >
-                <MenuItem
-                  onClick={toggleOpenNewCardForm}
-                  sx={{
-                    '&:hover': { color: 'success.light', '& .add-card-icon': { color: 'success.light' } }
-                  }}
-                >
-                  <ListItemIcon>
-                    <AddCardIcon className="add-card-icon" fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText sx={{ color: textColor }}>Thêm mới</ListItemText>
-                </MenuItem>
-                <MenuItem
-                  onClick={handleDeleteColumn}
-                  sx={{
-                    '&:hover': { color: 'warning.dark', '& .delete-forever-icon': { color: 'warning.dark' } }
-                  }}
-                >
+                <MenuItem onClick={handleDeleteColumn}>
                   <ListItemIcon>
                     <DeleteForeverIcon className="delete-forever-icon" fontSize="small" />
                   </ListItemIcon>

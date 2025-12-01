@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { updateBoardDetailsAPI, deleteBoardAPI, changeAdminAPI } from '~/apis/boards'
-import useConfirmDialog from '~/helpers/components/useConfirmDialog'
+import useConfirmDialog from '~/helpers/hooks/useConfirmDialog'
 
 export const useBoardOperations = (board, setBoard) => {
   const [isEditing, setIsEditing] = useState(false)

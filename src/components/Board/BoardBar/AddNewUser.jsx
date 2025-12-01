@@ -163,6 +163,7 @@ function AddNewUser({ board, getAllUserInBoard, allUserInBoard }) {
             <Menu
               anchorEl={anchorElSearch}
               open={Boolean(anchorElSearch) && inviteInput.trim() !== ''}
+              disableRestoreFocus
               onClose={() => setAnchorElSearch(null)}
               sx={{
                 '& .MuiPaper-root': {

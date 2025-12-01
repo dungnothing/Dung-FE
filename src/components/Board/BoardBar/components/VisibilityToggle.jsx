@@ -26,6 +26,7 @@ function VisibilityToggle({ visibility, setVisibility, anchorEl, setAnchorEl, op
       </Box>
 
       <Menu
+        disableRestoreFocus
         anchorEl={anchorEl}
         open={open}
         onClose={() => setOpen(false)}

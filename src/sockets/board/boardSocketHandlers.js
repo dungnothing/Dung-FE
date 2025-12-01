@@ -1,6 +1,7 @@
 import { mapOrder } from '~/utils/sort'
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { toast } from 'react-toastify'
+import { updateCardInBoard } from '~/utils/formatters'
 
 export const getBoardSocketCallbacks = (setBoard, navigate) => ({
   onColumnCreated: (newColumn) => {
@@ -45,10 +46,8 @@ export const getBoardSocketCallbacks = (setBoard, navigate) => ({
   },
 
   onMoveCardToDifferentColumn: (data) => {
-    console.log('data', data)
     setBoard((prev) => {
       const newBoard = { ...prev }
-      // Xu li next column
       const nextColumn = newBoard.columns.find((col) => col._id === data.nextColumnId)
       if (nextColumn) {
         nextColumn.cardOrderIds = data.nextCardOrderIds
@@ -131,17 +130,7 @@ export const getBoardSocketCallbacks = (setBoard, navigate) => ({
   },
 
   onCardUpdated: (updatedCard) => {
-    setBoard((prev) => {
-      const newBoard = { ...prev }
-      const col = newBoard.columns.find((col) => col._id === updatedCard.columnId)
-      if (col) {
-        const card = col.cards.find((card) => card._id === updatedCard._id)
-        if (card) {
-          Object.assign(card, updatedCard)
-        }
-      }
-      return newBoard
-    })
+    setBoard((prev) => updateCardInBoard(prev, updatedCard._id, updatedCard))
   },
 
   onCommentCreated: (newComment) => {

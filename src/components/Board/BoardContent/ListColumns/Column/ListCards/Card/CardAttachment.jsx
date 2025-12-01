@@ -7,7 +7,7 @@ import { Box, Menu, MenuItem } from '@mui/material'
 import { useState } from 'react'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { toast } from 'react-toastify'
-import useConfirmDialog from '~/helpers/components/useConfirmDialog'
+import useConfirmDialog from '~/helpers/hooks/useConfirmDialog'
 import { removeFileAPI } from '~/apis/cards'
 
 const caculateSize = (bytes) => {
@@ -88,7 +88,12 @@ function CardAttachment({ card, fetchBoarData }) {
               }}
               aria-label="More File Options"
             />
-            <Menu anchorEl={anchorElMore} open={Boolean(anchorElMore)} onClose={() => setAnchorElMore(null)}>
+            <Menu
+              anchorEl={anchorElMore}
+              open={Boolean(anchorElMore)}
+              onClose={() => setAnchorElMore(null)}
+              disableRestoreFocus
+            >
               <MenuItem
                 onClick={() => {
                   navigator.clipboard.writeText(card?.files?.url)
