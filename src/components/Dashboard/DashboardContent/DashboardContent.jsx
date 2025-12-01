@@ -11,7 +11,7 @@ import Task from './Task/Task'
 import Setting from './Setting/Setting'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { textColor } from '~/utils/constants'
-import Pay from '../../../pages/User/Payment'
+import Pay from '~/components/User/Payment'
 
 const DashboardContent = ({ searchValue }) => {
   const navigate = useNavigate()
