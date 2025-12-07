@@ -7,7 +7,6 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import Avatar from '@mui/material/Avatar'
 import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
-import Settings from '@mui/icons-material/Settings'
 import { Typography, ListItemText } from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useNavigate } from 'react-router-dom'
@@ -80,12 +79,6 @@ function Profiles() {
             </div>
           </MenuItem>
 
-          <MenuItem onClick={handleClose}>
-            <ListItemText sx={{ pl: '4px', '&:hover': { color: '#3498db' } }}>Cài đặt</ListItemText>
-            <ListItemIcon>
-              <Settings sx={{ width: 20, height: 20 }} />
-            </ListItemIcon>
-          </MenuItem>
           <Divider />
           <MenuItem onClick={logOut}>
             <ListItemText sx={{ pl: '4px', '&:hover': { color: '#e74c3c' } }}>Đăng xuất</ListItemText>

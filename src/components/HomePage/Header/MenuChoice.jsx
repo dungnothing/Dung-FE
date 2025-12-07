@@ -53,7 +53,11 @@ function MenuChoice({ open, onClose, introOpen, featureOpen, contactOpen, trigge
               <ArrowForwardIcon sx={{ fontSize: '16px' }} />
             </Button>
             <Divider orientation="vertical" flexItem sx={{ borderColor: '#DADCE0' }} />
-            <Button disableRipple sx={ButtonStyle}>
+            <Button
+              disableRipple
+              sx={ButtonStyle}
+              onClick={() => window.open('https://web.facebook.com/dungvhtb', '_blank')}
+            >
               Cần tư vấn
               <ArrowForwardIcon sx={{ fontSize: '16px' }} />
             </Button>
