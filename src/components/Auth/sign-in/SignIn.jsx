@@ -59,13 +59,10 @@ function SignIn() {
 
   const handleGoogleLogin = async () => {
     try {
-      setIsLoading(true)
       const response = await getGoogleAuthUrlAPI()
       window.location.href = response.url
     } catch (error) {
       toast.error('Lỗi khi đăng nhập với Google')
-    } finally {
-      setIsLoading(false)
     }
   }
 
