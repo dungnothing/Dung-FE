@@ -19,7 +19,7 @@ function Template() {
   }
   const handleGoToTemplate = () => {
     setAnchorEl(null)
-    navigate('/dashboard?tab=TemplateTop')
+    navigate('/dashboard/templates')
   }
 
   return (
