@@ -35,15 +35,14 @@ export const PrivateRoute = () => {
 
   const hasSubscription = user?.subscriptions && new Date(user.subscriptions.expiresAt) > new Date()
 
-  const searchParams = new URLSearchParams(location.search)
-  const isPaymentTab = location.pathname === '/dashboard' && searchParams.get('tab') === 'Payment'
+  const isPaymentPage = location.pathname.includes('/payment')
 
-  if (isPaymentTab) {
+  if (isPaymentPage) {
     return <Outlet />
   }
 
   if (!hasSubscription) {
-    return <Navigate to="/dashboard?tab=Payment" replace />
+    return <Navigate to="/dashboard/payment" replace />
   }
 
   return <Outlet />

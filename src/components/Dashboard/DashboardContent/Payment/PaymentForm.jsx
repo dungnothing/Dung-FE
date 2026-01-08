@@ -3,19 +3,17 @@ import { toast } from 'react-toastify'
 import validation from '~/utils/validation'
 import { createSubcriptionAPI } from '~/apis/v2/subcription'
 import * as v from 'valibot'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, Controller } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { getUserInfoAPI } from '~/apis/auth'
+import { useDispatch } from 'react-redux'
+import { setUserInfo } from '~/redux/features/comon'
 
 const schema = v.object({
   cardName: v.pipe(
     v.string(),
     v.nonEmpty('Tên là bắt buộc'),
-    v.custom((value) => {
-      // Kiểm tra có dấu không
-      const hasDiacritics = /[^\u0000-\u007E]/.test(value) // ký tự ngoài ASCII
-      if (hasDiacritics) return false
-      return true
-    }, 'Tên không được có dấu'),
+    v.custom((value) => !/[^\u0000-\u007E]/.test(value), 'Tên không được có dấu'),
     v.transform((value) => value.toUpperCase())
   ),
   cardNumber: v.pipe(
@@ -35,7 +33,23 @@ const schema = v.object({
   )
 })
 
+const FormField = ({ label, children }) => (
+  <Box className="flex flex-col gap-2">
+    <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>{label}</Typography>
+    {children}
+  </Box>
+)
+
+const formatCardNumber = (value = '') =>
+  value
+    .replace(/\D/g, '')
+    .slice(0, 16)
+    .replace(/(.{4})/g, '$1 ')
+    .trim()
+
 function PaymentForm({ pkg, getUserSubsription, setSelectedPackage }) {
+  const dispatch = useDispatch()
+
   const form = useForm({
     resolver: valibotResolver(schema),
     defaultValues: {
@@ -49,6 +63,7 @@ function PaymentForm({ pkg, getUserSubsription, setSelectedPackage }) {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors }
   } = form
@@ -59,9 +74,16 @@ function PaymentForm({ pkg, getUserSubsription, setSelectedPackage }) {
         plan: pkg?.name.toUpperCase(),
         price: pkg?.priceNumber
       })
-      getUserSubsription()
+
+      await getUserSubsription()
       setSelectedPackage(null)
+
+      const userInfo = await getUserInfoAPI()
+      dispatch(setUserInfo(userInfo))
+
       toast.success('Thanh toán thành công')
+
+      window.location.href = '/dashboard/boards'
     } catch (error) {
       toast.error(error.response?.data?.message || 'Thanh toán thất bại')
     }
@@ -70,15 +92,13 @@ function PaymentForm({ pkg, getUserSubsription, setSelectedPackage }) {
   return (
     <FormProvider {...form}>
       <Box component="form" onSubmit={handleSubmit(handleSubmitPayment)}>
-        <Box className="w-full max-w-sm px-6 py-8 rounded-xl border border-gray-700 flex flex-col gap-3">
-          <Box className="flex items-center">
-            <Typography variant="h6" className="flex-grow text-center -ml-6">
-              Credit Card Details
-            </Typography>
-          </Box>
+        <Box className="w-full max-w-sm px-6 py-8 rounded-xl border border-gray-700 flex flex-col gap-4">
+          <Typography variant="h6" textAlign="center">
+            Credit Card Details
+          </Typography>
 
-          <Box className="border border-dashed border-gray-600 rounded-md p-3 flex items-center">
-            <Typography className="text-sm mb-2 max-w-[90px]">Phương thức thanh toán</Typography>
+          <Box className="border border-dashed border-gray-600 rounded-md p-3 flex items-center gap-3">
+            <Typography className="text-sm">Phương thức thanh toán</Typography>
             <Box className="flex space-x-2">
               <Box className="w-10 h-6 bg-red-500 rounded" />
               <Box className="w-10 h-6 bg-blue-500 rounded" />
@@ -86,86 +106,72 @@ function PaymentForm({ pkg, getUserSubsription, setSelectedPackage }) {
             </Box>
           </Box>
 
-          {/* Card Name */}
-          <Box className="flex flex-col gap-2">
-            <Typography className="text-sm mb-2 max-w-[90px]">Tên trên thẻ</Typography>
+          <FormField label="Tên trên thẻ">
             <TextField
-              variant="outlined"
-              fullWidth
               size="small"
+              fullWidth
               {...register('cardName')}
               error={!!errors.cardName}
               helperText={errors.cardName?.message}
             />
-          </Box>
+          </FormField>
 
-          {/* Card Number */}
-          <Box className="flex flex-col gap-2">
-            <Typography className="text-sm mb-2 max-w-[90px]">Số thẻ</Typography>
-            <TextField
-              variant="outlined"
-              fullWidth
-              size="small"
-              placeholder="0000 0000 0000 0000"
-              {...register('cardNumber')}
-              error={!!errors.cardNumber}
-              helperText={errors.cardNumber?.message}
+          <FormField label="Số thẻ">
+            <Controller
+              name="cardNumber"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder="0000 0000 0000 0000"
+                  value={formatCardNumber(field.value)}
+                  onChange={(e) => field.onChange(e.target.value.replace(/\s+/g, ''))}
+                  error={!!errors.cardNumber}
+                  helperText={errors.cardNumber?.message}
+                />
+              )}
             />
-          </Box>
+          </FormField>
 
-          {/* Expiration */}
-          <Box className="flex flex-col gap-2">
-            <Typography className="text-sm mb-2 max-w-[90px]">Hạn sử dụng</Typography>
+          <FormField label="Hạn sử dụng">
             <TextField
-              variant="outlined"
-              fullWidth
               size="small"
+              fullWidth
               placeholder="MM/YY"
               {...register('cardExpiryDate')}
               error={!!errors.cardExpiryDate}
               helperText={errors.cardExpiryDate?.message}
             />
-          </Box>
+          </FormField>
 
-          {/* CVV */}
-          <Box className="flex flex-col gap-2">
-            <Typography className="text-sm mb-2 max-w-[90px]">Mã bảo mật</Typography>
+          <FormField label="Mã bảo mật">
             <TextField
-              variant="outlined"
-              fullWidth
               size="small"
-              placeholder="Code"
+              fullWidth
+              placeholder="CVV"
               {...register('cardCvv')}
               error={!!errors.cardCvv}
               helperText={errors.cardCvv?.message}
             />
-          </Box>
+          </FormField>
 
-          {/* Package */}
-          <Box className="flex flex-col gap-2">
-            <Typography className="text-sm mb-2 max-w-[90px]">Gói VIP</Typography>
+          <FormField label="Gói VIP">
             <TextField
-              variant="outlined"
-              fullWidth
               size="small"
+              fullWidth
               disabled
               value={pkg?.name}
               sx={{
                 '& .MuiInputBase-root': {
                   bgcolor: '#F7F7F7',
-                  borderColor: '#DCDCDC',
                   cursor: 'not-allowed'
                 }
               }}
             />
-          </Box>
+          </FormField>
 
-          <Button
-            fullWidth
-            variant="contained"
-            className="bg-white text-black hover:bg-gray-200 rounded-md py-2"
-            type="submit"
-          >
+          <Button fullWidth variant="contained" className="bg-white text-black hover:bg-gray-200" type="submit">
             Continue
           </Button>
         </Box>

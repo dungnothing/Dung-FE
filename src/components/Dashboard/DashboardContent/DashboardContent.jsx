@@ -4,14 +4,8 @@ import PaymentIcon from '@mui/icons-material/Payment'
 import SettingsIcon from '@mui/icons-material/Settings'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import TaskIcon from '@mui/icons-material/Task'
-import MainBoard from './MainBoard/MainBoard'
-import Template from './Template/Template'
-import { useState, useEffect } from 'react'
-import Task from './Task/Task'
-import Setting from './Setting/Setting'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { textColor } from '~/utils/constants'
-import Pay from '~/components/User/Payment'
 
 const DashboardContent = ({ searchValue }) => {
   const navigate = useNavigate()
@@ -19,31 +13,11 @@ const DashboardContent = ({ searchValue }) => {
   const theme = useTheme()
   const isXs = useMediaQuery(theme.breakpoints.only('xs'))
 
-  const [selectedItem, setSelectedItem] = useState(() => {
-    const params = new URLSearchParams(location.search)
-    return params.get('tab') || 'MainBoardTop'
-  })
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const tab = params.get('tab') || 'MainBoardTop'
-    setSelectedItem(tab)
-  }, [location.search])
-
-  const handleSelect = (item) => {
-    setSelectedItem(item)
-    navigate(`?tab=${item}`)
-  }
-
-  const renderContent = () => {
-    if (selectedItem.includes('MainBoard')) {
-      return <MainBoard searchValue={searchValue} />
+  const isActive = (path) => {
+    if (path === 'boards' && (location.pathname === '/dashboard' || location.pathname === '/dashboard/boards')) {
+      return true
     }
-    if (selectedItem.includes('Template')) return <Template />
-    if (selectedItem.includes('Tasks')) return <Task />
-    if (selectedItem.includes('Settings')) return <Setting />
-    if (selectedItem.includes('Payment')) return <Pay />
-    return <MainBoard searchValue={searchValue} />
+    return location.pathname.includes(`/dashboard/${path}`)
   }
 
   const bgMenu = (theme) => (theme.palette.mode === 'dark' ? '#1C2B41' : '#e9f2ff')
@@ -80,9 +54,9 @@ const DashboardContent = ({ searchValue }) => {
           }}
         >
           <Box
-            onClick={() => handleSelect('MainBoardTop')}
+            onClick={() => navigate('boards')}
             sx={{
-              bgcolor: selectedItem === 'MainBoardTop' ? bgMenu : 'transparent',
+              bgcolor: isActive('boards') ? bgMenu : 'transparent',
               color: textColor,
               borderRadius: '8px',
               height: '40px',
@@ -94,18 +68,14 @@ const DashboardContent = ({ searchValue }) => {
               cursor: 'pointer'
             }}
           >
-            <DashboardIcon sx={{ color: selectedItem === 'MainBoardTop' ? '#578FCA' : 'inherit' }} />
-            {!isXs && (
-              <Typography sx={{ pl: 1, color: selectedItem === 'MainBoardTop' ? '#578FCA' : 'inherit' }}>
-                Bảng
-              </Typography>
-            )}
+            <DashboardIcon sx={{ color: isActive('boards') ? '#578FCA' : 'inherit' }} />
+            {!isXs && <Typography sx={{ pl: 1, color: isActive('boards') ? '#578FCA' : 'inherit' }}>Bảng</Typography>}
           </Box>
 
           <Box
-            onClick={() => handleSelect('TemplateTop')}
+            onClick={() => navigate('templates')}
             sx={{
-              bgcolor: selectedItem === 'TemplateTop' ? bgMenu : 'transparent',
+              bgcolor: isActive('templates') ? bgMenu : 'transparent',
               color: textColor,
               borderRadius: '8px',
               height: '40px',
@@ -117,10 +87,8 @@ const DashboardContent = ({ searchValue }) => {
               cursor: 'pointer'
             }}
           >
-            <ViewListIcon sx={{ color: selectedItem === 'TemplateTop' ? '#578FCA' : 'inherit' }} />
-            {!isXs && (
-              <Typography sx={{ pl: 1, color: selectedItem === 'TemplateTop' ? '#578FCA' : 'inherit' }}>Mẫu</Typography>
-            )}
+            <ViewListIcon sx={{ color: isActive('templates') ? '#578FCA' : 'inherit' }} />
+            {!isXs && <Typography sx={{ pl: 1, color: isActive('templates') ? '#578FCA' : 'inherit' }}>Mẫu</Typography>}
           </Box>
 
           {!isXs && (
@@ -133,9 +101,9 @@ const DashboardContent = ({ searchValue }) => {
           )}
 
           <Box
-            onClick={() => handleSelect('MainBoardBottom')}
+            onClick={() => navigate('tasks')}
             sx={{
-              bgcolor: selectedItem === 'MainBoardBottom' ? bgMenu : 'transparent',
+              bgcolor: isActive('tasks') ? bgMenu : 'transparent',
               color: textColor,
               borderRadius: '8px',
               height: '40px',
@@ -147,18 +115,16 @@ const DashboardContent = ({ searchValue }) => {
               cursor: 'pointer'
             }}
           >
-            <DashboardIcon sx={{ color: selectedItem === 'MainBoardBottom' ? '#578FCA' : 'inherit' }} />
+            <TaskIcon sx={{ color: isActive('tasks') ? '#578FCA' : 'inherit' }} />
             {!isXs && (
-              <Typography sx={{ pl: 1, color: selectedItem === 'MainBoardBottom' ? '#578FCA' : 'inherit' }}>
-                Bảng
-              </Typography>
+              <Typography sx={{ pl: 1, color: isActive('tasks') ? '#578FCA' : 'inherit' }}>Nhiệm vụ</Typography>
             )}
           </Box>
 
           <Box
-            onClick={() => handleSelect('Tasks')}
+            onClick={() => navigate('settings')}
             sx={{
-              bgcolor: selectedItem === 'Tasks' ? bgMenu : 'transparent',
+              bgcolor: isActive('settings') ? bgMenu : 'transparent',
               color: textColor,
               borderRadius: '8px',
               height: '40px',
@@ -170,16 +136,16 @@ const DashboardContent = ({ searchValue }) => {
               cursor: 'pointer'
             }}
           >
-            <TaskIcon sx={{ color: selectedItem === 'Tasks' ? '#578FCA' : 'inherit' }} />
+            <SettingsIcon sx={{ color: isActive('settings') ? '#578FCA' : 'inherit' }} />
             {!isXs && (
-              <Typography sx={{ pl: 1, color: selectedItem === 'Tasks' ? '#578FCA' : 'inherit' }}>Nhiệm vụ</Typography>
+              <Typography sx={{ pl: 1, color: isActive('settings') ? '#578FCA' : 'inherit' }}>Cài đặt</Typography>
             )}
           </Box>
 
           <Box
-            onClick={() => handleSelect('Settings')}
+            onClick={() => navigate('payment')}
             sx={{
-              bgcolor: selectedItem === 'Settings' ? bgMenu : 'transparent',
+              bgcolor: isActive('payment') ? bgMenu : 'transparent',
               color: textColor,
               borderRadius: '8px',
               height: '40px',
@@ -191,34 +157,9 @@ const DashboardContent = ({ searchValue }) => {
               cursor: 'pointer'
             }}
           >
-            <SettingsIcon sx={{ color: selectedItem === 'Settings' ? '#578FCA' : 'inherit' }} />
+            <PaymentIcon sx={{ color: isActive('payment') ? '#578FCA' : 'inherit' }} />
             {!isXs && (
-              <Typography sx={{ pl: 1, color: selectedItem === 'Settings' ? '#578FCA' : 'inherit' }}>
-                Cài đặt
-              </Typography>
-            )}
-          </Box>
-
-          <Box
-            onClick={() => handleSelect('Payment')}
-            sx={{
-              bgcolor: selectedItem === 'Payment' ? bgMenu : 'transparent',
-              color: textColor,
-              borderRadius: '8px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              px: '8px',
-              py: '6px',
-              width: { xs: '40px', sm: '100%' },
-              cursor: 'pointer'
-            }}
-          >
-            <PaymentIcon sx={{ color: selectedItem === 'Payment' ? '#578FCA' : 'inherit' }} />
-            {!isXs && (
-              <Typography sx={{ pl: 1, color: selectedItem === 'Payment' ? '#578FCA' : 'inherit' }}>
-                Thanh toán
-              </Typography>
+              <Typography sx={{ pl: 1, color: isActive('payment') ? '#578FCA' : 'inherit' }}>Thanh toán</Typography>
             )}
           </Box>
         </Box>
@@ -242,7 +183,7 @@ const DashboardContent = ({ searchValue }) => {
           }
         }}
       >
-        {renderContent()}
+        <Outlet context={{ searchValue }} />
       </Box>
     </Box>
   )

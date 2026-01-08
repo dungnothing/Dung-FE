@@ -3,7 +3,7 @@
 import { Box, Typography, Card, Avatar, Button } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 import { getAllAccessibleBoardsAPI, addStarBoardAPI, removeStarBoardAPI, addRecentBoardAPI } from '~/apis/boards'
 import { toast } from 'react-toastify'
 import StarIcon from '@mui/icons-material/Star'
@@ -14,7 +14,8 @@ import { setStarBoards } from '~/redux/features/comon'
 import CreateBoard from '~/helpers/components/CreateBoard'
 import CircularProgress from '@mui/material/CircularProgress'
 
-function MainBoard({ searchValue }) {
+function MainBoard() {
+  const { searchValue } = useOutletContext()
   const [boards, setBoards] = useState([])
   const [loadBoards, setLoadBoards] = useState(false)
   const [searchedBoards, setSearchedBoards] = useState([])
