@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import { RotateCcw } from 'lucide-react'
-import AddNewUser from './AddNewUser'
+import MemberManage from './MemberManage'
 import DialogChangeAdmin from './DialogChangeAdmin'
 import FilterTable from './FilterTable'
 import BoardTitle from './components/BoardTitle'
@@ -136,7 +136,7 @@ function BoardBar({ board, setBoard, allUserInBoard, permissions, setFilters, fi
         />
 
         {/*  Invite */}
-        <AddNewUser board={board} allUserInBoard={allUserInBoard} />
+        <MemberManage board={board} allUserInBoard={allUserInBoard} />
 
         {/*  Avatar */}
         <UserAvatars allUserInBoard={allUserInBoard} />

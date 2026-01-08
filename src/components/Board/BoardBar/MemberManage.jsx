@@ -19,10 +19,11 @@ import BasicLoading from '~/helpers/components/BasicLoading'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { useConfirm } from 'material-ui-confirm'
 import validation from '~/utils/validation'
+import { UserMinus } from 'lucide-react'
 
-function AddNewUser({ board }) {
+function MemberManage({ board }) {
   const { boardId } = useParams()
-  const user = useSelector((state) => state.user)
+  const user = useSelector((state) => state.comon.user)
   const confirm = useConfirm()
   const [loading, setLoading] = useState(false)
   const [loadingUser, setLoadingUser] = useState(false)
@@ -242,7 +243,7 @@ function AddNewUser({ board }) {
             </Box>
 
             {/* Hiển thị danh sách members */}
-            <Box>
+            <Box className="flex flex-col gap-2">
               {allUser?.members?.map((member, index) => (
                 <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -273,7 +274,7 @@ function AddNewUser({ board }) {
                         })
                       }}
                     >
-                      <CloseIcon />
+                      <UserMinus size={16} />
                     </IconButton>
                   )}
                 </Box>
@@ -286,4 +287,4 @@ function AddNewUser({ board }) {
   )
 }
 
-export default AddNewUser
+export default MemberManage
