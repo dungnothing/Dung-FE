@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import Cookie from 'js-cookie'
 import { useSelector } from 'react-redux'
-import Loading from '~/helpers/components/Loading'
+import BasicLoading from '~/helpers/components/BasicLoading'
 import { Box } from '@mui/material'
 
 const getCookie = (name) => Cookie.get(name)
@@ -28,7 +28,7 @@ export const PrivateRoute = () => {
   if (!user?.userId) {
     return (
       <Box sx={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loading />
+        <BasicLoading />
       </Box>
     )
   }
@@ -37,13 +37,11 @@ export const PrivateRoute = () => {
 
   const isPaymentPage = location.pathname.includes('/payment')
 
-  if (isPaymentPage) {
-    return <Outlet />
-  }
-
-  if (!hasSubscription) {
+  // Chỉ chặn user chưa có subscription: bắt buộc vào trang payment
+  if (!hasSubscription && !isPaymentPage) {
     return <Navigate to="/dashboard/payment" replace />
   }
 
+  // User đã có subscription: tự do truy cập mọi trang (kể cả payment để upgrade)
   return <Outlet />
 }

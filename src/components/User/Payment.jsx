@@ -7,10 +7,12 @@ import { textColor } from '~/utils/constants'
 import { getSubcriptionAPI } from '~/apis/v2/subcription'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
+import BasicLoading from '~/helpers/components/BasicLoading'
 
 const PaymentComponent = () => {
   const [selectedPackage, setSelectedPackage] = useState(null)
   const [supData, setSupData] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   const packages = [
     {
@@ -44,10 +46,13 @@ const PaymentComponent = () => {
 
   const getUserSubsription = async () => {
     try {
+      setLoading(true)
       const res = await getSubcriptionAPI()
       setSupData(res)
     } catch (error) {
       toast.error('Lỗi khi lấy thông tin người dùng')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -60,6 +65,10 @@ const PaymentComponent = () => {
     const expire = dayjs(expiresAt)
     const diff = expire.diff(now, 'day')
     return diff > 0 ? diff : 0
+  }
+
+  if (loading) {
+    return <BasicLoading />
   }
 
   return (

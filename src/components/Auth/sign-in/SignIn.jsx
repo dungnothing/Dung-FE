@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import { signInAPI, getGoogleAuthUrlAPI } from '~/apis/auth'
 import google from '~/assets/google.svg'
 import ForgotPassword from './ForgotPassword'
-import Loading from '~/helpers/components/Loading'
+import BasicLoading from '~/helpers/components/BasicLoading'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
@@ -72,7 +72,7 @@ function SignIn() {
   if (isLoading) {
     return (
       <Box sx={{ width: '100%', height: '100vh' }}>
-        <Loading />
+        <BasicLoading />
       </Box>
     )
   }

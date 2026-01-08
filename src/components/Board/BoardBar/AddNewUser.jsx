@@ -15,7 +15,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import Loading from '~/helpers/components/Loading'
+import BasicLoading from '~/helpers/components/BasicLoading'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { useConfirm } from 'material-ui-confirm'
 import validation from '~/utils/validation'
@@ -102,7 +102,7 @@ function AddNewUser({ board }) {
 
   return (
     <>
-      {loadingUser && <Loading />}
+      {loadingUser && <BasicLoading />}
       <Box>
         <Button
           variant="outlined"

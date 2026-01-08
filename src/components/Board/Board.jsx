@@ -10,7 +10,7 @@ import { createNewColumnAPI, deleteColumnDetailsAPI, updateColumnDetailsAPI } fr
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { isEmpty } from 'lodash'
 import { mapOrder } from '~/utils/sort'
-import Loading from '~/helpers/components/Loading'
+import BasicLoading from '~/helpers/components/BasicLoading'
 import { toast } from 'react-toastify'
 import { PERMISSIONS_MAP } from '~/utils/permissions'
 import { initBoardSocket, getBoardSocketCallbacks } from '~/sockets/board'
@@ -267,7 +267,7 @@ function Board() {
   if (!board || isLoading)
     return (
       <Box sx={{ width: '100vw', height: '100vh' }}>
-        <Loading />
+        <BasicLoading />
       </Box>
     )
 

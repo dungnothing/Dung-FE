@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 
-function Loading({ className, size = 48 }) {
+function BasicLoading({ className, size = 48 }) {
   return (
     <Box
       sx={{
@@ -25,4 +25,4 @@ function Loading({ className, size = 48 }) {
   )
 }
 
-export default Loading
+export default BasicLoading
