@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Box, Avatar, Typography, LinearProgress, IconButton } from '@mui/material'
 import { Camera, Briefcase, MapPin, CalendarDays } from 'lucide-react'
@@ -8,11 +8,13 @@ import { updateAvatarAPI } from '~/apis/auth'
 import { useDispatch } from 'react-redux'
 import { updateUserInfo } from '~/redux/features/comon'
 import { textColor } from '~/utils/constants'
+import BasicLoading from '~/helpers/components/BasicLoading'
 
 function PersonalInfo() {
   const user = useSelector((state) => state.comon.user)
   const avatarRef = useRef(null)
   const dipatch = useDispatch()
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleClick = () => {
     avatarRef.current?.click()
@@ -38,12 +40,15 @@ function PersonalInfo() {
     formData.append('avatar', file)
 
     try {
+      setIsLoading(true)
       const res = await updateAvatarAPI(formData)
       dipatch(updateUserInfo(res))
       avatarRef.current.value = null
       toast.success('Upload thành công')
     } catch (error) {
       toast.error('Upload thất bại:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -57,6 +62,19 @@ function PersonalInfo() {
 
   return (
     <Box className="w-full flex flex-col gap-2 relative">
+      {isLoading && (
+        <Box
+          sx={{
+            width: '100%',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <BasicLoading />
+        </Box>
+      )}
       {/* Card chính */}
       <Box
         className="relative flex flex-col rounded-[12px]"
