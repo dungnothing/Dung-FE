@@ -26,7 +26,13 @@ export const useFetchUserInfo = () => {
     try {
       const [userInfo, notifications] = await Promise.all([getUserInfoAPI(), getNotificationAPI()])
 
-      dispatch(setUserInfo({ ...userInfo, userId: userInfo._id }))
+      dispatch(
+        setUserInfo({
+          ...userInfo,
+          userId: userInfo._id,
+          subscriptions: userInfo.subscriptions || null
+        })
+      )
       dispatch(setStarBoards(userInfo.starBoards))
       dispatch(setRecentBoards(userInfo.recentBoards))
       dispatch(setNotifications(notifications))

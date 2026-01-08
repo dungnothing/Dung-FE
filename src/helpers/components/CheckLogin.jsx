@@ -33,9 +33,9 @@ export const PrivateRoute = () => {
     )
   }
 
-  // Nếu user đã có userId nhưng subscriptions chưa được set (vẫn là undefined)
-  // => Đang fetch data từ API, hiện loading
-  if (user.userId && user.subscriptions === undefined) {
+  // Đợi user data được load đầy đủ từ API
+  // Nếu userName vẫn là null (initialState) => Đang fetch
+  if (user.userId && user.userName === null) {
     return (
       <Box sx={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <BasicLoading />
