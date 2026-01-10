@@ -29,8 +29,7 @@ export const useFetchUserInfo = () => {
       dispatch(
         setUserInfo({
           ...userInfo,
-          userId: userInfo._id,
-          subscriptions: userInfo.subscriptions || null
+          userId: userInfo._id
         })
       )
       dispatch(setStarBoards(userInfo.starBoards))
