@@ -28,11 +28,10 @@ export const useBoardOperations = (board, setBoard) => {
   const handleVisibilityChange = async (isPrivate) => {
     try {
       await updateBoardDetailsAPI(board._id, { visibility: isPrivate ? 'PRIVATE' : 'PUBLIC' })
+      setVisibility(isPrivate ? 'PRIVATE' : 'PUBLIC')
       toast.success('Trạng thái bảng đã thay đổi')
     } catch (error) {
       toast.error(getErrorMessage(error, 'Lỗi khi thay đổi trạng thái bảng'))
-    } finally {
-      setVisibility(isPrivate ? 'PRIVATE' : 'PUBLIC')
     }
   }
 
