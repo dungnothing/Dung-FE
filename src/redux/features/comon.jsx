@@ -12,7 +12,7 @@ const initialState = {
     isGoogleAccount: false,
     organization: null,
     createdAt: null,
-    subscriptions: null
+    subscriptions: undefined // undefined = chưa load, null = đã load nhưng không có subscription
   },
   notifications: [],
   starBoards: [],

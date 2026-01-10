@@ -42,6 +42,16 @@ export const PrivateRoute = () => {
     )
   }
 
+  // Đảm bảo subscriptions đã được load (undefined nghĩa là chưa fetch xong)
+  // null nghĩa là đã fetch xong nhưng user không có subscription
+  if (user.userId && user.subscriptions === undefined) {
+    return (
+      <Box sx={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <BasicLoading />
+      </Box>
+    )
+  }
+
   const hasSubscription = user?.subscriptions && new Date(user.subscriptions.expiresAt) > new Date()
 
   const isPaymentPage = location.pathname.includes('/payment')
