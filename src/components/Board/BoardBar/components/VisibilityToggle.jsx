@@ -4,7 +4,7 @@ import PublicIcon from '@mui/icons-material/Public'
 import DoneIcon from '@mui/icons-material/Done'
 import { textColor } from '~/utils/constants'
 
-function VisibilityToggle({ visibility, setVisibility, anchorEl, setAnchorEl, open, setOpen, handleVisibilityChange }) {
+function VisibilityToggle({ visibility, anchorEl, setAnchorEl, open, setOpen, handleVisibilityChange }) {
   const handleOpen = (e) => {
     setAnchorEl(e.currentTarget)
     setOpen(true)
@@ -28,7 +28,6 @@ function VisibilityToggle({ visibility, setVisibility, anchorEl, setAnchorEl, op
           sx={{ maxWidth: '450px' }}
           onClick={() => {
             handleVisibilityChange(false)
-            setVisibility('PUBLIC')
             handleClose()
           }}
         >
@@ -54,7 +53,6 @@ function VisibilityToggle({ visibility, setVisibility, anchorEl, setAnchorEl, op
           sx={{ maxWidth: '450px' }}
           onClick={() => {
             handleVisibilityChange(true)
-            setVisibility('PRIVATE')
             handleClose()
           }}
         >

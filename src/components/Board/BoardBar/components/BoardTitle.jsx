@@ -11,7 +11,10 @@ function BoardTitle({ isEditing, setIsEditing, editedTitle, setEditedTitle, boar
           handleUpdateTitle()
         }
       }}
-      onBlur={handleUpdateTitle}
+      onBlur={() => {
+        setIsEditing(false)
+        setEditedTitle(boardTitle)
+      }}
       autoFocus
       variant="outlined"
       sx={{

@@ -20,6 +20,8 @@ export const useBoardOperations = (board, setBoard) => {
       setIsEditing(false)
     } catch (error) {
       toast.error(getErrorMessage(error, 'Lỗi khi cập nhật tiêu đề'))
+    } finally {
+      setIsEditing(false)
     }
   }
 
@@ -29,6 +31,8 @@ export const useBoardOperations = (board, setBoard) => {
       toast.success('Trạng thái bảng đã thay đổi')
     } catch (error) {
       toast.error(getErrorMessage(error, 'Lỗi khi thay đổi trạng thái bảng'))
+    } finally {
+      setVisibility(isPrivate ? 'PRIVATE' : 'PUBLIC')
     }
   }
 

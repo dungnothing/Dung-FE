@@ -61,7 +61,6 @@ function BoardBar({ board, setBoard, allUserInBoard, permissions, setFilters, fi
 
           <VisibilityToggle
             visibility={boardOps.visibility}
-            setVisibility={boardOps.setVisibility}
             anchorEl={menuStates.anchorEl}
             setAnchorEl={menuStates.setAnchorEl}
             open={menuStates.open}
