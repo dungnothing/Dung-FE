@@ -43,7 +43,7 @@ function SignIn() {
       Cookies.set('accessToken', response.accessToken, { expires: 1, secure: true, sameSite: 'strict' })
       Cookies.set('refreshToken', response.refreshToken, { expires: 7, secure: true, sameSite: 'strict' })
       await fetchUserInfo()
-      navigate('/dashboard')
+      navigate('/dashboard/boards')
     } catch (error) {
       if (error?.response?.data?.message) {
         toast.error(error.response.data.message)
