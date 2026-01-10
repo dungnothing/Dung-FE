@@ -17,7 +17,7 @@ const ActivateAccount = () => {
         navigate('/sign-in')
       }, 2000)
     } catch (error) {
-      toast.error('Lỗi rồi')
+      toast.error('Có lỗi xảy ra')
     }
   }
 

@@ -10,6 +10,7 @@ import { updateCardBackgroundAPI, uploadFileAPI } from '~/apis/cards'
 import RenderTooltip from './RenderTooltip'
 import CardUpload from './CardUpload'
 import AddMemberInCard from './AddMemberInCard'
+import { getErrorMessage } from '~/utils/messageHelper'
 
 function CardButtonGroup({
   card,
@@ -47,7 +48,7 @@ function CardButtonGroup({
       await updateCardBackgroundAPI(card._id, formData)
       fetchBoarData()
     } catch (error) {
-      toast.error('Lỗi rồi bro')
+      toast.error(getErrorMessage(error, 'Lỗi khi thay đổi ảnh bìa'))
     } finally {
       setIsLoading(false)
       backgroundRef.current.value = null

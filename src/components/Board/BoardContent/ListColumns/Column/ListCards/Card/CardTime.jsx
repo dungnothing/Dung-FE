@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { updateCardAPI, updateCancelCardAPI } from '~/apis/cards'
 import { toast } from 'react-toastify'
 import { cloneDeep } from 'lodash'
+import { getErrorMessage } from '~/utils/messageHelper'
 
 function EditTimeCard({ openTimeDialog, handleCloseTimeDialog, card, board, setBoard }) {
   const [time, setTime] = useState(card?.endTime ? dayjs(card?.endTime) : null)
@@ -33,7 +34,7 @@ function EditTimeCard({ openTimeDialog, handleCloseTimeDialog, card, board, setB
       handleCloseTimeDialog()
       setNewTime(time)
     } catch (error) {
-      toast.error('Lỗi rồi bro')
+      toast.error(getErrorMessage(error, 'Lỗi khi cập nhật thời gian'))
     }
   }
 
@@ -45,7 +46,7 @@ function EditTimeCard({ openTimeDialog, handleCloseTimeDialog, card, board, setB
       handleCloseTimeDialog()
       setNewTime(timeEC)
     } catch (error) {
-      toast.error('Lỗi rồi bro')
+      toast.error(getErrorMessage(error, 'Lỗi khi hủy thời gian'))
     }
   }
 

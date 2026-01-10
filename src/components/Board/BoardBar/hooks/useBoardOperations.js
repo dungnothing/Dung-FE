@@ -44,7 +44,7 @@ export const useBoardOperations = (board, setBoard) => {
         toast.success('Bảng đã được đóng và dữ liệu sẽ không thể chỉnh sửa')
       }
     } catch (error) {
-      toast.error('Lỗi rồi bro')
+      toast.error(getErrorMessage(error, 'Lỗi khi thay đổi trạng thái bảng'))
     }
   }
 
@@ -56,7 +56,7 @@ export const useBoardOperations = (board, setBoard) => {
         navigate('/dashboard')
       }, [1000])
     } catch (error) {
-      toast.error('Lỗi khi xóa bảng')
+      toast.error(getErrorMessage(error, 'Lỗi khi xóa bảng'))
     }
   }
 
