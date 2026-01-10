@@ -20,6 +20,7 @@ export const PrivateRoute = () => {
   const isAuth = useAuth()
   const user = useSelector((state) => state?.comon?.user)
   const location = useLocation()
+  if (!user) return
 
   if (!isAuth) {
     return <Navigate to="/sign-in" replace />
@@ -33,8 +34,6 @@ export const PrivateRoute = () => {
     )
   }
 
-  // Đợi user data được load đầy đủ từ API
-  // Nếu userName vẫn là null (initialState) => Đang fetch
   if (user.userId && user.userName === null) {
     return (
       <Box sx={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
