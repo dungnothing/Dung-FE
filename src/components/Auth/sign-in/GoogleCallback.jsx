@@ -46,7 +46,7 @@ export default function GoogleCallback() {
         })
       )
 
-      navigate('/dashboard')
+      navigate('/dashboard/boards')
     } catch (error) {
       toast.error('Có lỗi xảy ra trong quá trình đăng nhập.')
       navigate('/sign-in')
