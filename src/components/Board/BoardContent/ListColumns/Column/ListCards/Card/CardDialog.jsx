@@ -78,7 +78,7 @@ function CardDialog({
 
   const handleUpdateCardTitle = async () => {
     try {
-      const formData = { cardId: card._id, title: cardTitle }
+      const formData = { cardId: card._id, title: cardTitle, boardId: board._id }
       await updateCardAPI(card._id, formData)
       setEditTitle(false)
       setNewData('title', cardTitle)
