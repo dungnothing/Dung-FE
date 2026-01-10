@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
 import RHFInput from '~/helpers/hook-form/RHFInput'
 import { FormProvider } from 'react-hook-form'
+import { getErrorMessage } from '~/utils/messageHelper'
 
 const signUpSchema = v.object({
   name: v.pipe(v.string('Tên là bắt buộc'), v.nonEmpty('Tên là bắt buộc')),
@@ -43,7 +44,7 @@ function SignUp() {
       navigate('/sign-in')
       toast.success('Đã đăng ký thành công, vui lòng kiểm tra email để kích hoạt')
     } catch (error) {
-      toast.error(error.response.data.message)
+      toast.error(getErrorMessage(error, 'Lỗi khi đăng ký'))
     } finally {
       setIsLoading(false)
     }

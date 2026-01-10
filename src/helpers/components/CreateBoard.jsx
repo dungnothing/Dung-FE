@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import { createNewBoardAPI, getListBackgroundAPI, addRecentBoardAPI } from '~/apis/boards'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+import { getErrorMessage } from '~/utils/messageHelper'
 
 function CreateBoard({ open, onClose }) {
   const navigate = useNavigate()
@@ -49,7 +50,7 @@ function CreateBoard({ open, onClose }) {
       navigate(`/boards/${newBoard._id}`)
       toast.success('Tạo bảng mới thành công!')
     } catch (error) {
-      toast.error(error.response.data.message)
+      toast.error(getErrorMessage(error, 'Lỗi khi tạo bảng mới'))
     } finally {
       setLoading(false)
     }

@@ -17,6 +17,7 @@ import { initBoardSocket, getBoardSocketCallbacks } from '~/sockets/board'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { Box } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { getErrorMessage } from '~/utils/messageHelper'
 
 function Board() {
   const { boardId } = useParams()
@@ -71,11 +72,11 @@ function Board() {
       setAllUserInBoard({ admin: boardRes.admin, members: boardRes.members })
     } catch (error) {
       if (error.status === 404 || error.status === 403) {
-        navigate('/dashboard')
-        toast.error(error.response.data.message)
+        navigate('/dashboard/boards')
+        toast.error(getErrorMessage(error, 'Không thể truy cập bảng'))
         return
       }
-      toast.error('Lỗi khi lấy dữ liệu bảng')
+      toast.error(getErrorMessage(error, 'Lỗi khi lấy dữ liệu bảng'))
     } finally {
       setIsLoading(false)
       setFilterLoading(false)

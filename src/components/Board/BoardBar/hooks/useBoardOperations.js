@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { updateBoardDetailsAPI, deleteBoardAPI, changeAdminAPI } from '~/apis/boards'
 import useConfirmDialog from '~/helpers/hooks/useConfirmDialog'
+import { getErrorMessage } from '~/utils/messageHelper'
 
 export const useBoardOperations = (board, setBoard) => {
   const [isEditing, setIsEditing] = useState(false)
@@ -18,7 +19,7 @@ export const useBoardOperations = (board, setBoard) => {
       setBoard({ ...board, title: editedTitle.trim() })
       setIsEditing(false)
     } catch (error) {
-      toast.error(`${error.response.data.message}`)
+      toast.error(getErrorMessage(error, 'Lỗi khi cập nhật tiêu đề'))
     }
   }
 
@@ -27,7 +28,7 @@ export const useBoardOperations = (board, setBoard) => {
       await updateBoardDetailsAPI(board._id, { visibility: isPrivate ? 'PRIVATE' : 'PUBLIC' })
       toast.success('Trạng thái bảng đã thay đổi')
     } catch (error) {
-      toast.error(`${error.response.data.message}`)
+      toast.error(getErrorMessage(error, 'Lỗi khi thay đổi trạng thái bảng'))
     }
   }
 
@@ -62,11 +63,7 @@ export const useBoardOperations = (board, setBoard) => {
       toast.success('Thay đổi admin thành công')
       navigate('/dashboard')
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        toast.error(`${error.response.data.message}`)
-      } else {
-        toast.error('Lỗi khi thay đổi admin')
-      }
+      toast.error(getErrorMessage(error, 'Lỗi khi thay đổi admin'))
     }
   }
 

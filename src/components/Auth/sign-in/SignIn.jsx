@@ -14,6 +14,7 @@ import RHFInput from '~/helpers/hook-form/RHFInput'
 import { FormProvider } from 'react-hook-form'
 import Cookies from 'js-cookie'
 import { useFetchUserInfo } from '~/helpers/hooks/useFetchUserInfo'
+import { getErrorMessage } from '~/utils/messageHelper'
 
 const loginSchema = v.object({
   email: v.pipe(v.string('Email là bắt buộc'), v.nonEmpty('Email là bắt buộc'), v.email('Email không hợp lệ')),
@@ -45,13 +46,7 @@ function SignIn() {
       await fetchUserInfo()
       navigate('/dashboard/boards')
     } catch (error) {
-      if (error?.response?.data?.message) {
-        toast.error(error.response.data.message)
-      } else if (error.message) {
-        toast.error(error.message)
-      } else {
-        toast.error('Lỗi khi đăng nhập')
-      }
+      toast.error(getErrorMessage(error, 'Lỗi khi đăng nhập'))
     } finally {
       setIsLoading(false)
     }

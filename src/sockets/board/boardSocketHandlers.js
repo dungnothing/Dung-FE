@@ -41,7 +41,7 @@ export const getBoardSocketCallbacks = (setBoard, navigate) => ({
     if (!deletedBoard?.acknowledged) return
     toast.info('Bảng đã bị xóa, bạn sẽ bị chuyển về trang chủ trong vài giây tới')
     setTimeout(() => {
-      navigate('/dashboard')
+      navigate('/dashboard/boards')
     }, 2000)
   },
 
