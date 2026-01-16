@@ -1,4 +1,4 @@
-import W from '~/assets/W.svg'
+import BrandLogo from '~/assets/brand-icon.svg'
 import { useNavigate } from 'react-router-dom'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { useState, useRef, useEffect } from 'react'
@@ -72,8 +72,7 @@ function Header({ setIsChoice, onTopRef }) {
         {/* Bên trái - Logo và Navigation */}
         <Box ref={buttonWrapperRef} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button disableRipple onClick={() => navigate('/')} sx={{ '&:hover': { backgroundColor: 'transparent' } }}>
-            <img src={W} alt="" className="w-[40px] h-[40px]" />
-            <div className="text-[18px] font-bold text-[#6161ff]">Wednesday</div>
+            <img src={BrandLogo} alt="" />
           </Button>
 
           <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 2 }}>
