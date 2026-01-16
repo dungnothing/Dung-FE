@@ -2,12 +2,12 @@ import { ClickAwayListener, Paper, Divider, Button, Box } from '@mui/material'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { ButtonStyle } from '~/styles/ButtonStyle'
 import { useRef } from 'react'
-import Product from './Menu/Product'
-import Solution from './Menu/Solution'
-import Resource from './Menu/Resource'
+import ProductMenu from './ProductMenu'
+import SolutionMenu from './SolutionMenu'
+import ResourceMenu from './ResourceMenu'
 import { useNavigate } from 'react-router-dom'
 
-function MenuChoice({ open, onClose, introOpen, featureOpen, contactOpen, triggerRef }) {
+function NavMenu({ open, onClose, introOpen, featureOpen, contactOpen, triggerRef }) {
   const menuRef = useRef(null)
   const navigate = useNavigate()
 
@@ -40,12 +40,12 @@ function MenuChoice({ open, onClose, introOpen, featureOpen, contactOpen, trigge
           borderTop: 'none'
         }}
       >
-        {/* Form trên */}
-        {introOpen && <Product onClose={onClose} />}
-        {featureOpen && <Solution onClose={onClose} />}
-        {contactOpen && <Resource onClose={onClose} />}
+        {/* Menu Content */}
+        {introOpen && <ProductMenu onClose={onClose} />}
+        {featureOpen && <SolutionMenu onClose={onClose} />}
+        {contactOpen && <ResourceMenu onClose={onClose} />}
 
-        {/* Form dưới */}
+        {/* Bottom Action Bar */}
         <Box className="h-full bg-[#F0F3FF] flex items-center">
           <Box className="flex gap-1 justify-end m-3 w-full">
             <Button disableRipple sx={ButtonStyle} onClick={() => navigate('/sign-in')}>
@@ -68,4 +68,4 @@ function MenuChoice({ open, onClose, introOpen, featureOpen, contactOpen, trigge
   )
 }
 
-export default MenuChoice
+export default NavMenu

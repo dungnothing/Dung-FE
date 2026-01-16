@@ -1,6 +1,6 @@
 import { Box, Divider } from '@mui/material'
-import Header from '../../components/HomePage/Header/Header'
-import Footer from '../../components/HomePage/Footer/Footer'
+import Header from '../sections/Header/Header'
+import Footer from '../sections/Footer/Footer'
 import { useState, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 

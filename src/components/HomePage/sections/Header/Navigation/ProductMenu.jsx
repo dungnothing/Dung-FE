@@ -2,7 +2,7 @@ import { Divider, Box, Button } from '@mui/material'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
-import RenderButton from './RenderButton'
+import MenuButton from './MenuButton'
 
 const leftPanelItems = [
   { icon: <DashboardIcon sx={{ width: '16px', height: '16px' }} />, label: 'Bảng điều khiển', path: '/control' },
@@ -28,12 +28,10 @@ const productButtonStyle = {
   gap: '8px'
 }
 
-function Product({ onClose }) {
+function ProductMenu({ onClose }) {
   return (
     <Box sx={{ minHeight: '340px', display: 'flex', pt: '60px' }}>
-      {' '}
-      {/* pt: 15 -> 60px để đồng bộ với theme MUI */}
-      {/* Bên trái */}
+      {/* Bên trái - Platforms */}
       <Box
         sx={{
           width: '35%',
@@ -46,10 +44,13 @@ function Product({ onClose }) {
       >
         <div className="text-[20px] font-light text-[#333446]">Các nền tảng</div>
         {leftPanelItems.map((item, index) => (
-          <RenderButton key={index} title={item.label} icon={item.icon} path={item.path} onClose={onClose} />
+          <MenuButton key={index} title={item.label} icon={item.icon} path={item.path} onClose={onClose} />
         ))}
       </Box>
+
       <Divider orientation="vertical" variant="middle" flexItem />
+
+      {/* Bên phải - Products */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px', pl: 6, pr: 8, width: '65%' }}>
         <div className="text-[20px] font-light text-[#333446]">Sản phẩm</div>
         {[...Array(Math.ceil(rightPanelItems.length / 2))].map((_, rowIndex) => (
@@ -67,4 +68,4 @@ function Product({ onClose }) {
   )
 }
 
-export default Product
+export default ProductMenu

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { useState, useRef, useEffect } from 'react'
 import { Button, Box } from '@mui/material'
-import MenuChoice from './MenuChoice'
+import NavMenu from './Navigation/NavMenu'
 import { ButtonStyle } from '~/styles/ButtonStyle'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 
@@ -69,7 +69,7 @@ function Header({ setIsChoice, onTopRef }) {
           zIndex: 100
         }}
       >
-        {/* Bên trái */}
+        {/* Bên trái - Logo và Navigation */}
         <Box ref={buttonWrapperRef} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button disableRipple onClick={() => navigate('/')} sx={{ '&:hover': { backgroundColor: 'transparent' } }}>
             <img src={W} alt="" className="w-[40px] h-[40px]" />
@@ -114,7 +114,7 @@ function Header({ setIsChoice, onTopRef }) {
           </Box>
         </Box>
 
-        {/* Bên phải */}
+        {/* Bên phải - Auth Buttons */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end' }}>
           <Button
             sx={{
@@ -152,14 +152,14 @@ function Header({ setIsChoice, onTopRef }) {
         </Box>
       </Box>
 
-      {/* Thanh dưới header */}
+      {/* Border dưới header khi scroll */}
       <Box
         sx={{
           position: 'fixed',
           top: '68px',
           left: 0,
           width: '100%',
-          height: '1px', // Chiều cao của thanh
+          height: '1px',
           backgroundColor: isScroll ? '#f3f4f6' : 'transparent',
           boxShadow: isScroll ? '0 2px 5px rgba(0,0,0,0.05)' : 'none',
           transition: 'background-color 200ms ease, box-shadow 200ms ease',
@@ -167,8 +167,8 @@ function Header({ setIsChoice, onTopRef }) {
         }}
       />
 
-      {/* Menu Popper */}
-      <MenuChoice
+      {/* Navigation Dropdown Menu */}
+      <NavMenu
         open={open}
         onClose={handleClose}
         anchorEl={buttonRef.current}
