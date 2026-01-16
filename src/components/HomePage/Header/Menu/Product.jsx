@@ -57,7 +57,7 @@ function Product({ onClose }) {
             {rightPanelItems.slice(rowIndex * 2, rowIndex * 2 + 2).map((item, index) => (
               <Button key={index} disableRipple sx={productButtonStyle} onClick={onClose}>
                 <img src={item.image} alt={item.label} className="w-[30px] h-[30px]" />
-                <span className="font-light">{item.label}</span>
+                <span className="font-normal">{item.label}</span>
               </Button>
             ))}
           </Box>

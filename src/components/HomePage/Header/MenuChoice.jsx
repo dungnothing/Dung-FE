@@ -35,9 +35,9 @@ function MenuChoice({ open, onClose, introOpen, featureOpen, contactOpen, trigge
           display: 'flex',
           flexDirection: 'column',
           gap: '16px',
-          color: 'black',
-          backgroundColor: 'white',
-          zIndex: 1200
+          zIndex: 1200,
+          border: '1px solid #DADCE0',
+          borderTop: 'none'
         }}
       >
         {/* Form trên */}
