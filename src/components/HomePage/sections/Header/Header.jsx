@@ -1,4 +1,3 @@
-import BrandLogo from '~/assets/brand-icon.svg'
 import { useNavigate } from 'react-router-dom'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { useState, useRef, useEffect } from 'react'
@@ -6,6 +5,7 @@ import { Button, Box } from '@mui/material'
 import NavMenu from './Navigation/NavMenu'
 import { ButtonStyle } from '~/styles/ButtonStyle'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import Brand from '~/assets/image-app/brand.png'
 
 function Header({ setIsChoice, onTopRef }) {
   const navigate = useNavigate()
@@ -72,7 +72,7 @@ function Header({ setIsChoice, onTopRef }) {
         {/* Bên trái - Logo và Navigation */}
         <Box ref={buttonWrapperRef} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button disableRipple onClick={() => navigate('/')} sx={{ '&:hover': { backgroundColor: 'transparent' } }}>
-            <img src={BrandLogo} alt="" />
+            <img src={Brand} alt="" className="max-h-8" />
           </Button>
 
           <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 2 }}>
