@@ -1,4 +1,4 @@
-import { Box, Typography, Link, IconButton } from '@mui/material'
+import { Box, Typography, IconButton } from '@mui/material'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import FacebookIcon from '@mui/icons-material/Facebook'
 import YouTubeIcon from '@mui/icons-material/YouTube'
@@ -83,7 +83,14 @@ export default function Footer({ isChoice }) {
     >
       {/* Logo Section */}
       <div className="flex justify-center items-center">
-        <div className="flex max-w-7xl gap-8 flex-col w-full">
+        <div
+          className="flex max-w-7xl gap-8 flex-col w-full"
+          style={{
+            transition: 'all 0.2s ease',
+            filter: isChoice ? 'blur(4px) brightness(0.8)' : 'none',
+            opacity: isChoice ? 0.8 : 1
+          }}
+        >
           <img src={Brand} alt="" className="max-h-8 w-fit" />
 
           {/* Main Footer Content - Grid Layout */}
@@ -92,13 +99,7 @@ export default function Footer({ isChoice }) {
               sx={{
                 display: 'flex',
                 width: '100%',
-                justifyContent: 'space-between',
-                '& > *': {
-                  transition: 'all 0.2s ease',
-                  filter: isChoice ? 'blur(4px) brightness(0.8)' : 'none',
-                  opacity: isChoice ? 0.8 : 1,
-                  pointerEvents: isChoice ? 'none' : 'auto'
-                }
+                justifyContent: 'space-between'
               }}
             >
               {footerData.columns.map((column, index) => (
@@ -118,17 +119,15 @@ export default function Footer({ isChoice }) {
                   )}
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
                     {column.links.map((link, linkIndex) => (
-                      <Link
+                      <Typography
                         key={linkIndex}
-                        href={link.href}
-                        underline="none"
                         sx={{
                           fontSize: 13,
                           color: '#676879',
                           display: 'flex',
                           alignItems: 'center',
                           gap: 0.5,
-                          cursor: 'pointer',
+                          cursor: 'default',
                           transition: 'color 0.2s',
                           lineHeight: 1.5,
                           '&:hover': {
@@ -137,7 +136,7 @@ export default function Footer({ isChoice }) {
                         }}
                       >
                         {link.label}
-                      </Link>
+                      </Typography>
                     ))}
                   </Box>
 
@@ -156,17 +155,15 @@ export default function Footer({ isChoice }) {
                       </Typography>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
                         {column.extraSection.links.map((link, linkIndex) => (
-                          <Link
+                          <Typography
                             key={linkIndex}
-                            href={link.href}
-                            underline="none"
                             sx={{
                               fontSize: 13,
                               color: '#676879',
                               display: 'flex',
                               alignItems: 'center',
                               gap: 0.5,
-                              cursor: 'pointer',
+                              cursor: 'default',
                               transition: 'color 0.2s',
                               lineHeight: 1.5,
                               '&:hover': {
@@ -175,7 +172,7 @@ export default function Footer({ isChoice }) {
                             }}
                           >
                             {link.label}
-                          </Link>
+                          </Typography>
                         ))}
                       </Box>
                     </Box>
@@ -187,7 +184,14 @@ export default function Footer({ isChoice }) {
         </div>
       </div>
 
-      <div className="w-full h-[1px] bg-[#E5E7EB] max-w-7xl mx-auto" />
+      <div
+        className="w-full h-[1px] bg-[#E5E7EB] max-w-7xl mx-auto"
+        style={{
+          transition: 'all 0.2s ease',
+          filter: isChoice ? 'blur(4px) brightness(0.8)' : 'none',
+          opacity: isChoice ? 0.8 : 1
+        }}
+      />
 
       {/* Bottom Section */}
       <div className="flex justify-center items-center">
@@ -342,65 +346,60 @@ export default function Footer({ isChoice }) {
 
             {/* Legal Links */}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center', fontSize: 13 }}>
-              <Link
-                underline="hover"
+              <Typography
                 sx={{
                   color: '#676879',
-                  cursor: 'pointer',
+                  cursor: 'default',
                   transition: 'color 0.2s',
                   '&:hover': { color: '#323338' }
                 }}
               >
                 Legal
-              </Link>
+              </Typography>
               <span style={{ color: '#d0d4e4' }}>|</span>
-              <Link
-                underline="hover"
+              <Typography
                 sx={{
                   color: '#676879',
-                  cursor: 'pointer',
+                  cursor: 'default',
                   transition: 'color 0.2s',
                   '&:hover': { color: '#323338' }
                 }}
               >
                 Terms of Service
-              </Link>
+              </Typography>
               <span style={{ color: '#d0d4e4' }}>|</span>
-              <Link
-                underline="hover"
+              <Typography
                 sx={{
                   color: '#676879',
-                  cursor: 'pointer',
+                  cursor: 'default',
                   transition: 'color 0.2s',
                   '&:hover': { color: '#323338' }
                 }}
               >
                 Privacy policy
-              </Link>
+              </Typography>
               <span style={{ color: '#d0d4e4' }}>|</span>
-              <Link
-                underline="hover"
+              <Typography
                 sx={{
                   color: '#676879',
-                  cursor: 'pointer',
+                  cursor: 'default',
                   transition: 'color 0.2s',
                   '&:hover': { color: '#323338' }
                 }}
               >
                 Your privacy choices
-              </Link>
+              </Typography>
             </Box>
 
             {/* Copyright */}
             <Typography sx={{ fontSize: 12, color: '#676879', mt: 1 }}>All Rights Reserved © wednesday.com</Typography>
 
             {/* Accessibility Statement */}
-            <Link
-              underline="hover"
+            <Typography
               sx={{
                 fontSize: 12,
                 color: '#676879',
-                cursor: 'pointer',
+                cursor: 'default',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 0.5,
@@ -409,7 +408,7 @@ export default function Footer({ isChoice }) {
               }}
             >
               <span>Accessibility statement</span>
-            </Link>
+            </Typography>
           </Box>
 
           {/* Right Section - App Download Buttons */}

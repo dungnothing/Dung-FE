@@ -5,7 +5,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import MenuButton from './MenuButton'
 
 const leftPanelItems = [
-  { icon: <DashboardIcon sx={{ width: '16px', height: '16px' }} />, label: 'Bảng điều khiển', path: '/control' },
+  { icon: <DashboardIcon sx={{ width: '16px', height: '16px' }} />, label: 'Bảng điều khiển' },
   { icon: <ElectricBoltIcon sx={{ width: '16px', height: '16px' }} />, label: 'Tích hợp' },
   { icon: <AutoAwesomeIcon sx={{ width: '16px', height: '16px' }} />, label: 'Tự động hóa' }
 ]

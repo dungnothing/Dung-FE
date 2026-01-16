@@ -26,7 +26,7 @@ function NavMenu({ open, onClose, introOpen, featureOpen, contactOpen, triggerRe
         ref={menuRef}
         sx={{
           position: 'fixed',
-          top: '69px',
+          top: '60px',
           right: 0,
           left: '50%',
           transform: 'translateX(-50%)',
@@ -36,8 +36,7 @@ function NavMenu({ open, onClose, introOpen, featureOpen, contactOpen, triggerRe
           flexDirection: 'column',
           gap: '16px',
           zIndex: 1200,
-          border: '1px solid #DADCE0',
-          borderTop: 'none'
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)'
         }}
       >
         {/* Menu Content */}

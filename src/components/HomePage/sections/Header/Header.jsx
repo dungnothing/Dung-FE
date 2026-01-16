@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { Button, Box } from '@mui/material'
 import NavMenu from './Navigation/NavMenu'
 import { ButtonStyle } from '~/styles/ButtonStyle'
@@ -16,7 +16,6 @@ function Header({ setIsChoice, onTopRef }) {
   const buttonRef = useRef(null)
   const buttonWrapperRef = useRef(null)
   const [activeMenu, setActiveMenu] = useState(null)
-  const [isScroll, setIsScroll] = useState(false)
 
   const handleMenuOpen = (menuType) => {
     const isSameMenu = activeMenu === menuType
@@ -33,22 +32,6 @@ function Header({ setIsChoice, onTopRef }) {
     setActiveMenu(null)
     setIsChoice(false)
   }
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY
-      const final = scrollPosition > 0 || open
-      setIsScroll(final)
-    }
-
-    handleScroll()
-
-    window.addEventListener('scroll', handleScroll)
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [open])
 
   return (
     <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -150,21 +133,6 @@ function Header({ setIsChoice, onTopRef }) {
           </Button>
         </Box>
       </Box>
-
-      {/* Border dưới header khi scroll */}
-      <Box
-        sx={{
-          position: 'fixed',
-          top: '68px',
-          left: 0,
-          width: '100%',
-          height: '1px',
-          backgroundColor: isScroll ? '#f3f4f6' : 'transparent',
-          boxShadow: isScroll ? '0 2px 5px rgba(0,0,0,0.05)' : 'none',
-          transition: 'background-color 200ms ease, box-shadow 200ms ease',
-          zIndex: 50
-        }}
-      />
 
       {/* Navigation Dropdown Menu */}
       <NavMenu
