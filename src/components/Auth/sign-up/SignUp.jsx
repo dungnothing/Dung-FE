@@ -12,6 +12,7 @@ import * as v from 'valibot'
 import RHFInput from '~/helpers/hook-form/RHFInput'
 import { FormProvider } from 'react-hook-form'
 import { getErrorMessage } from '~/utils/messageHelper'
+import Brand from '~/assets/image-app/brand.png'
 
 const signUpSchema = v.object({
   name: v.pipe(v.string('Tên là bắt buộc'), v.nonEmpty('Tên là bắt buộc')),
@@ -107,23 +108,6 @@ function SignUp() {
               px: { xs: 2, md: 4 }
             }}
           >
-            {/* Tiêu đề */}
-            <Box sx={{ px: 5, py: 1, height: '64px' }}>
-              <Button
-                sx={{
-                  cursor: 'pointer',
-                  width: 'fit-content',
-                  border: '1px solid #989898',
-                  borderRadius: '999px',
-                  color: '#1E1E1E',
-                  fontFamily: 'inter'
-                }}
-                onClick={() => navigate('/')}
-              >
-                Wednesday
-              </Button>
-            </Box>
-
             {/* Form đăng ký */}
             <Box
               sx={{
@@ -138,6 +122,15 @@ function SignUp() {
                 px: { xs: 0, sm: 2, md: 4 }
               }}
             >
+              <div className="w-fit">
+                <Button
+                  disableRipple
+                  onClick={() => navigate('/')}
+                  sx={{ '&:hover': { backgroundColor: 'transparent' } }}
+                >
+                  <img src={Brand} alt="" className="max-h-8" />
+                </Button>
+              </div>
               <Typography
                 sx={{
                   display: 'flex',
