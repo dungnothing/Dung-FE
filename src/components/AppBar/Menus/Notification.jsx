@@ -29,7 +29,7 @@ function Notification() {
   const fetchNotifications = async () => {
     try {
       const response = await getNotificationAPI()
-      dipatch(setNotifications(response.data))
+      dipatch(setNotifications(response))
     } catch (error) {
       toast.error(getErrorMessage(error))
     }
