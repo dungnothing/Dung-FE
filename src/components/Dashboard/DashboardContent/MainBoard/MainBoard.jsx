@@ -12,8 +12,8 @@ import { textColor } from '~/utils/constants'
 import { useSelector, useDispatch } from 'react-redux'
 import { setStarBoards } from '~/redux/features/comon'
 import CreateBoard from '~/helpers/components/CreateBoard'
-import CircularProgress from '@mui/material/CircularProgress'
 import DeleteBoardButton from './DeleteBoardButton'
+import ContentLoading from '~/helpers/components/ContentLoading'
 
 function MainBoard() {
   const { searchValue } = useOutletContext()
@@ -88,21 +88,7 @@ function MainBoard() {
   }, [searchValue])
 
   if (loadBoards || deletingBoard) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 2,
-          height: '100%',
-          width: '100%'
-        }}
-      >
-        <CircularProgress />
-        <Typography>{deletingBoard ? 'Đang xóa bảng...' : 'Đang tải đợi xíu :3'}</Typography>
-      </Box>
-    )
+    return <ContentLoading message={deletingBoard ? 'Đang xóa bảng...' : 'Đang tải đợi xíu :3'} minHeight="100%" />
   }
 
   return (

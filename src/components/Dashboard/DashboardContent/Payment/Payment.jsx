@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Box, Card, CardContent, Typography, Button, CircularProgress } from '@mui/material'
+import { Box, Card, CardContent, Typography, Button } from '@mui/material'
 import DoneIcon from '@mui/icons-material/Done'
 import CloseIcon from '@mui/icons-material/Close'
 import PaymentForm from './PaymentForm'
@@ -7,6 +7,7 @@ import { textColor } from '~/utils/constants'
 import { getSubcriptionAPI } from '~/apis/v2/subcription'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
+import ContentLoading from '~/helpers/components/ContentLoading'
 
 const PaymentComponent = () => {
   const [selectedPackage, setSelectedPackage] = useState(null)
@@ -74,18 +75,7 @@ const PaymentComponent = () => {
 
       {/* Hiển thị loading khi đang tải */}
       {loading ? (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2,
-            minHeight: '400px'
-          }}
-        >
-          <CircularProgress />
-          <Typography>Đang tải thông tin gói...</Typography>
-        </Box>
+        <ContentLoading message="Đang tải thông tin gói..." minHeight="400px" />
       ) : (
         <Box sx={{ display: 'flex', gap: 3, width: '100%' }}>
           {/* Gói nâng cấp */}

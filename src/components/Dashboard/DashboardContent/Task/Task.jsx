@@ -5,8 +5,8 @@ import { Card, CardMedia, Typography, Box, Grid } from '@mui/material'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import { useNavigate } from 'react-router-dom'
 import { textColor } from '~/utils/constants'
-import CircularProgress from '@mui/material/CircularProgress'
 import EmptyList from '~/helpers/components/EmptyPage'
+import ContentLoading from '~/helpers/components/ContentLoading'
 
 function Task() {
   const [taskList, setTaskList] = useState([])
@@ -77,18 +77,7 @@ function Task() {
 
       {/* Hiển thị loading khi đang tải */}
       {isLoading ? (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2,
-            minHeight: '300px'
-          }}
-        >
-          <CircularProgress />
-          <Typography>Đang tải nhiệm vụ...</Typography>
-        </Box>
+        <ContentLoading message="Đang tải nhiệm vụ..." />
       ) : taskList.length === 0 ? (
         <EmptyList title="Không có nhiệm vụ" />
       ) : (
