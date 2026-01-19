@@ -19,6 +19,7 @@ function MainBoard() {
   const { searchValue } = useOutletContext()
   const [boards, setBoards] = useState([])
   const [loadBoards, setLoadBoards] = useState(false)
+  const [deletingBoard, setDeletingBoard] = useState(false)
   const [searchedBoards, setSearchedBoards] = useState([])
   const starBoards = useSelector((state) => state.comon.starBoards)
   const dispatch = useDispatch()
@@ -86,7 +87,7 @@ function MainBoard() {
     searchBoards()
   }, [searchValue])
 
-  if (loadBoards) {
+  if (loadBoards || deletingBoard) {
     return (
       <Box
         sx={{
@@ -99,7 +100,7 @@ function MainBoard() {
         }}
       >
         <CircularProgress />
-        <Typography>Đang tải đợi xíu :3</Typography>
+        <Typography>{deletingBoard ? 'Đang xóa bảng...' : 'Đang tải đợi xíu :3'}</Typography>
       </Box>
     )
   }
@@ -155,9 +156,10 @@ function MainBoard() {
                 <DeleteBoardButton
                   boardId={board._id}
                   boardTitle={board.title}
+                  setLoading={setDeletingBoard}
                   onDeleteSuccess={(deletedId) => {
-                    setBoards(boards.filter((b) => b._id !== deletedId))
-                    setSearchedBoards(searchedBoards.filter((b) => b._id !== deletedId))
+                    setBoards((prevBoards) => prevBoards.filter((b) => b._id !== deletedId))
+                    setSearchedBoards((prevSearchedBoards) => prevSearchedBoards.filter((b) => b._id !== deletedId))
                   }}
                 />
               </Box>
