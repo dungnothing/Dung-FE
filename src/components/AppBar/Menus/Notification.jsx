@@ -6,8 +6,9 @@ import { useState } from 'react'
 import { CheckCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { markAllAsReadAPI, markAsReadAPI } from '~/apis/notification'
+import { getNotificationsAPI, markAllAsReadAPI, markAsReadAPI } from '~/apis/notification'
 import { setMarkAsRead, setNotifications } from '~/redux/features/comon'
+import { getErrorMessage } from '~/utils/getErrorMessage'
 
 function Notification() {
   const navigate = useNavigate()
@@ -19,9 +20,19 @@ function Notification() {
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
+    fetchNotifications()
   }
   const handleClose = () => {
     setAnchorEl(null)
+  }
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await getNotificationsAPI()
+      dipatch(setNotifications(response.data))
+    } catch (error) {
+      toast.error(getErrorMessage(error))
+    }
   }
 
   const handleChooseClick = async (data) => {
@@ -32,7 +43,7 @@ function Notification() {
       }
       dipatch(setMarkAsRead(data._id))
     } catch (error) {
-      toast.error('Đánh dấu thất bại')
+      toast.error(getErrorMessage(error))
     }
   }
 
@@ -43,7 +54,7 @@ function Notification() {
       dipatch(setNotifications(newNotifications))
       toast.success('Đánh dấu thành công')
     } catch (error) {
-      toast.error('Danh dau that bai')
+      toast.error(getErrorMessage(error))
     }
   }
 
