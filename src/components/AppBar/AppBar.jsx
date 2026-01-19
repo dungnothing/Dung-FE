@@ -41,7 +41,7 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <AppsIcon sx={{ color: textColor }} />
         <Button component="a" href="/dashboard" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Trello size={24} color="#172b4d" />
+          <Trello size={24} sx={{ color: textColor }} />
           <Typography
             variant="span"
             sx={{ fontSize: '1.1rem', fontWeight: 'bold', color: textColor, display: { xs: 'none', md: 'flex' } }}

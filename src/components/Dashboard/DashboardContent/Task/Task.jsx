@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { getAllAccessibleBoardsAPI, fetchBoardDetailsAPI } from '~/apis/boards'
 import { Card, CardMedia, Typography, Box, Grid } from '@mui/material'
@@ -9,66 +9,58 @@ import CircularProgress from '@mui/material/CircularProgress'
 import EmptyList from '~/helpers/components/EmptyPage'
 
 function Task() {
-  const [boardList, setBoardList] = useState([])
-  const [boardData, setBoardData] = useState([])
-  const [loadTask, setLoadTask] = useState(false)
   const [taskList, setTaskList] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
-    const getData = async () => {
+    const fetchAllData = async () => {
       try {
-        const response = await getAllAccessibleBoardsAPI()
-        setBoardList(response)
+        setIsLoading(true)
+
+        // Bước 1: Lấy danh sách boards
+        const boards = await getAllAccessibleBoardsAPI()
+
+        // Nếu không có board nào, set empty và thoát
+        if (!boards || boards.length === 0) {
+          setTaskList([])
+          setIsLoading(false)
+          return
+        }
+
+        // Bước 2: Lấy chi tiết từng board
+        const boardDetailsPromises = boards.map((board) => fetchBoardDetailsAPI(board._id))
+        const boardDetails = await Promise.all(boardDetailsPromises)
+
+        // Bước 3: Tính toán task list từ board details
+        const tasks = boardDetails.flatMap(
+          (board) =>
+            board?.columns?.flatMap(
+              (column) =>
+                column?.cards
+                  ?.filter((card) => card?.endTime) // Chỉ lấy card có deadline
+                  .map((card) => ({
+                    ...card,
+                    boardTitle: board.title,
+                    boardId: board._id,
+                    columnTitle: column?.title
+                  })) || []
+            ) || []
+        )
+
+        setTaskList(tasks)
       } catch (error) {
-        toast.error(error.message)
+        toast.error(error?.message || 'Có lỗi xảy ra khi tải nhiệm vụ')
+        setTaskList([])
+      } finally {
+        setIsLoading(false)
       }
     }
-    getData()
+
+    fetchAllData()
   }, [])
 
-  useEffect(() => {
-    if (boardList?.length === 0) return
-
-    const fetchData = async () => {
-      try {
-        setLoadTask(true)
-        const responses = await Promise.all(boardList?.map((board) => fetchBoardDetailsAPI(board._id)))
-        setBoardData(responses)
-      } catch (error) {
-        toast.error('Lỗi lấy thông tin board')
-      } finally {
-        setLoadTask(false)
-      }
-    }
-    fetchData()
-  }, [boardList])
-
-  // Quản lý task (nhiệm vụ)
-  const computedTaskList = useMemo(() => {
-    return boardData
-      .flatMap(
-        (board) =>
-          board?.columns?.flatMap(
-            (column) =>
-              column?.cards?.map((card) => ({
-                ...card,
-                boardTitle: board.title,
-                boardId: board._id,
-                columnTitle: column?.title
-              })) || []
-          ) || []
-      )
-      .filter((card) => card?.endTime)
-  }, [boardData])
-
-  useEffect(() => {
-    if (JSON.stringify(taskList) !== JSON.stringify(computedTaskList)) {
-      setTaskList(computedTaskList)
-    }
-  }, [computedTaskList, taskList])
-
-  const timeShow = (time) => {
+  const formatDate = (time) => {
     return new Date(time).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: '2-digit',
@@ -76,49 +68,49 @@ function Task() {
     })
   }
 
-  if (loadTask) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 2,
-          height: '100%',
-          width: '100%'
-        }}
-      >
-        <CircularProgress />
-        <Typography>Đang tải đợi xíu :3</Typography>
-      </Box>
-    )
-  }
-
+  // Hiển thị nội dung chính
   return (
     <Box sx={{ width: '100%', p: 2, gap: 2, display: 'flex', flexDirection: 'column' }}>
       <Typography sx={{ color: textColor }} variant="h6">
         Nhiệm vụ của bạn ở đây
       </Typography>
-      {!loadTask && taskList.length === 0 ? (
+
+      {/* Hiển thị loading khi đang tải */}
+      {isLoading ? (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            minHeight: '300px'
+          }}
+        >
+          <CircularProgress />
+          <Typography>Đang tải nhiệm vụ...</Typography>
+        </Box>
+      ) : taskList.length === 0 ? (
         <EmptyList title="Không có nhiệm vụ" />
       ) : (
         <Grid spacing={2} container>
           {taskList.map((task) => (
-            <Card key={task._id} sx={{ p: 2, width: 400, height: 250, overflow: 'auto', borderRadius: 2 }}>
-              <CardMedia
-                sx={{ height: 120, cursor: 'pointer' }}
-                image={'https://i.pinimg.com/736x/36/9f/6f/369f6f9d06575f4d0629f4f8bf8347f8.jpg'}
-                onClick={() => navigate(`/boards/${task?.boardId}`)}
-              />
-              <Typography sx={{ mt: 1, color: textColor }}>Nội dung: {task?.title}</Typography>
-              <Typography sx={{ mt: 1, color: textColor }}>
-                Thuộc: {task?.boardTitle} / {task?.columnTitle}
-              </Typography>
-              <Typography sx={{ m: 1, display: 'flex', alignItems: 'center', gap: 1, color: textColor }}>
-                <AccessTimeIcon fontSize="small" />
-                Thời hạn: {timeShow(task?.endTime)}
-              </Typography>
-            </Card>
+            <Grid item key={task._id}>
+              <Card sx={{ p: 2, minWidth: 400, minHeight: 250, borderRadius: 2 }}>
+                <CardMedia
+                  sx={{ height: 120, cursor: 'pointer', borderRadius: 1 }}
+                  image={'https://i.pinimg.com/736x/36/9f/6f/369f6f9d06575f4d0629f4f8bf8347f8.jpg'}
+                  onClick={() => navigate(`/boards/${task?.boardId}`)}
+                />
+                <Typography sx={{ mt: 1, color: textColor }}>Nội dung: {task?.title}</Typography>
+                <Typography sx={{ mt: 1, color: textColor }}>
+                  Thuộc: {task?.boardTitle} / {task?.columnTitle}
+                </Typography>
+                <Typography sx={{ m: 1, display: 'flex', alignItems: 'center', gap: 1, color: textColor }}>
+                  <AccessTimeIcon fontSize="small" />
+                  Thời hạn: {formatDate(task?.endTime)}
+                </Typography>
+              </Card>
+            </Grid>
           ))}
         </Grid>
       )}

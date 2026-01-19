@@ -29,7 +29,7 @@ function EditTimeCard({ openTimeDialog, handleCloseTimeDialog, card, board, setB
         toast.error('Vui lòng chọn ngày hợp lệ')
         return
       }
-      const formData = { cardId: card._id, endTime: time.toISOString() }
+      const formData = { cardId: card._id, endTime: time.toISOString(), boardId: board._id }
       await updateCardAPI(card._id, formData)
       handleCloseTimeDialog()
       setNewTime(time)
