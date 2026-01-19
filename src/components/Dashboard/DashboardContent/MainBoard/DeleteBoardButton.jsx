@@ -39,10 +39,9 @@ function DeleteBoardButton({ boardId, boardTitle, onDeleteSuccess }) {
 
   return (
     <>
-      <BasicLoading loading={loading} />
+      {loading && <BasicLoading />}
       <Button
         onClick={handleClick}
-        disabled={loading}
         sx={{
           bgcolor: 'rgba(0, 0, 0, 0.5)',
           color: 'white',
