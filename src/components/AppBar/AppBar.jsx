@@ -40,11 +40,23 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <AppsIcon sx={{ color: textColor }} />
-        <Button component="a" href="/dashboard" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Trello size={24} className="text-[#172b4d] dark:text-[#B6C2CF]" />
+        <Button
+          component="a"
+          href="/dashboard"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            color: textColor
+          }}
+        >
+          <Trello size={24} />
           <Typography
-            variant="span"
-            sx={{ fontSize: '1.1rem', fontWeight: 'bold', color: textColor, display: { xs: 'none', md: 'flex' } }}
+            sx={{
+              fontSize: '1.1rem',
+              fontWeight: 'bold',
+              display: { xs: 'none', md: 'flex' }
+            }}
           >
             Wednesday
           </Typography>
