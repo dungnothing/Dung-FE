@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import Box from '@mui/material/Box'
 import ModeSelect from '~/components/ModeSelect/ModeSelect'
-import AppsIcon from '@mui/icons-material/Apps'
 import Typography from '@mui/material/Typography'
 import Recent from './Menus/Recent'
 import Template from './Menus/Template'
@@ -39,7 +38,6 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <AppsIcon sx={{ color: textColor }} />
         <Button
           component="a"
           href="/dashboard"
