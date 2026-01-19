@@ -13,6 +13,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { setStarBoards } from '~/redux/features/comon'
 import CreateBoard from '~/helpers/components/CreateBoard'
 import CircularProgress from '@mui/material/CircularProgress'
+import DeleteBoardButton from './DeleteBoardButton'
 
 function MainBoard() {
   const { searchValue } = useOutletContext()
@@ -131,7 +132,7 @@ function MainBoard() {
                 '&:hover': { transform: 'translateY(-4px)', boxShadow: 3 }
               }}
             >
-              <Box sx={{ position: 'absolute', mt: '8px', ml: '8px' }}>
+              <Box sx={{ position: 'absolute', mt: '8px', ml: '8px', display: 'flex', gap: 0.5 }}>
                 <Button
                   onClick={() => handleStarBoard(board._id)}
                   sx={{
@@ -149,6 +150,16 @@ function MainBoard() {
                     <StarOutlineIcon />
                   )}
                 </Button>
+              </Box>
+              <Box sx={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', gap: 0.5 }}>
+                <DeleteBoardButton
+                  boardId={board._id}
+                  boardTitle={board.title}
+                  onDeleteSuccess={(deletedId) => {
+                    setBoards(boards.filter((b) => b._id !== deletedId))
+                    setSearchedBoards(searchedBoards.filter((b) => b._id !== deletedId))
+                  }}
+                />
               </Box>
               <div
                 onClick={() => handleClick(board._id)}
