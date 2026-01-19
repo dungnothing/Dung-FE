@@ -3,7 +3,7 @@ import Board from '~/components/Board/Board'
 import HomeLayout from '~/components/HomePage/layout/HomeLayout'
 import User from '~/components/User/User'
 import Dashboard from '~/components/Dashboard/Dashboard'
-import Payment from '~/components/User/Payment'
+import Payment from '~/components/Dashboard/DashboardContent/Payment/Payment'
 import GoogleCallback from '~/components/Auth/sign-in/GoogleCallback'
 import { useFetchUserInfo } from './helpers/hooks/useFetchUserInfo'
 import MainPage from '~/components/HomePage/MainPage'
@@ -11,7 +11,6 @@ import MainBoard from '~/components/Dashboard/DashboardContent/MainBoard/MainBoa
 import Template from '~/components/Dashboard/DashboardContent/Template/Template'
 import Task from '~/components/Dashboard/DashboardContent/Task/Task'
 import Setting from '~/components/Dashboard/DashboardContent/Setting/Setting'
-import Pay from '~/components/User/Payment'
 import { PublicRoute, PrivateRoute } from './components/Auth/CheckLogin'
 import PersonalInfo from './components/User/Account/Content/PersonalInfo'
 import PersonalPassword from './components/User/Account/Content/PersonalPassword'
@@ -41,7 +40,7 @@ function AppRoutes() {
           <Route path="templates" element={<Template />} />
           <Route path="tasks" element={<Task />} />
           <Route path="settings" element={<Setting />} />
-          <Route path="payment" element={<Pay />} />
+          <Route path="payment" element={<Payment />} />
         </Route>
         <Route path="/boards/:boardId" element={<Board />} />
 
@@ -51,8 +50,6 @@ function AppRoutes() {
           <Route path="password" element={<PersonalPassword />} />
           <Route path="delete" element={<DeleteAccount />} />
         </Route>
-
-        <Route path="/pay" element={<Payment />} />
       </Route>
     </Routes>
   )
