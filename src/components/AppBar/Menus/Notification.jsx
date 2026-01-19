@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getNotificationsAPI, markAllAsReadAPI, markAsReadAPI } from '~/apis/notification'
 import { setMarkAsRead, setNotifications } from '~/redux/features/comon'
-import { getErrorMessage } from '~/utils/getErrorMessage'
+import { getErrorMessage } from '~/utils/messageHelper'
 
 function Notification() {
   const navigate = useNavigate()
