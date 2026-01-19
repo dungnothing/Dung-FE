@@ -10,12 +10,11 @@ import Typography from '@mui/material/Typography'
 import { useState, useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
 import { addMemberToBoardAPI, removeMemberFromBoardAPI, searchUserAPI, getAllUserInBoardAPI } from '~/apis/boards'
-import { IconButton, Popper, Paper, MenuList, MenuItem } from '@mui/material'
+import { IconButton, Popper, Paper, MenuList, MenuItem, CircularProgress } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import BasicLoading from '~/helpers/components/BasicLoading'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { useConfirm } from 'material-ui-confirm'
 import validation from '~/utils/validation'
@@ -103,7 +102,6 @@ function MemberManage({ board }) {
 
   return (
     <>
-      {loadingUser && <BasicLoading />}
       <Box>
         <Button
           variant="outlined"
@@ -231,55 +229,63 @@ function MemberManage({ board }) {
           </Box>
           <DialogTitle sx={{ pt: 0, color: textColor }}>Thành viên</DialogTitle>
           <Box sx={{ maxHeight: '200px', overflowY: 'auto', px: 3, gap: 2, display: 'flex', flexDirection: 'column' }}>
-            {/* Hiển thị admin nếu có */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Avatar alt={allUser?.admin?.adminName} src={allUser?.admin?.adminAvatar || ''} />
-              <div className="flex flex-col gap-1">
-                <p>
-                  {allUser?.admin?.adminName} <span>(Admin)</span>
-                </p>
-                <p className="text-xs opacity-50">{allUser?.admin?.adminEmail}</p>
-              </div>
-            </Box>
-
-            {/* Hiển thị danh sách members */}
-            <Box className="flex flex-col gap-2">
-              {allUser?.members?.map((member, index) => (
-                <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar alt={member?.memberName} src={member?.memberAvatar || ''} />
-                    <div className="flex flex-col gap-1">
-                      <p>{member?.memberName}</p>
-                      <p className="text-xs opacity-50">{member?.memberEmail}</p>
-                    </div>
-                  </Box>
-                  {user?.userId === board?.adminId && (
-                    <IconButton
-                      onClick={() => {
-                        confirm({
-                          title: 'Xóa thành viên',
-                          description: (
-                            <span>
-                              Bạn có chắc muốn xóa thành viên{' '}
-                              <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>
-                                {member?.memberName}
-                              </span>{' '}
-                              chứ?
-                            </span>
-                          ),
-                          confirmationText: 'Xóa',
-                          cancellationText: 'Hủy'
-                        }).then(() => {
-                          handleRemove(member?.memberId)
-                        })
-                      }}
-                    >
-                      <UserMinus size={16} />
-                    </IconButton>
-                  )}
+            {loadingUser ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+                <CircularProgress size={32} />
+              </Box>
+            ) : (
+              <>
+                {/* Hiển thị admin nếu có */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar alt={allUser?.admin?.adminName} src={allUser?.admin?.adminAvatar || ''} />
+                  <div className="flex flex-col gap-1">
+                    <p>
+                      {allUser?.admin?.adminName} <span>(Admin)</span>
+                    </p>
+                    <p className="text-xs opacity-50">{allUser?.admin?.adminEmail}</p>
+                  </div>
                 </Box>
-              ))}
-            </Box>
+
+                {/* Hiển thị danh sách members */}
+                <Box className="flex flex-col gap-2">
+                  {allUser?.members?.map((member, index) => (
+                    <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Avatar alt={member?.memberName} src={member?.memberAvatar || ''} />
+                        <div className="flex flex-col gap-1">
+                          <p>{member?.memberName}</p>
+                          <p className="text-xs opacity-50">{member?.memberEmail}</p>
+                        </div>
+                      </Box>
+                      {user?.userId === board?.adminId && (
+                        <IconButton
+                          onClick={() => {
+                            confirm({
+                              title: 'Xóa thành viên',
+                              description: (
+                                <span>
+                                  Bạn có chắc muốn xóa thành viên{' '}
+                                  <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>
+                                    {member?.memberName}
+                                  </span>{' '}
+                                  chứ?
+                                </span>
+                              ),
+                              confirmationText: 'Xóa',
+                              cancellationText: 'Hủy'
+                            }).then(() => {
+                              handleRemove(member?.memberId)
+                            })
+                          }}
+                        >
+                          <UserMinus size={16} />
+                        </IconButton>
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+              </>
+            )}
           </Box>
         </Dialog>
       </Box>
