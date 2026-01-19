@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { toast } from 'react-toastify'
 import { deleteBoardAPI } from '~/apis/boards'
 import useConfirmDialog from '~/helpers/hooks/useConfirmDialog'
+import BasicLoading from '~/helpers/components/BasicLoading'
 
 function DeleteBoardButton({ boardId, boardTitle, onDeleteSuccess }) {
   const [loading, setLoading] = useState(false)
@@ -37,20 +38,23 @@ function DeleteBoardButton({ boardId, boardTitle, onDeleteSuccess }) {
   }
 
   return (
-    <Button
-      onClick={handleClick}
-      disabled={loading}
-      sx={{
-        bgcolor: 'rgba(0, 0, 0, 0.5)',
-        color: 'white',
-        width: '24px',
-        height: '24px',
-        minWidth: 'unset',
-        '&:hover': { bgcolor: '#d32f2f' }
-      }}
-    >
-      <DeleteIcon sx={{ fontSize: '16px' }} />
-    </Button>
+    <>
+      <BasicLoading loading={loading} />
+      <Button
+        onClick={handleClick}
+        disabled={loading}
+        sx={{
+          bgcolor: 'rgba(0, 0, 0, 0.5)',
+          color: 'white',
+          width: '24px',
+          height: '24px',
+          minWidth: 'unset',
+          '&:hover': { bgcolor: '#d32f2f' }
+        }}
+      >
+        <DeleteIcon sx={{ fontSize: '16px' }} />
+      </Button>
+    </>
   )
 }
 
