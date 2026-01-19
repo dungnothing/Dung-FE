@@ -29,8 +29,8 @@ function MainBoard() {
 
   const handleClick = async (boardId) => {
     try {
-      await addRecentBoardAPI(boardId)
       navigate(`/boards/${boardId}`)
+      await addRecentBoardAPI(boardId)
     } catch (error) {
       toast.error('Có lỗi xảy ra khi tải bảng')
     }
