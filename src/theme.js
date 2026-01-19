@@ -29,6 +29,13 @@ const theme = createTheme({
               color: '#B6C2CF'
             }
           }
+        },
+        MuiTypography: {
+          styleOverrides: {
+            root: {
+              color: '#B6C2CF'
+            }
+          }
         }
       }
     },
@@ -37,6 +44,13 @@ const theme = createTheme({
         MuiCssBaseline: {
           styleOverrides: {
             p: {
+              color: '#172b4d'
+            }
+          }
+        },
+        MuiTypography: {
+          styleOverrides: {
+            root: {
               color: '#172b4d'
             }
           }

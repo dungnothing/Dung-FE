@@ -99,7 +99,7 @@ function Task() {
       <Typography sx={{ color: textColor }} variant="h6">
         Nhiệm vụ của bạn ở đây
       </Typography>
-      {taskList.length === 0 ? (
+      {!loadTask && taskList.length === 0 ? (
         <EmptyList title="Không có nhiệm vụ" />
       ) : (
         <Grid spacing={2} container>

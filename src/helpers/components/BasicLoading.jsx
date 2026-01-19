@@ -14,7 +14,7 @@ function BasicLoading({ className, size = 48 }) {
         alignItems: 'center',
         justifyContent: 'center',
         gap: 2,
-        backgroundColor: 'rgba(255, 255, 255, 0.7)', // overlay mờ
+        backgroundColor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)'), // overlay mờ
         zIndex: 9999
       }}
       className={className}
