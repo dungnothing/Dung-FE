@@ -9,6 +9,7 @@ import { toast } from 'react-toastify'
 import { getNotificationAPI, markAllAsReadAPI, markAsReadAPI } from '~/apis/notification'
 import { setMarkAsRead, setNotifications } from '~/redux/features/comon'
 import { getErrorMessage } from '~/utils/messageHelper'
+import CircularProgress from '@mui/material/CircularProgress'
 
 function Notification() {
   const navigate = useNavigate()
@@ -17,6 +18,7 @@ function Notification() {
   const unReadCount = notifications?.filter((item) => !item.isRead)?.length
   const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
+  const [loading, setLoading] = useState(false)
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
@@ -28,10 +30,13 @@ function Notification() {
 
   const fetchNotifications = async () => {
     try {
+      setLoading(true)
       const response = await getNotificationAPI()
       dipatch(setNotifications(response))
     } catch (error) {
       toast.error(getErrorMessage(error))
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -93,37 +98,44 @@ function Notification() {
           </div>
 
           <div className="w-full h-[1px] bg-gray-400 flex justify-center items-center" />
-          <div className="w-full h-full">
-            {notifications?.length === 0 ? (
-              <Typography variant="body2" sx={{ color: '#777' }}>
-                Không có thông báo nào
-              </Typography>
-            ) : (
-              notifications?.map((notification) => (
-                <MenuItem
-                  key={notification._id}
-                  onClick={() => {
-                    handleChooseClick(notification)
-                    handleClose()
-                  }}
-                  sx={{
-                    display: 'flex',
-                    gap: 1,
-                    width: '100%',
-                    whiteSpace: 'normal'
-                  }}
-                >
-                  <img
-                    src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQSHe1S_e3h0g9AEdRKpXovMPgIEJZttOjnq_sQ6JY3MRJT2onDxMSCUNqvVs5oML-Tf4Sp7Svm"
-                    alt=""
-                    className="w-[32px] h-[32px] rounded-full"
-                  />
-                  <p className="flex-1 break-words">{notification.content}</p>
-                  {!notification.isRead && <Badge variant="dot" color="error" overlap="circular" />}
-                </MenuItem>
-              ))
-            )}
-          </div>
+
+          {loading ? (
+            <div className="flex items-center justify-center h-[200px]">
+              <CircularProgress />
+            </div>
+          ) : (
+            <div className="w-full h-full">
+              {notifications?.length === 0 ? (
+                <Typography variant="body2" sx={{ color: '#777' }}>
+                  Không có thông báo nào
+                </Typography>
+              ) : (
+                notifications?.map((notification) => (
+                  <MenuItem
+                    key={notification._id}
+                    onClick={() => {
+                      handleChooseClick(notification)
+                      handleClose()
+                    }}
+                    sx={{
+                      display: 'flex',
+                      gap: 1,
+                      width: '100%',
+                      whiteSpace: 'normal'
+                    }}
+                  >
+                    <img
+                      src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQSHe1S_e3h0g9AEdRKpXovMPgIEJZttOjnq_sQ6JY3MRJT2onDxMSCUNqvVs5oML-Tf4Sp7Svm"
+                      alt=""
+                      className="w-[32px] h-[32px] rounded-full"
+                    />
+                    <p className="flex-1 break-words">{notification.content}</p>
+                    {!notification.isRead && <Badge variant="dot" color="error" overlap="circular" />}
+                  </MenuItem>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </Menu>
     </Box>
