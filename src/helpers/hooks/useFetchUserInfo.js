@@ -1,5 +1,5 @@
 // hooks/useFetchUserInfo.js
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { setUserInfo, setStarBoards, setNotifications, setRecentBoards } from '~/redux/features/comon'
 import { getUserInfoAPI } from '~/apis/auth'
@@ -14,6 +14,7 @@ export const useFetchUserInfo = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const refreshToken = getCookie('refreshToken')
+  const hasFetched = useRef(false)
 
   const logout = () => {
     Cookie.remove('accessToken')
@@ -49,8 +50,12 @@ export const useFetchUserInfo = () => {
   }, [refreshToken])
 
   useEffect(() => {
-    fetchUserInfo()
-  }, [fetchUserInfo])
+    // Chỉ fetch 1 lần khi component mount
+    if (!hasFetched.current && refreshToken) {
+      hasFetched.current = true
+      fetchUserInfo()
+    }
+  }, [refreshToken, fetchUserInfo])
 
   return { fetchUserInfo }
 }
