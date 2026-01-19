@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { CheckCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { getNotificationsAPI, markAllAsReadAPI, markAsReadAPI } from '~/apis/notification'
+import { getNotificationAPI, markAllAsReadAPI, markAsReadAPI } from '~/apis/notification'
 import { setMarkAsRead, setNotifications } from '~/redux/features/comon'
 import { getErrorMessage } from '~/utils/messageHelper'
 
@@ -28,7 +28,7 @@ function Notification() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await getNotificationsAPI()
+      const response = await getNotificationAPI()
       dipatch(setNotifications(response.data))
     } catch (error) {
       toast.error(getErrorMessage(error))
