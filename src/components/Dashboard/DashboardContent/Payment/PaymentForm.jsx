@@ -47,7 +47,7 @@ const formatCardNumber = (value = '') =>
     .replace(/(.{4})/g, '$1 ')
     .trim()
 
-function PaymentForm({ pkg, getUserSubsription, setSelectedPackage }) {
+function PaymentForm({ pkg, setSelectedPackage }) {
   const dispatch = useDispatch()
 
   const form = useForm({
@@ -75,7 +75,6 @@ function PaymentForm({ pkg, getUserSubsription, setSelectedPackage }) {
         price: pkg?.priceNumber
       })
 
-      await getUserSubsription()
       setSelectedPackage(null)
 
       const userInfo = await getUserInfoAPI()

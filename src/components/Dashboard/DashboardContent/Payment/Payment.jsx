@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react'
-import { Box, Card, CardContent, Typography, Button } from '@mui/material'
-import DoneIcon from '@mui/icons-material/Done'
 import CloseIcon from '@mui/icons-material/Close'
-import PaymentForm from './PaymentForm'
-import { textColor } from '~/utils/constants'
-import { getSubcriptionAPI } from '~/apis/v2/subcription'
-import { toast } from 'react-toastify'
+import DoneIcon from '@mui/icons-material/Done'
+import { Box, Button, Card, CardContent, Typography } from '@mui/material'
 import dayjs from 'dayjs'
+import { useState } from 'react'
 import ContentLoading from '~/helpers/components/ContentLoading'
+import { textColor } from '~/utils/constants'
+import PaymentForm from './PaymentForm'
+import { useSelector } from 'react-redux'
 
 const PaymentComponent = () => {
   const [selectedPackage, setSelectedPackage] = useState(null)
-  const [supData, setSupData] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const user = useSelector((state) => state.comon.user)
+  const supData = user?.subscriptions
 
   const packages = [
     {
@@ -44,22 +43,6 @@ const PaymentComponent = () => {
     </Box>
   )
 
-  const getUserSubsription = async () => {
-    try {
-      setLoading(true)
-      const res = await getSubcriptionAPI()
-      setSupData(res)
-    } catch (error) {
-      toast.error('Lỗi khi lấy thông tin người dùng')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    getUserSubsription()
-  }, [])
-
   const getRemainingDays = (expiresAt) => {
     const now = dayjs()
     const expire = dayjs(expiresAt)
@@ -74,23 +57,23 @@ const PaymentComponent = () => {
       </Typography>
 
       {/* Hiển thị loading khi đang tải */}
-      {loading ? (
+      {!user ? (
         <ContentLoading message="Đang tải thông tin gói..." minHeight="400px" />
       ) : (
         <Box sx={{ display: 'flex', gap: 3, width: '100%' }}>
           {/* Gói nâng cấp */}
           <Box sx={{ display: 'flex', gap: 3, flex: 2 }}>
             {packages.map((pkg) => {
-              const isSubscribed = supData?.plan === pkg?.name.toUpperCase()
-              const remainingDays = isSubscribed ? getRemainingDays(supData.expiresAt) : null
-              const noSubscription = !supData // chưa có gói nào
+              const isExpired = supData && new Date(supData?.expiresAt) < new Date()
+              const currentPlan = supData?.plan
+              const isCurrentPkg = currentPlan === pkg?.name.toUpperCase() && !isExpired
+              const remainingDays = isCurrentPkg ? getRemainingDays(supData.expiresAt) : null
 
-              // Logic nâng cấp: Nếu đang dùng PRO thì có thể mua PREMIUM
-              const isPro = supData?.plan === 'PRO'
-              const canUpgrade = isPro && pkg?.name === 'Premium'
-
-              // Điều kiện để hiển thị active (không bị mờ)
-              const isActive = noSubscription || isSubscribed || canUpgrade
+              const isPremiumDowngrade = currentPlan === 'PREMIUM' && !isExpired && pkg?.name === 'Pro'
+              const canBuy = !supData || isExpired || (currentPlan === 'PRO' && !isExpired && pkg?.name === 'Premium')
+              const isActive = !isPremiumDowngrade && (canBuy || isCurrentPkg)
+              const buttonText =
+                currentPlan === 'PRO' && !isExpired && pkg?.name === 'Premium' ? 'Nâng cấp ngay' : 'Thanh toán ngay'
 
               return (
                 <Card
@@ -139,11 +122,11 @@ const PaymentComponent = () => {
                     </Box>
 
                     {/* Nút thanh toán hoặc thông tin gói hiện tại */}
-                    {isSubscribed ? (
+                    {isCurrentPkg ? (
                       <Typography sx={{ mt: 2, fontWeight: 600, textAlign: 'center', color: textColor }}>
                         Gói này còn {remainingDays} ngày
                       </Typography>
-                    ) : noSubscription || canUpgrade ? (
+                    ) : canBuy ? (
                       <Button
                         fullWidth
                         variant={pkg?.id === 2 ? 'contained' : 'outlined'}
@@ -159,7 +142,7 @@ const PaymentComponent = () => {
                           }
                         }}
                       >
-                        {canUpgrade ? 'Nâng cấp ngay' : 'Thanh toán ngay'}
+                        {buttonText}
                       </Button>
                     ) : null}
                   </CardContent>
@@ -170,13 +153,7 @@ const PaymentComponent = () => {
 
           {/* Form thanh toán */}
           <Box sx={{ flex: 1 }}>
-            {selectedPackage && (
-              <PaymentForm
-                pkg={selectedPackage}
-                getUserSubsription={getUserSubsription}
-                setSelectedPackage={setSelectedPackage}
-              />
-            )}
+            {selectedPackage && <PaymentForm pkg={selectedPackage} setSelectedPackage={setSelectedPackage} />}
           </Box>
         </Box>
       )}
