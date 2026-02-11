@@ -66,12 +66,12 @@ export const getListBackgroundAPI = async () => {
 }
 
 export const getTemplateAPI = async () => {
-  const response = await axiosInstance.get('/v1/templates')
+  const response = await axiosInstance.get('/v2/templates')
   return response.data
 }
 
-export const createTemplateAPI = async (createData) => {
-  const response = await axiosInstance.post('/v1/templates', createData)
+export const cloneTemplateAPI = async (cloneData) => {
+  const response = await axiosInstance.post('/v2/templates/clone', cloneData)
   return response.data
 }
 

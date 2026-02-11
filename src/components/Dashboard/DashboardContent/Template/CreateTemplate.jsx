@@ -3,7 +3,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
-import { getListBackgroundAPI, createTemplateAPI } from '~/apis/boards'
+import { getListBackgroundAPI, cloneTemplateAPI } from '~/apis/boards'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { addRecentBoardAPI } from '~/apis/boards'
@@ -15,7 +15,6 @@ function CreateTemplate({ open, onClose, templateId }) {
   const defaultValues = {
     title: '',
     visibility: 'PRIVATE',
-    description: 'de do chua biet lam gi',
     boardBackground: ''
   }
 
@@ -44,16 +43,18 @@ function CreateTemplate({ open, onClose, templateId }) {
 
   const handleCreateNewBoardAsTemplate = async (data) => {
     try {
-      const createData = {
-        ...data,
-        templateId: templateId
+      const cloneData = {
+        templateId: templateId,
+        title: data.title,
+        visibility: data.visibility,
+        boardBackground: data.boardBackground
       }
-      const newBoard = await createTemplateAPI(createData)
+      const newBoard = await cloneTemplateAPI(cloneData)
       await addRecentBoardAPI(newBoard._id)
       navigate(`/boards/${newBoard._id}`)
       toast.success('Tạo bảng mới thành công!')
     } catch (error) {
-      toast.error(error.response.data.message)
+      toast.error(error.response?.data?.message || 'Có lỗi xảy ra')
     }
   }
 

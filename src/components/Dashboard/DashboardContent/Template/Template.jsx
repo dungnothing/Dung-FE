@@ -1,16 +1,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { Box, Card, CardContent, Typography, CardMedia, Dialog, IconButton, Button } from '@mui/material'
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  CardMedia,
+  Dialog,
+  IconButton,
+  Button,
+  DialogTitle,
+  DialogContent
+} from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { useState, useEffect } from 'react'
 import CreateTemplate from './CreateTemplate'
-import { getTemplateAPI } from '~/apis/boards'
+import { getTemplateAPI, fetchBoardDetailsAPI } from '~/apis/boards'
 import { toast } from 'react-toastify'
-import hangngay from '~/assets/preview-template/hangngay.png'
-import hoctap from '~/assets/preview-template/hoctap.png'
-import duan from '~/assets/preview-template/duan.png'
-import sotay from '~/assets/preview-template/sotay.png'
 
 function BoardTemplateCreator() {
   const [open, setOpen] = useState(false)
@@ -18,63 +25,47 @@ function BoardTemplateCreator() {
 
   // State cho preview full screen
   const [previewOpen, setPreviewOpen] = useState(false)
-  const [previewImage, setPreviewImage] = useState('')
+  const [previewTemplate, setPreviewTemplate] = useState(null)
+  const [loadingPreview, setLoadingPreview] = useState(false)
   const [hoveredCardIndex, setHoveredCardIndex] = useState(null)
 
-  const [templateData, setTemplateData] = useState([
-    {
-      title: 'Kế hoạch hàng ngày',
-      description: 'Một mẫu bảng việc nhà giúp bạn quản lý công việc hàng ngày của mình một cách hiệu quả.',
-      image: 'https://i.pinimg.com/736x/e6/b9/c1/e6b9c1decfae8e63c78edf62d1328f3f.jpg',
-      previewImage: hangngay
-    },
-    {
-      title: 'Học tập',
-      description: 'Một bảng phân công, phân chia công việc học tập cho các thành viên trong nhóm.',
-      image: 'https://i.pinimg.com/736x/ee/0c/5b/ee0c5bbe5c188bbec78e972c79c3a26a.jpg',
-      previewImage: hoctap
-    },
-    {
-      title: 'Quản lý dự án',
-      description:
-        'Sử dụng cấu trúc này để xây dựng quy trình làm việc lý tưởng cho nhóm của bạn, bao gồm cả các dự án nhỏ.',
-      image: 'https://i.pinimg.com/474x/1f/14/ff/1f14ff9d10edecac0d86fe0a2fd7ed13.jpg',
-      previewImage: duan
-    },
-    {
-      title: 'Xây dựng sổ tay nhân viên',
-      description: 'Với mẫu này, bạn có thể tạo một sổ tay nhân viên cho công ty của mình.',
-      image: 'https://i.pinimg.com/736x/7e/e4/86/7ee486600d5a7467a3a7eab1c8748d88.jpg',
-      previewImage: sotay
-    }
-  ])
+  // State lưu danh sách templates từ API
+  const [templateData, setTemplateData] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const getTemplate = async () => {
       try {
+        setIsLoading(true)
         const templates = await getTemplateAPI()
-        setTemplateData(
-          templateData?.map((template, index) => {
-            template._id = templates[index]._id
-            return template
-          })
-        )
+        setTemplateData(templates)
       } catch (error) {
-        toast.error(error.response.data.message)
+        toast.error(error?.response?.data?.message || 'Không thể tải danh sách template')
+      } finally {
+        setIsLoading(false)
       }
     }
     getTemplate()
   }, [])
 
-  const handleOpenPreview = (e, image) => {
+  const handleOpenPreview = async (e, templateId) => {
     e.stopPropagation()
-    setPreviewImage(image)
-    setPreviewOpen(true)
+    try {
+      setLoadingPreview(true)
+      setPreviewOpen(true)
+      const detail = await fetchBoardDetailsAPI(templateId)
+      setPreviewTemplate(detail)
+    } catch (error) {
+      toast.error('Không thể tải chi tiết template')
+      setPreviewOpen(false)
+    } finally {
+      setLoadingPreview(false)
+    }
   }
 
   const handleClosePreview = () => {
     setPreviewOpen(false)
-    setPreviewImage('')
+    setPreviewTemplate(null)
   }
 
   return (
@@ -82,99 +73,251 @@ function BoardTemplateCreator() {
       <Typography variant="h4" sx={{ color: textColor }}>
         Chọn mẫu bảng
       </Typography>
-      <Box className="grid grid-cols-3 gap-4 mt-4 w-full">
-        {templateData.map((template, index) => (
-          <Card
-            key={index}
-            sx={{
-              cursor: 'pointer',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: 4
-              },
-              width: '100%',
-              boxShadow: 2,
-              position: 'relative'
-            }}
-            onClick={() => {
-              setTemplateId(template._id)
-              setOpen(true)
-            }}
-            onMouseEnter={() => setHoveredCardIndex(index)}
-            onMouseLeave={() => setHoveredCardIndex(null)}
-          >
-            <Box sx={{ position: 'relative' }}>
-              <CardMedia component="img" image={template.image} sx={{ height: 140, width: '100%' }} />
-              {hoveredCardIndex === index && (
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    bgcolor: 'rgba(0,0,0,0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: '0.3s'
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={(e) => handleOpenPreview(e, template.previewImage)}
-                    sx={{ bgcolor: 'white', color: 'black', '&:hover': { bgcolor: '#f0f0f0' } }}
-                  >
-                    Xem trước
-                  </Button>
-                </Box>
-              )}
-            </Box>
-            <CardContent>
-              <Typography gutterBottom variant="h5" component="div" sx={{ color: textColor }}>
-                {template.title}
-              </Typography>
-              <Typography variant="body2" sx={{ color: textColor }}>
-                {template.description}
-              </Typography>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
 
-      <Dialog fullScreen open={previewOpen} onClose={handleClosePreview}>
-        <Box
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+          <Typography variant="h6" sx={{ color: textColor }}>
+            Đang tải danh sách template...
+          </Typography>
+        </Box>
+      ) : templateData.length === 0 ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+          <Typography variant="h6" sx={{ color: textColor }}>
+            Chưa có template nào
+          </Typography>
+        </Box>
+      ) : (
+        <Box className="grid grid-cols-3 gap-4 mt-4 w-full">
+          {templateData.map((template, index) => (
+            <Card
+              key={template._id || index}
+              sx={{
+                cursor: 'pointer',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 4
+                },
+                width: '100%',
+                boxShadow: 2,
+                position: 'relative'
+              }}
+              onClick={() => {
+                setTemplateId(template._id)
+                setOpen(true)
+              }}
+              onMouseEnter={() => setHoveredCardIndex(index)}
+              onMouseLeave={() => setHoveredCardIndex(null)}
+            >
+              <Box sx={{ position: 'relative' }}>
+                <CardMedia
+                  component="img"
+                  image={template.coverImage || 'https://via.placeholder.com/400x200?text=No+Image'}
+                  sx={{ height: 140, width: '100%', objectFit: 'cover' }}
+                />
+                {hoveredCardIndex === index && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      bgcolor: 'rgba(0,0,0,0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: '0.3s'
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={(e) => handleOpenPreview(e, template._id)}
+                      sx={{ bgcolor: 'white', color: 'black', '&:hover': { bgcolor: '#f0f0f0' } }}
+                    >
+                      Xem trước
+                    </Button>
+                  </Box>
+                )}
+              </Box>
+              <CardContent>
+                <Typography gutterBottom variant="h5" component="div" sx={{ color: textColor }}>
+                  {template.title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: textColor }}>
+                  {template.description}
+                </Typography>
+              </CardContent>
+            </Card>
+          ))}
+        </Box>
+      )}
+
+      {/* Preview Dialog */}
+      <Dialog
+        open={previewOpen}
+        onClose={handleClosePreview}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: {
+            width: '70vw',
+            height: '70vh',
+            maxWidth: 'none'
+          }
+        }}
+      >
+        <DialogTitle
           sx={{
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-            bgcolor: 'black',
             display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            justifyContent: 'center'
+            bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1d2125' : 'background.default'),
+            borderBottom: 1,
+            borderColor: (theme) => (theme.palette.mode === 'dark' ? '#FFF4EA' : 'divider')
           }}
         >
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={handleClosePreview}
-            aria-label="close"
-            sx={{ position: 'absolute', top: 16, right: 16, color: 'white', bgcolor: 'rgba(0,0,0,0.5)' }}
-            disableRipple
-          >
+          <Typography variant="h5" sx={{ color: textColor, fontWeight: 600 }}>
+            {previewTemplate?.title || 'Xem trước template'}
+          </Typography>
+          <IconButton onClick={handleClosePreview} aria-label="close">
             <CloseIcon />
           </IconButton>
-          <img
-            src={previewImage}
-            alt="Template Preview"
-            style={{
-              maxWidth: '100%',
-              maxHeight: '100%',
-              objectFit: 'contain'
-            }}
-          />
-        </Box>
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : 'background.default'),
+            p: 0,
+            height: 'calc(100% - 64px)',
+            overflow: 'hidden'
+          }}
+        >
+          {loadingPreview ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Typography variant="h6" sx={{ color: textColor }}>
+                Đang tải chi tiết template...
+              </Typography>
+            </Box>
+          ) : previewTemplate ? (
+            <Box sx={{ height: '100%', p: 3, overflowX: 'auto', overflowY: 'hidden' }}>
+              {/* Trello Board Layout - Horizontal Columns */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  height: '100%',
+                  alignItems: 'flex-start'
+                }}
+              >
+                {previewTemplate.columns?.map((column) => (
+                  <Box
+                    key={column._id}
+                    sx={{
+                      minWidth: 280,
+                      maxWidth: 280,
+                      bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'grey.900' : 'grey.100'),
+                      borderRadius: 2,
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}
+                  >
+                    {/* Column Header */}
+                    <Box
+                      sx={{
+                        px: 2,
+                        py: 1,
+                        borderBottom: 1,
+                        borderColor: 'divider'
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          color: textColor,
+                          fontWeight: 600,
+                          fontSize: '0.95rem'
+                        }}
+                      >
+                        {column.title}
+                      </Typography>
+                    </Box>
+
+                    {/* Cards Container */}
+                    <Box
+                      sx={{
+                        p: 2,
+                        overflow: 'auto',
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1.5
+                      }}
+                    >
+                      {column.cards.length === 0 && (
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: 'text.secondary',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            fontSize: '0.875rem'
+                          }}
+                        >
+                          Chưa có thẻ nào
+                        </Typography>
+                      )}
+                      {column.cards.map((card) => (
+                        <Card
+                          key={card._id}
+                          sx={{
+                            bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'grey.800' : 'background.paper'),
+                            boxShadow: (theme) =>
+                              theme.palette.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.1)',
+                            cursor: 'default',
+                            '&:hover': {
+                              boxShadow: (theme) =>
+                                theme.palette.mode === 'dark'
+                                  ? '0 2px 6px rgba(0,0,0,0.4)'
+                                  : '0 2px 4px rgba(0,0,0,0.15)'
+                            }
+                          }}
+                        >
+                          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: textColor,
+                                fontSize: '0.875rem',
+                                lineHeight: 1.5,
+                                wordBreak: 'break-word'
+                              }}
+                            >
+                              {card.title}
+                            </Typography>
+                            {card.description && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: 'text.secondary',
+                                  mt: 1,
+                                  display: 'block',
+                                  fontSize: '0.75rem'
+                                }}
+                              >
+                                {card.description}
+                              </Typography>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          ) : null}
+        </DialogContent>
       </Dialog>
 
       <CreateTemplate open={open} onClose={() => setOpen(false)} templateId={templateId} />

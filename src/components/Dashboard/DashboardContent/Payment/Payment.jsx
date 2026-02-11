@@ -82,6 +82,7 @@ const PaymentComponent = () => {
                     flex: 1,
                     borderRadius: '20px',
                     border: '1px solid #E5E7EB',
+                    height: 'fit-content',
                     transition: '0.3s',
                     opacity: isActive ? 1 : 0.4,
                     '&:hover': {
@@ -123,7 +124,9 @@ const PaymentComponent = () => {
 
                     {/* Nút thanh toán hoặc thông tin gói hiện tại */}
                     {isCurrentPkg ? (
-                      <Typography sx={{ mt: 2, fontWeight: 600, textAlign: 'center', color: textColor }}>
+                      <Typography
+                        sx={{ mt: 2, fontWeight: 600, textAlign: 'center', color: textColor, height: '36px' }}
+                      >
                         Gói này còn {remainingDays} ngày
                       </Typography>
                     ) : canBuy ? (
@@ -133,6 +136,7 @@ const PaymentComponent = () => {
                         onClick={() => setSelectedPackage(pkg)}
                         sx={{
                           mt: 2,
+                          height: '36px',
                           borderRadius: '12px',
                           backgroundColor: pkg?.id === 2 ? '#615FFF' : 'transparent',
                           color: pkg?.id === 2 ? '#fff' : '#615FFF',
