@@ -21,9 +21,7 @@ function HeroSection() {
         p: 2
       }}
     >
-      <div className="md:text-[72px] text-[40px] font-extralight min-w-[400px] w-0.6 text-center">
-        Gió is like a wind, alway by my side
-      </div>
+      <div className="md:text-[72px] text-[40px] font-light min-w-[400px] w-0.6 text-center">Mạnh mẽ và linh hoạt</div>
 
       {/* Text cho màn hình >= md */}
       <div className="hidden md:block text-[20px] font-light min-w-[400px] max-w-[700px] text-center pb-2">
