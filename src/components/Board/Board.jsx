@@ -22,7 +22,6 @@ import { getErrorMessage } from '~/utils/messageHelper'
 function Board() {
   const { boardId } = useParams()
   const [board, setBoard] = useState(null)
-  // console.log('board', board)
   const navigate = useNavigate()
   const [permissions, setPermissions] = useState(null)
   const [allUserInBoard, setAllUserInBoard] = useState({ admin: {}, members: [] })

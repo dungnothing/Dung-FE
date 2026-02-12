@@ -60,6 +60,8 @@ function BoardContent({
     setColumns(board?.columns || [])
   }, [board])
 
+  const isBoardClosed = board?.boardState === 'CLOSED'
+
   const findColumnByCardId = (cardId) => {
     return columns.find((column) => column?.cards?.map((card) => card._id)?.includes(cardId))
   }
@@ -286,7 +288,7 @@ function BoardContent({
       onDragOver={handleDragOver}
       onDragStart={handleDragStart}
     >
-      {board?.boardState === 'CLOSED' && (
+      {isBoardClosed && (
         <Box
           sx={{
             display: 'flex',
@@ -309,7 +311,7 @@ function BoardContent({
           height: (theme) => theme.trello.boardContentHeight,
           p: '10px 0',
           opacity: 0.95,
-          pointerEvents: board?.boardState === 'CLOSE' ? 'none' : 'auto',
+          pointerEvents: isBoardClosed ? 'none' : 'auto',
           position: 'relative'
         }}
       >
@@ -320,6 +322,7 @@ function BoardContent({
           createNewCard={createNewCard}
           deleteColumnDetails={deleteColumnDetails}
           boardState={board?.boardState}
+          isBoardClosed={isBoardClosed}
           fetchBoarData={fetchBoarData}
           permissions={permissions}
           setBoard={setBoard}

@@ -13,11 +13,11 @@ function CardDescription({
   setDescription,
   isEditting,
   setIsEditting,
-  boardState,
+  isBoardClosed,
   handleChangeDescription,
   iconColor
 }) {
-  const canEdit = boardState === 'OPEN'
+  const canEdit = !isBoardClosed
   const theme = useTheme()
   const textColor2 = theme.palette.mode === 'dark' ? '#B6C2CF' : '#172b4d'
 

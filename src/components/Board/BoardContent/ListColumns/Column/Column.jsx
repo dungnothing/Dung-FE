@@ -22,8 +22,20 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import { Typography } from '@mui/material'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { Plus } from 'lucide-react'
+import { updateColumnDetailsAPI } from '~/apis/columns'
+import { handleError } from '~/utils/messageHelper'
 
-function Column({ column, createNewCard, deleteColumnDetails, boardState, fetchBoarData, isOverlay, setBoard, board }) {
+function Column({
+  column,
+  createNewCard,
+  deleteColumnDetails,
+  boardState,
+  isBoardClosed,
+  fetchBoarData,
+  isOverlay,
+  setBoard,
+  board
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
     data: { ...column }
@@ -52,6 +64,8 @@ function Column({ column, createNewCard, deleteColumnDetails, boardState, fetchB
   const [openNewCardForm, setOpenNewCardForm] = useState(false)
   const [newCardTitle, setNewCardTitle] = useState('')
   const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm)
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [columnTitle, setColumnTitle] = useState(column?.title || '')
 
   const addNewCard = () => {
     if (!newCardTitle) {
@@ -70,6 +84,31 @@ function Column({ column, createNewCard, deleteColumnDetails, boardState, fetchB
     }
     createNewCard(newCardData)
     setNewCardTitle('')
+  }
+
+  const handleUpdateColumnTitle = async () => {
+    try {
+      await updateColumnDetailsAPI(column._id, { title: columnTitle.trim() })
+      setIsEditingTitle(false)
+      setBoard((prevBoard) => {
+        const newBoard = { ...prevBoard }
+        const columnIndex = newBoard.columns.findIndex((col) => col._id === column._id)
+        if (columnIndex !== -1) {
+          newBoard.columns[columnIndex].title = columnTitle.trim()
+        }
+        return newBoard
+      })
+    } catch (error) {
+      setColumnTitle(column?.title || '')
+      setIsEditingTitle(false)
+      handleError(error)
+    }
+  }
+
+  const handleKeyDownForTitle = (event) => {
+    if (event.key === 'Enter') {
+      event.target.blur()
+    }
   }
 
   const handleKeyDown = (event) => {
@@ -135,12 +174,33 @@ function Column({ column, createNewCard, deleteColumnDetails, boardState, fetchB
             justifyContent: 'space-between'
           }}
         >
-          <Typography
-            sx={{ color: textColor, maxWidth: '204px', fontWeight: 600, breakAfter: 'always', overflow: 'hidden' }}
-          >
-            {column?.title}
-          </Typography>
-          {boardState === 'OPEN' && (
+          {isEditingTitle ? (
+            <TextField
+              value={columnTitle}
+              onChange={(e) => setColumnTitle(e.target.value)}
+              onBlur={handleUpdateColumnTitle}
+              onKeyDown={handleKeyDownForTitle}
+              variant="outlined"
+              size="small"
+              sx={{
+                minWidth: '180px',
+                maxWidth: '180px'
+              }}
+              slotProps={{
+                htmlInput: {
+                  maxLength: 50
+                }
+              }}
+            />
+          ) : (
+            <Typography
+              sx={{ color: textColor, maxWidth: '204px', fontWeight: 600, breakAfter: 'always', overflow: 'hidden' }}
+              onClick={() => setIsEditingTitle(true)}
+            >
+              {column?.title}
+            </Typography>
+          )}
+          {!isBoardClosed && (
             <Box>
               <Tooltip title="More options">
                 <ExpandMoreIcon
@@ -190,12 +250,13 @@ function Column({ column, createNewCard, deleteColumnDetails, boardState, fetchB
           board={board}
           cards={orderedCards}
           boardState={boardState}
+          isBoardClosed={isBoardClosed}
           fetchBoarData={fetchBoarData}
           setBoard={setBoard}
         />
 
         {/* Box Column Footer */}
-        {(boardState === 'OPEN' || isOverlay) && (
+        {(!isBoardClosed || isOverlay) && (
           <Box
             sx={{
               height: theme.trello.columnFooterHeight,

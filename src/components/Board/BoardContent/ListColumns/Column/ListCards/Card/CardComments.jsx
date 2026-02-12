@@ -10,7 +10,7 @@ import { checkTime } from '~/utils/formatters'
 import { useCommentSocketHandlers } from '~/sockets/comment'
 import { useParams } from 'react-router-dom'
 
-function CardComments({ card, boardState, onCommentCountChange }) {
+function CardComments({ card, isBoardClosed, onCommentCountChange }) {
   const user = useSelector((state) => state.comon.user)
   const [isCommentLoading, setIsCommentLoading] = useState(false)
   const [content, setContent] = useState('')
@@ -118,7 +118,7 @@ function CardComments({ card, boardState, onCommentCountChange }) {
       <TextField
         fullWidth
         placeholder="Viết bình luận..."
-        disabled={isCommentLoading || boardState !== 'OPEN'}
+        disabled={isCommentLoading || isBoardClosed}
         variant="outlined"
         size="small"
         value={content}
@@ -126,7 +126,7 @@ function CardComments({ card, boardState, onCommentCountChange }) {
           pl: 4,
           color: textColor,
           '& .MuiInputBase-input': {
-            cursor: isCommentLoading || boardState !== 'OPEN' ? 'not-allowed' : 'text'
+            cursor: isCommentLoading || isBoardClosed ? 'not-allowed' : 'text'
           }
         }}
         onChange={(e) => setContent(e.target.value)}
@@ -183,7 +183,7 @@ function CardComments({ card, boardState, onCommentCountChange }) {
                   </div>
                   <div className={`text-[12px] color-${textColor}`}>{checkTime(comment.createdAt)}</div>
                 </div>
-                {user?.userId === comment.userInfo?._id && boardState === 'OPEN' && (
+                {user?.userId === comment.userInfo?._id && !isBoardClosed && (
                   <IconButton size="small" onClick={() => handleDeleteComment(comment._id)} sx={{ p: 0.5 }}>
                     <DeleteIcon sx={{ fontSize: 14, color: '#ff4444' }} />
                   </IconButton>

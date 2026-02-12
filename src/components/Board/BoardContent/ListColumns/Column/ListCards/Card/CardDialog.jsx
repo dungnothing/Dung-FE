@@ -24,6 +24,7 @@ function CardDialog({
   comments,
   setComments,
   boardState,
+  isBoardClosed,
   onCommentCountChange
 }) {
   const [openTimeDialog, setOpenTimeDialog] = useState(false)
@@ -117,7 +118,7 @@ function CardDialog({
         }}
       >
         {/* Phần title / TextField */}
-        {editTitle && boardState === 'OPEN' ? (
+        {editTitle && !isBoardClosed ? (
           <TextField
             value={cardTitle}
             onChange={(e) => setCardTitle(e.target.value)}
@@ -229,6 +230,7 @@ function CardDialog({
             memberInCard={memberInCard}
             setOpenTimeDialog={setOpenTimeDialog}
             boardState={boardState}
+            isBoardClosed={isBoardClosed}
             fetchBoarData={fetchBoarData}
           />
           <CardDescription
@@ -238,6 +240,7 @@ function CardDialog({
             isEditting={isEditting}
             setIsEditting={setIsEditting}
             boardState={boardState}
+            isBoardClosed={isBoardClosed}
             handleChangeDescription={handleChangeDescription}
             iconColor={iconColor}
           />
@@ -250,6 +253,7 @@ function CardDialog({
           comments={comments}
           setComments={setComments}
           boardState={boardState}
+          isBoardClosed={isBoardClosed}
           onCommentCountChange={setCommentCount}
         />
       </Box>

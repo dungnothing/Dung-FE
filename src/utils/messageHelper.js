@@ -1,11 +1,5 @@
-/**
- * Utility để lấy error message từ response của Backend
- * Xử lý các trường hợp khác nhau của error structure
- *
- * @param {Error} error - Error object từ axios hoặc try-catch
- * @param {string} defaultMessage - Message mặc định nếu không tìm thấy message từ BE
- * @returns {string} Error message
- */
+import { toast } from 'react-toastify'
+
 export const getErrorMessage = (error, defaultMessage = 'Đã có lỗi xảy ra') => {
   // Trường hợp 1: Error từ API response (axios error)
   if (error?.response?.data?.message) {
@@ -46,4 +40,9 @@ export const getSuccessMessage = (response, defaultMessage = 'Thành công') => 
 
   // Trường hợp 3: Không tìm thấy message
   return defaultMessage
+}
+
+export const handleError = (error, defaultMessage = 'Đã có lỗi xảy ra') => {
+  const errorMessage = getErrorMessage(error, defaultMessage)
+  toast.error(errorMessage)
 }

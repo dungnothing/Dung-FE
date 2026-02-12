@@ -2,7 +2,7 @@ import Card from './Card/Card'
 import Box from '@mui/material/Box'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
-function ListCards({ board, cards, boardState, fetchBoarData, setBoard }) {
+function ListCards({ board, cards, boardState, isBoardClosed, fetchBoarData, setBoard }) {
   return (
     <SortableContext items={cards?.map((c) => c._id) || []} strategy={verticalListSortingStrategy}>
       <Box
@@ -32,6 +32,7 @@ function ListCards({ board, cards, boardState, fetchBoarData, setBoard }) {
             key={card._id}
             card={card}
             boardState={boardState}
+            isBoardClosed={isBoardClosed}
             fetchBoarData={fetchBoarData}
             setBoard={setBoard}
           />

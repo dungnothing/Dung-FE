@@ -11,6 +11,6 @@ export const markAllAsReadAPI = async () => {
 }
 
 export const markAsReadAPI = async (id) => {
-  const response = await axiosInstance.put(`/v1/notifications/${id}`)
+  const response = await axiosInstance.put(`/v1/notifications/mark/${id}`)
   return response.data
 }

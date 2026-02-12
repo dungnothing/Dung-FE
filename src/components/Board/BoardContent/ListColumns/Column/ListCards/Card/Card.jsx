@@ -19,7 +19,7 @@ import { textColor } from '~/utils/constants'
 import CardDialog from './CardDialog'
 import { useSearchParams } from 'react-router-dom'
 
-function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, board }) {
+function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = false, setBoard, board }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [hover, setHover] = useState(false)
   const [isDone, setIsDone] = useState(card?.isDone)
@@ -92,7 +92,7 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
         style={dndKitCardStyles}
         key={card._id}
         {...attributes}
-        {...(boardState === 'CLOSED' ? {} : listeners)}
+        {...(isBoardClosed ? {} : listeners)}
         sx={{
           cursor: 'pointer',
           flexShrink: 0,
@@ -124,7 +124,7 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {(hover || isDone) && !ghostMode && !openDialog && boardState === 'OPEN' && (
+              {(hover || isDone) && !ghostMode && !openDialog && !isBoardClosed && (
                 <Checkbox
                   checked={isDone}
                   onChange={handleOnChange}
@@ -194,6 +194,7 @@ function Card({ card, boardState, fetchBoarData, isOverlay = false, setBoard, bo
         comments={comments}
         setComments={setComments}
         boardState={boardState}
+        isBoardClosed={isBoardClosed}
         onCommentCountChange={setCommentCount}
       />
     </>

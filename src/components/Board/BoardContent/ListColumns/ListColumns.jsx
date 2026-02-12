@@ -17,6 +17,7 @@ function ListColumns({
   createNewCard,
   deleteColumnDetails,
   boardState,
+  isBoardClosed,
   fetchBoarData,
   permissions,
   setBoard
@@ -72,6 +73,7 @@ function ListColumns({
             createNewCard={createNewCard}
             deleteColumnDetails={deleteColumnDetails}
             boardState={boardState}
+            isBoardClosed={isBoardClosed}
             fetchBoarData={fetchBoarData}
             permissions={permissions}
             setBoard={setBoard}
@@ -80,7 +82,7 @@ function ListColumns({
         {/* Add new column .... */}
         {!openNewColumnForm ? (
           permissions?.CREATE_COLUMN &&
-          boardState === 'OPEN' && (
+          !isBoardClosed && (
             <Box
               sx={{
                 minWidth: '250px',

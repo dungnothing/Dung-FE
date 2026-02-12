@@ -21,7 +21,7 @@ function CardButtonGroup({
   getMemberInCard,
   memberInCard,
   setOpenTimeDialog,
-  boardState,
+  isBoardClosed,
   fetchBoarData
 }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -84,12 +84,7 @@ function CardButtonGroup({
         py: 1
       }}
     >
-      <AddMemberInCard
-        disabled={boardState !== 'OPEN'}
-        boardId={card?.boardId}
-        card={card}
-        fetchBoarData={fetchBoarData}
-      />
+      <AddMemberInCard disabled={isBoardClosed} boardId={card?.boardId} card={card} fetchBoarData={fetchBoarData} />
 
       <RenderTooltip
         title="Thành viên"
@@ -99,7 +94,7 @@ function CardButtonGroup({
           setOpenMemberDialog(true)
           getMemberInCard()
         }}
-        disabled={boardState !== 'OPEN'}
+        disabled={isBoardClosed}
       />
 
       <MemberInCard
@@ -113,14 +108,14 @@ function CardButtonGroup({
         title="Thời gian"
         icon={<AccessTimeIcon />}
         handleClick={() => setOpenTimeDialog(true)}
-        disabled={boardState !== 'OPEN'}
+        disabled={isBoardClosed}
       />
 
       <CardUpload
         title="Thêm ảnh bìa"
         icon={<ImageIcon />}
         loading={isLoading}
-        disabled={boardState !== 'OPEN'}
+        disabled={isBoardClosed}
         accept="image/png,image/jpeg,image/jpg,image/webp"
         inputRef={backgroundRef}
         onChange={handleChangeCardBackground}
@@ -130,7 +125,7 @@ function CardButtonGroup({
         title="Đính kèm file"
         icon={<AttachFileIcon />}
         loading={loadingFile}
-        disabled={boardState !== 'OPEN'}
+        disabled={isBoardClosed}
         accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         inputRef={fileRef}
         onChange={handleUploadFile}
