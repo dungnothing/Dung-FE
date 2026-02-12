@@ -3,14 +3,15 @@ import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
-import { getListBackgroundAPI, cloneTemplateAPI } from '~/apis/boards'
+import { createNewBoardAPI, getListBackgroundAPI, addRecentBoardAPI, cloneTemplateAPI } from '~/apis/boards'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { addRecentBoardAPI } from '~/apis/boards'
+import { getErrorMessage } from '~/utils/messageHelper'
 
-function CreateTemplate({ open, onClose, templateId }) {
+function CreateBoard({ open, onClose, templateId = null }) {
   const navigate = useNavigate()
   const [listBackground, setListBackground] = useState([])
+  const [loading, setLoading] = useState(false)
 
   const defaultValues = {
     title: '',
@@ -41,20 +42,28 @@ function CreateTemplate({ open, onClose, templateId }) {
     loadListBackground()
   }, [form, open])
 
-  const handleCreateNewBoardAsTemplate = async (data) => {
+  const handleCreateNewBoard = async (data) => {
     try {
-      const cloneData = {
-        templateId: templateId,
-        title: data.title,
-        visibility: data.visibility,
-        boardBackground: data.boardBackground
+      setLoading(true)
+      let newBoard
+      if (templateId) {
+        newBoard = await cloneTemplateAPI({
+          templateId,
+          title: data.title,
+          visibility: data.visibility,
+          boardBackground: data.boardBackground
+        })
+      } else {
+        newBoard = await createNewBoardAPI(data)
       }
-      const newBoard = await cloneTemplateAPI(cloneData)
+
       await addRecentBoardAPI(newBoard._id)
       navigate(`/boards/${newBoard._id}`)
       toast.success('Tạo bảng mới thành công!')
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra')
+      toast.error(getErrorMessage(error, 'Lỗi khi tạo bảng mới'))
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -69,14 +78,18 @@ function CreateTemplate({ open, onClose, templateId }) {
       onClose={handleCloseDialog}
       sx={{
         '& .MuiDialog-paper': {
-          height: '450px',
-          width: '520px',
+          height: { xs: 'auto', sm: '450px' },
+          width: { xs: '100%', sm: '520px' },
           borderRadius: '10px'
         }
       }}
       form={form}
     >
-      <Box sx={{ px: 3, py: 2, flexDirection: 'column', gap: 2, display: 'flex' }}>
+      <Box
+        sx={{ px: 3, py: 2, flexDirection: 'column', gap: 2, display: 'flex' }}
+        component="form"
+        onSubmit={form.handleSubmit(handleCreateNewBoard)}
+      >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">Tạo bảng</Typography>
           <IconButton disableRipple onClick={handleCloseDialog}>
@@ -114,14 +127,14 @@ function CreateTemplate({ open, onClose, templateId }) {
           autoFocus
           value={form.watch('title')}
           onChange={(e) => form.setValue('title', e.target.value)}
-          sx={{ width: '470px' }}
+          sx={{ width: '100%' }}
         />
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Typography sx={{ color: textColor }}>Quyền xem</Typography>
           <Select
             value={form.watch('visibility')}
             onChange={(e) => form.setValue('visibility', e.target.value)}
-            sx={{ width: '470px' }}
+            sx={{ width: '100%' }}
           >
             <MenuItem value="PRIVATE" sx={{ color: textColor }}>
               Private
@@ -132,12 +145,11 @@ function CreateTemplate({ open, onClose, templateId }) {
           </Select>
         </Box>
 
-        <div className="flex justify-end w-[470px]">
+        <div className="flex justify-end w-full">
           <Button
             variant="outlined"
             type="submit"
-            disabled={form.watch('title').length < 3}
-            onClick={() => handleCreateNewBoardAsTemplate(form.getValues())}
+            disabled={form.watch('title').length < 3 || loading}
             sx={{
               color: textColor,
               borderColor: textColor,
@@ -155,4 +167,4 @@ function CreateTemplate({ open, onClose, templateId }) {
   )
 }
 
-export default CreateTemplate
+export default CreateBoard

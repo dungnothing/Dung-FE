@@ -39,7 +39,7 @@ function Profiles() {
   }
 
   return (
-    <Box>
+    <Box className="pr-2">
       <Tooltip title="Account settings">
         <IconButton
           onClick={handleClick}

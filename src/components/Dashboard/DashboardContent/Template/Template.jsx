@@ -15,7 +15,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { useState, useEffect } from 'react'
-import CreateTemplate from './CreateTemplate'
+import CreateBoard from '~/components/Dashboard/CreateBoard'
 import { getTemplateAPI, fetchBoardDetailsAPI } from '~/apis/boards'
 import { toast } from 'react-toastify'
 import ContentLoading from '~/helpers/components/ContentLoading'
@@ -86,7 +86,7 @@ function BoardTemplateCreator() {
           </Typography>
         </Box>
       ) : (
-        <Box className="grid grid-cols-3 gap-4 mt-4 w-full">
+        <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4 w-full">
           {templateData.map((template, index) => (
             <Card
               key={template._id || index}
@@ -317,7 +317,7 @@ function BoardTemplateCreator() {
         </DialogContent>
       </Dialog>
 
-      <CreateTemplate open={open} onClose={() => setOpen(false)} templateId={templateId} />
+      <CreateBoard open={open} onClose={() => setOpen(false)} templateId={templateId} />
     </Box>
   )
 }

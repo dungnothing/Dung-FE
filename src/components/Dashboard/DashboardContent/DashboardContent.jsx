@@ -169,7 +169,7 @@ const DashboardContent = ({ searchValue }) => {
         sx={{
           borderLeft: '1px solid #ccc',
           pl: 1,
-          width: '70%',
+          width: { xs: '100%', sm: '70%' },
           overflow: 'auto',
           '&::-webkit-scrollbar': {
             width: '6px'

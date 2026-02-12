@@ -11,7 +11,7 @@ import StarOutlineIcon from '@mui/icons-material/StarOutline'
 import { textColor } from '~/utils/constants'
 import { useSelector, useDispatch } from 'react-redux'
 import { setStarBoards } from '~/redux/features/comon'
-import CreateBoard from '~/helpers/components/CreateBoard'
+import CreateBoard from '~/components/Dashboard/CreateBoard'
 import DeleteBoardButton from './DeleteBoardButton'
 import ContentLoading from '~/helpers/components/ContentLoading'
 

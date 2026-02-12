@@ -157,7 +157,7 @@ function Column({
           maxWidth: '270px',
           display: 'flex',
           flexDirection: 'column',
-          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#f1f2f4'),
+          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#f2f3f5'),
           ml: 2,
           borderRadius: '6px',
           height: 'fit-content',

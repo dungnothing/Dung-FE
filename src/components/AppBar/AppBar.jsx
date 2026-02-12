@@ -13,12 +13,13 @@ import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
-import CreateBoard from '~/helpers/components/CreateBoard'
+import CreateBoard from '~/components/Dashboard/CreateBoard'
 import Notification from './Menus/Notification'
 import { Trello } from 'lucide-react'
 
 function AppBar({ searchValue, setSearchValue, showSearch }) {
   const [open, setOpen] = useState(false)
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
 
   return (
     <Box
@@ -29,7 +30,7 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 2,
-        paddingX: 2,
+        paddingX: { xs: 'none', md: 2 },
         overflowX: 'auto',
         overflowY: 'hidden',
         bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1D2125' : 'rgba(255, 255, 255, 0.1)'),
@@ -45,7 +46,8 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
             display: 'flex',
             alignItems: 'center',
             gap: 1,
-            color: textColor
+            color: textColor,
+            minWidth: 'fit-content'
           }}
         >
           <Trello size={24} />
@@ -102,6 +104,8 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
             onChange={(e) => {
               setSearchValue(e.target.value)
             }}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
             autoComplete="off"
             InputProps={{
               startAdornment: (
@@ -110,7 +114,10 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
                 </InputAdornment>
               ),
               endAdornment: (
-                <InputAdornment position="end">
+                <InputAdornment
+                  position="end"
+                  sx={{ display: { xs: isSearchFocused || searchValue ? 'flex' : 'none', md: 'flex' } }}
+                >
                   <CloseIcon
                     fontSize="small"
                     sx={{ color: searchValue ? textColor : 'transparent', cursor: searchValue ? 'pointer' : 'null' }}
@@ -122,21 +129,26 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
               )
             }}
             sx={{
-              minWidth: '120px',
-              maxWidth: '180px',
+              width: isSearchFocused ? 'auto' : '80px',
               '& label': { color: textColor },
-              '& input': { color: textColor },
               '& label.Mui-focused': { color: textColor },
               '& .MuiOutlinedInput-root': {
                 '& fieldset': { borderColor: textColor },
                 '&:hover fieldset': { borderColor: textColor },
-                '&.Mui-focused fieldset': { borderColor: textColor }
+                '&.Mui-focused fieldset': { borderColor: textColor },
+                paddingLeft: { xs: isSearchFocused ? 1 : 0.5, md: 1 },
+                paddingRight: { xs: isSearchFocused ? 1 : 0.5, md: 1 },
+                '& .MuiInputAdornment-root': {
+                  marginRight: { xs: isSearchFocused ? 1 : 0, md: 1 }
+                }
               }
             }}
           />
         )}
-        <ModeSelect />
-        <Notification />
+        <Box sx={{ display: { xs: isSearchFocused ? 'none' : 'flex', md: 'flex' }, alignItems: 'center', gap: 1 }}>
+          <ModeSelect />
+          <Notification />
+        </Box>
         <Profiles />
       </Box>
     </Box>

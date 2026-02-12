@@ -1,16 +1,16 @@
-import { Box } from '@mui/material'
-import GroupIcon from '@mui/icons-material/Group'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
-import ImageIcon from '@mui/icons-material/Image'
-import MemberInCard from './MemberInCard'
 import AttachFileIcon from '@mui/icons-material/AttachFile'
-import { useState, useRef } from 'react'
+import GroupIcon from '@mui/icons-material/Group'
+import ImageIcon from '@mui/icons-material/Image'
+import { Box, Checkbox } from '@mui/material'
+import { useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { updateCardBackgroundAPI, uploadFileAPI } from '~/apis/cards'
-import RenderTooltip from './RenderTooltip'
-import CardUpload from './CardUpload'
-import AddMemberInCard from './AddMemberInCard'
 import { getErrorMessage } from '~/utils/messageHelper'
+import AddMemberInCard from './AddMemberInCard'
+import CardUpload from './CardUpload'
+import MemberInCard from './MemberInCard'
+import RenderTooltip from './RenderTooltip'
 
 function CardButtonGroup({
   card,
@@ -22,7 +22,8 @@ function CardButtonGroup({
   memberInCard,
   setOpenTimeDialog,
   isBoardClosed,
-  fetchBoarData
+  fetchBoarData,
+  handleToggleDone
 }) {
   const [isLoading, setIsLoading] = useState(false)
   const [loadingFile, setLoadingFile] = useState(false)
@@ -84,6 +85,20 @@ function CardButtonGroup({
         py: 1
       }}
     >
+      <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+        <Checkbox
+          checked={!!card?.isDone}
+          onChange={handleToggleDone}
+          disabled={isBoardClosed}
+          sx={{
+            display: { xs: 'inline-flex', sm: 'none' },
+            color: '#5CB338',
+            '&.Mui-checked': { color: '#5CB338' },
+            px: 0
+          }}
+        />
+      </Box>
+
       <AddMemberInCard disabled={isBoardClosed} boardId={card?.boardId} card={card} fetchBoarData={fetchBoarData} />
 
       <RenderTooltip

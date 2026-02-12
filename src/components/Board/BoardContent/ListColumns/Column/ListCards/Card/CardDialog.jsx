@@ -90,6 +90,17 @@ function CardDialog({
     }
   }
 
+  const handleToggleDone = async () => {
+    try {
+      const newStatus = !card?.isDone
+      const formData = { cardId: card._id, isDone: newStatus, boardId: board._id }
+      await updateCardAPI(card._id, formData)
+      setNewData('isDone', newStatus)
+    } catch (error) {
+      toast.error('Lỗi cập nhật trạng thái')
+    }
+  }
+
   return (
     <Dialog
       open={openDialog}
@@ -232,6 +243,7 @@ function CardDialog({
             boardState={boardState}
             isBoardClosed={isBoardClosed}
             fetchBoarData={fetchBoarData}
+            handleToggleDone={handleToggleDone}
           />
           <CardDescription
             card={card}
