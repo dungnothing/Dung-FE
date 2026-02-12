@@ -18,6 +18,7 @@ import { useState, useEffect } from 'react'
 import CreateTemplate from './CreateTemplate'
 import { getTemplateAPI, fetchBoardDetailsAPI } from '~/apis/boards'
 import { toast } from 'react-toastify'
+import ContentLoading from '~/helpers/components/ContentLoading'
 
 function BoardTemplateCreator() {
   const [open, setOpen] = useState(false)
@@ -76,9 +77,7 @@ function BoardTemplateCreator() {
 
       {isLoading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
-          <Typography variant="h6" sx={{ color: textColor }}>
-            Đang tải danh sách template...
-          </Typography>
+          <ContentLoading message="Đang tải danh sách mẫu..." minHeight="400px" />
         </Box>
       ) : templateData.length === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
@@ -194,9 +193,7 @@ function BoardTemplateCreator() {
         >
           {loadingPreview ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-              <Typography variant="h6" sx={{ color: textColor }}>
-                Đang tải chi tiết template...
-              </Typography>
+              <ContentLoading message="Đang tải thông tin mẫu..." minHeight="400px" />
             </Box>
           ) : previewTemplate ? (
             <Box sx={{ height: '100%', p: 3, overflowX: 'auto', overflowY: 'hidden' }}>
