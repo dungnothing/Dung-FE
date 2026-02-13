@@ -129,7 +129,7 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
               )
             }}
             sx={{
-              width: isSearchFocused ? 'auto' : '80px',
+              width: isSearchFocused ? 'auto' : { xs: '80px', sm: '180px' },
               '& label': { color: textColor },
               '& label.Mui-focused': { color: textColor },
               '& .MuiOutlinedInput-root': {
