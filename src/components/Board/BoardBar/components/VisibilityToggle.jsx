@@ -1,10 +1,10 @@
-import { Box, Tooltip, Menu, MenuItem, ListItemText, Typography, IconButton } from '@mui/material'
+import { Box, Tooltip, Menu, MenuItem, ListItemText, Typography, IconButton, CircularProgress } from '@mui/material'
 import LockIcon from '@mui/icons-material/Lock'
 import PublicIcon from '@mui/icons-material/Public'
 import DoneIcon from '@mui/icons-material/Done'
 import { textColor } from '~/utils/constants'
 
-function VisibilityToggle({ visibility, anchorEl, setAnchorEl, open, setOpen, handleVisibilityChange }) {
+function VisibilityToggle({ visibility, anchorEl, setAnchorEl, open, setOpen, handleVisibilityChange, loading }) {
   const handleOpen = (e) => {
     setAnchorEl(e.currentTarget)
     setOpen(true)
@@ -17,9 +17,15 @@ function VisibilityToggle({ visibility, anchorEl, setAnchorEl, open, setOpen, ha
 
   return (
     <>
-      <IconButton onClick={handleOpen}>
+      <IconButton onClick={handleOpen} disabled={loading}>
         <Tooltip title="Trạng thái xem" placement="bottom">
-          {visibility === 'PRIVATE' ? <LockIcon sx={{ color: textColor }} /> : <PublicIcon sx={{ color: textColor }} />}
+          {loading ? (
+            <CircularProgress size={24} sx={{ color: textColor }} />
+          ) : visibility === 'PRIVATE' ? (
+            <LockIcon sx={{ color: textColor }} />
+          ) : (
+            <PublicIcon sx={{ color: textColor }} />
+          )}
         </Tooltip>
       </IconButton>
 

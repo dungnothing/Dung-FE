@@ -11,6 +11,7 @@ export const useBoardOperations = (board, setBoard) => {
   const [visibility, setVisibility] = useState(board?.visibility)
   const [memberId, setMemberId] = useState(null)
   const [openDialog, setOpenDialog] = useState(false)
+  const [visibilityLoading, setVisibilityLoading] = useState(false)
   const navigate = useNavigate()
 
   const handleUpdateTitle = async () => {
@@ -27,11 +28,14 @@ export const useBoardOperations = (board, setBoard) => {
 
   const handleVisibilityChange = async (isPrivate) => {
     try {
+      setVisibilityLoading(true)
       await updateBoardDetailsAPI(board._id, { visibility: isPrivate ? 'PRIVATE' : 'PUBLIC' })
       setVisibility(isPrivate ? 'PRIVATE' : 'PUBLIC')
       toast.success('Trạng thái bảng đã thay đổi')
     } catch (error) {
       toast.error(getErrorMessage(error, 'Lỗi khi thay đổi trạng thái bảng'))
+    } finally {
+      setVisibilityLoading(false)
     }
   }
 
@@ -90,6 +94,7 @@ export const useBoardOperations = (board, setBoard) => {
     setEditedTitle,
     visibility,
     setVisibility,
+    visibilityLoading,
     memberId,
     setMemberId,
     openDialog,

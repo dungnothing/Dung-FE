@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { toast } from 'react-toastify'
 import { addStarBoardAPI, removeStarBoardAPI } from '~/apis/boards'
@@ -6,9 +7,11 @@ import { setStarBoards } from '~/redux/features/comon'
 export const useStarBoard = (board) => {
   const common = useSelector((state) => state.comon)
   const dispatch = useDispatch()
+  const [starLoading, setStarLoading] = useState(false)
 
   const handleStarBoard = async () => {
     try {
+      setStarLoading(true)
       const isStar = common?.starBoards?.some((star) => star._id === board._id)
       if (isStar) {
         await removeStarBoardAPI(board._id)
@@ -19,6 +22,8 @@ export const useStarBoard = (board) => {
       }
     } catch (error) {
       toast.error(error?.response?.data?.message || error?.message)
+    } finally {
+      setStarLoading(false)
     }
   }
 
@@ -26,6 +31,7 @@ export const useStarBoard = (board) => {
 
   return {
     handleStarBoard,
-    isStarred
+    isStarred,
+    starLoading
   }
 }

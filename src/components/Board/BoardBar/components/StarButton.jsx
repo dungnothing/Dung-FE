@@ -1,16 +1,20 @@
-import { Tooltip } from '@mui/material'
+import { Tooltip, IconButton, CircularProgress } from '@mui/material'
 import StarIcon from '@mui/icons-material/Star'
 import StarOutlineIcon from '@mui/icons-material/StarOutline'
 import { textColor } from '~/utils/constants'
 
-function StarButton({ isStarred, handleStarBoard, boardId }) {
+function StarButton({ isStarred, handleStarBoard, boardId, loading }) {
   return (
     <Tooltip title="Đánh dấu" placement="bottom">
-      {isStarred ? (
-        <StarIcon onClick={() => handleStarBoard(boardId)} sx={{ color: 'gold', cursor: 'pointer' }} />
-      ) : (
-        <StarOutlineIcon onClick={() => handleStarBoard(boardId)} sx={{ cursor: 'pointer', color: textColor }} />
-      )}
+      <IconButton onClick={() => handleStarBoard(boardId)} disabled={loading} sx={{ p: 0.5 }}>
+        {loading ? (
+          <CircularProgress size={24} sx={{ color: textColor }} />
+        ) : isStarred ? (
+          <StarIcon sx={{ color: 'gold' }} />
+        ) : (
+          <StarOutlineIcon sx={{ color: textColor }} />
+        )}
+      </IconButton>
     </Tooltip>
   )
 }

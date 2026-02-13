@@ -66,9 +66,15 @@ function BoardBar({ board, setBoard, allUserInBoard, permissions, setFilters, fi
             open={menuStates.open}
             setOpen={menuStates.setOpen}
             handleVisibilityChange={boardOps.handleVisibilityChange}
+            loading={boardOps.visibilityLoading}
           />
 
-          <StarButton isStarred={starBoard.isStarred} handleStarBoard={starBoard.handleStarBoard} boardId={board._id} />
+          <StarButton
+            isStarred={starBoard.isStarred}
+            handleStarBoard={starBoard.handleStarBoard}
+            boardId={board._id}
+            loading={starBoard.starLoading}
+          />
         </Box>
       </Box>
 
