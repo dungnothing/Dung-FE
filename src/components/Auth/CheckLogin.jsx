@@ -58,7 +58,7 @@ export const PrivateRoute = () => {
 
   // Chỉ chặn user chưa có subscription: bắt buộc vào trang payment
   if (!hasSubscription && !isPaymentPage) {
-    return <Navigate to="/dashboard/payment" replace />
+    return <Navigate to="/dashboard/payment" replace state={{ showPaymentDialog: true }} />
   }
 
   // User đã có subscription: tự do truy cập mọi trang (kể cả payment để upgrade)

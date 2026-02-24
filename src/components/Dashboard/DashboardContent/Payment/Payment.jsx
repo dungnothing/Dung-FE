@@ -6,12 +6,16 @@ import { useState } from 'react'
 import ContentLoading from '~/helpers/components/ContentLoading'
 import { textColor } from '~/utils/constants'
 import PaymentForm from './PaymentForm'
+import PaymentRequiredDialog from './PaymentRequiredDialog'
 import { useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 
 const PaymentComponent = () => {
   const [selectedPackage, setSelectedPackage] = useState(null)
   const user = useSelector((state) => state.comon.user)
   const supData = user?.subscriptions
+  const location = useLocation()
+  const [dialogOpen, setDialogOpen] = useState(!!location.state?.showPaymentDialog)
   // subscriptions có thể là {} (object rỗng) khi user chưa có gói nào
   // cần check thêm có plan hợp lệ không
   const hasValidSubscription = !!(supData?.plan && supData?.expiresAt)
@@ -165,6 +169,7 @@ const PaymentComponent = () => {
           </Box>
         </Box>
       )}
+      <PaymentRequiredDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </Box>
   )
 }

@@ -73,9 +73,9 @@ function Profiles() {
             <ListItemIcon>
               <Avatar src={user.avatar} sx={{ width: 36, height: 36 }} />
             </ListItemIcon>
-            <div className="flex flex-col ">
-              <p className="text-lg font-medium">{user?.userName}</p>
-              <p className="text-sm font-light">{user?.email}</p>
+            <div className="flex flex-col min-w-0 overflow-hidden">
+              <p className="text-lg font-medium truncate">{user?.userName}</p>
+              <p className="text-sm font-light truncate">{user?.email}</p>
             </div>
           </MenuItem>
 
