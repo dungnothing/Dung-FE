@@ -12,6 +12,9 @@ const PaymentComponent = () => {
   const [selectedPackage, setSelectedPackage] = useState(null)
   const user = useSelector((state) => state.comon.user)
   const supData = user?.subscriptions
+  // subscriptions có thể là {} (object rỗng) khi user chưa có gói nào
+  // cần check thêm có plan hợp lệ không
+  const hasValidSubscription = !!(supData?.plan && supData?.expiresAt)
 
   const packages = [
     {
@@ -64,13 +67,14 @@ const PaymentComponent = () => {
           {/* Gói nâng cấp */}
           <Box sx={{ display: 'flex', gap: 3, flex: 2 }}>
             {packages.map((pkg) => {
-              const isExpired = supData && new Date(supData?.expiresAt) < new Date()
-              const currentPlan = supData?.plan
+              const isExpired = hasValidSubscription && new Date(supData?.expiresAt) < new Date()
+              const currentPlan = hasValidSubscription ? supData?.plan : null
               const isCurrentPkg = currentPlan === pkg?.name.toUpperCase() && !isExpired
               const remainingDays = isCurrentPkg ? getRemainingDays(supData.expiresAt) : null
 
               const isPremiumDowngrade = currentPlan === 'PREMIUM' && !isExpired && pkg?.name === 'Pro'
-              const canBuy = !supData || isExpired || (currentPlan === 'PRO' && !isExpired && pkg?.name === 'Premium')
+              const canBuy =
+                !hasValidSubscription || isExpired || (currentPlan === 'PRO' && !isExpired && pkg?.name === 'Premium')
               const isActive = !isPremiumDowngrade && (canBuy || isCurrentPkg)
               const buttonText =
                 currentPlan === 'PRO' && !isExpired && pkg?.name === 'Premium' ? 'Nâng cấp ngay' : 'Thanh toán ngay'
