@@ -17,15 +17,19 @@ import RHFInputCustom from '~/helpers/hook-form/RHFInputCustom'
 const schema = v.object({
   cardName: v.pipe(v.string(), v.nonEmpty('Tên là bắt buộc')),
 
-  cardNumber: v.pipe(v.string(), v.length(16, 'Số thẻ phải đủ 16 số')),
+  cardNumber: v.pipe(
+    v.string(),
+    v.custom((value) => value.replace(/\D/g, '').length === 16, 'Số thẻ phải đủ 16 số')
+  ),
 
   cardExpiryDate: v.pipe(
     v.string(),
     v.custom((value) => {
-      if (!/^\d{4}$/.test(value)) return false
+      const raw = value.replace(/\D/g, '')
+      if (!/^\d{4}$/.test(raw)) return false
 
-      const month = parseInt(value.slice(0, 2))
-      const year = parseInt('20' + value.slice(2))
+      const month = parseInt(raw.slice(0, 2))
+      const year = parseInt('20' + raw.slice(2))
 
       if (month < 1 || month > 12) return false
 
@@ -169,14 +173,22 @@ function PaymentForm({ pkg, setSelectedPackage }) {
             <RHFInputCustom
               name="cardNumber"
               label="Số thẻ"
-              onChange={(e, fieldOnChange) => fieldOnChange(formatCardNumber(e.target.value))}
+              displayValue={formatCardNumber(form.watch('cardNumber'))}
+              onChange={(e, fieldOnChange) => {
+                const raw = e.target.value.replace(/\D/g, '').slice(0, 16)
+                fieldOnChange(raw)
+              }}
             />
 
             <div className="flex gap-4">
               <RHFInputCustom
                 name="cardExpiryDate"
                 label="Hạn sử dụng (MM/YY)"
-                onChange={(e, fieldOnChange) => fieldOnChange(formatExpiryDate(e.target.value))}
+                displayValue={formatExpiryDate(form.watch('cardExpiryDate'))}
+                onChange={(e, fieldOnChange) => {
+                  const raw = e.target.value.replace(/\D/g, '').slice(0, 4)
+                  fieldOnChange(raw)
+                }}
               />
 
               <RHFInputCustom

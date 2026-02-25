@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { cn } from '~/utils/constants'
 import { useColorScheme } from '@mui/material/styles'
 
-const RHFInputCustom = ({ name, label, type = 'text', disabled, maxWidth, onChange }) => {
+const RHFInputCustom = ({ name, label, type = 'text', disabled, maxWidth, onChange, displayValue }) => {
   const { control } = useFormContext()
   const [showPassword, setShowPassword] = useState(false)
   const { mode } = useColorScheme()
@@ -19,6 +19,7 @@ const RHFInputCustom = ({ name, label, type = 'text', disabled, maxWidth, onChan
         <div className={`relative w-full max-w-[${maxWidth}px]`}>
           <input
             {...field}
+            value={displayValue !== undefined ? displayValue : field.value}
             onChange={(e) => {
               if (onChange) {
                 onChange(e, field.onChange)
