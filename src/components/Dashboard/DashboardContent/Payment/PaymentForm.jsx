@@ -8,6 +8,7 @@ import { valibotResolver } from '@hookform/resolvers/valibot'
 import { getUserInfoAPI } from '~/apis/auth'
 import { useDispatch } from 'react-redux'
 import { setUserInfo } from '~/redux/features/comon'
+import { useNavigate } from 'react-router-dom'
 
 const schema = v.object({
   cardName: v.pipe(
@@ -49,6 +50,7 @@ const formatCardNumber = (value = '') =>
 
 function PaymentForm({ pkg, setSelectedPackage }) {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const form = useForm({
     resolver: valibotResolver(schema),
@@ -82,7 +84,7 @@ function PaymentForm({ pkg, setSelectedPackage }) {
 
       toast.success('Thanh toán thành công')
 
-      window.location.href = '/dashboard/boards'
+      navigate('/dashboard/boards')
     } catch (error) {
       toast.error(error.response?.data?.message || 'Thanh toán thất bại')
     }
