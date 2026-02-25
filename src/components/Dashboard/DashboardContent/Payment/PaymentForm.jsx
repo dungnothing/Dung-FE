@@ -110,6 +110,7 @@ function PaymentForm({ pkg, setSelectedPackage }) {
               {...register('cardName')}
               error={!!errors.cardName}
               helperText={errors.cardName?.message}
+              onChange={(e) => e.target.value.toUpperCase()}
             />
           </FormField>
 
@@ -123,7 +124,12 @@ function PaymentForm({ pkg, setSelectedPackage }) {
                   fullWidth
                   placeholder="0000 0000 0000 0000"
                   value={formatCardNumber(field.value)}
-                  onChange={(e) => field.onChange(e.target.value.replace(/\s+/g, ''))}
+                  onChange={(e) => {
+                    field.onChange(e.target.value.replace(/\s+/g, ''))
+                    if (e.target.value.length > 16) {
+                      return
+                    }
+                  }}
                   error={!!errors.cardNumber}
                   helperText={errors.cardNumber?.message}
                 />
@@ -139,6 +145,12 @@ function PaymentForm({ pkg, setSelectedPackage }) {
               {...register('cardExpiryDate')}
               error={!!errors.cardExpiryDate}
               helperText={errors.cardExpiryDate?.message}
+              onChange={(e) => {
+                e.target.value = e.target.value.replace(/\D/g, '')
+                if (e.target.value.length > 4) {
+                  return
+                }
+              }}
             />
           </FormField>
 
@@ -150,6 +162,12 @@ function PaymentForm({ pkg, setSelectedPackage }) {
               {...register('cardCvv')}
               error={!!errors.cardCvv}
               helperText={errors.cardCvv?.message}
+              onChange={(e) => {
+                e.target.value = e.target.value.replace(/\D/g, '')
+                if (e.target.value.length > 3) {
+                  return
+                }
+              }}
             />
           </FormField>
 
