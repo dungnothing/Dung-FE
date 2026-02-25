@@ -1,44 +1,43 @@
 import { Box, TextField, Button, Typography } from '@mui/material'
 import { toast } from 'react-toastify'
-import validation from '~/utils/validation'
-import { createSubcriptionAPI } from '~/apis/v2/subcription'
 import * as v from 'valibot'
 import { FormProvider, useForm, Controller } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { createSubcriptionAPI } from '~/apis/v2/subcription'
 import { getUserInfoAPI } from '~/apis/auth'
 import { useDispatch } from 'react-redux'
 import { setUserInfo } from '~/redux/features/comon'
 
+/* =======================
+   VALIDATION SCHEMA
+======================= */
+
 const schema = v.object({
-  cardName: v.pipe(
-    v.string(),
-    v.nonEmpty('Tên là bắt buộc'),
-    v.custom((value) => !/[^\u0000-\u007E]/.test(value), 'Tên không được có dấu'),
-    v.transform((value) => value.toUpperCase())
-  ),
-  cardNumber: v.pipe(
-    v.string(),
-    v.nonEmpty('Số thẻ là bắt buộc'),
-    v.custom((value) => validation.isCardNumber(value), 'Số thẻ phải là 16 số')
-  ),
+  cardName: v.pipe(v.string(), v.nonEmpty('Tên là bắt buộc')),
+
+  cardNumber: v.pipe(v.string(), v.length(16, 'Số thẻ phải đủ 16 số')),
+
   cardExpiryDate: v.pipe(
     v.string(),
-    v.nonEmpty('Ngày hết hạn là bắt buộc'),
-    v.custom((value) => validation.isCardExpiryDate(value), 'Không đúng định dạng MM/YY')
+    v.custom((value) => {
+      if (!/^\d{4}$/.test(value)) return false
+
+      const month = parseInt(value.slice(0, 2))
+      const year = parseInt('20' + value.slice(2))
+
+      if (month < 1 || month > 12) return false
+
+      const expiry = new Date(year, month)
+      return expiry > new Date()
+    }, 'Hạn thẻ không hợp lệ')
   ),
-  cardCvv: v.pipe(
-    v.string(),
-    v.nonEmpty('CVV là bắt buộc'),
-    v.custom((value) => validation.isCardCvv(value), 'CVV phải là 3 số')
-  )
+
+  cardCvv: v.pipe(v.string(), v.length(3, 'CVV phải gồm 3 số'))
 })
 
-const FormField = ({ label, children }) => (
-  <Box className="flex flex-col gap-2">
-    <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>{label}</Typography>
-    {children}
-  </Box>
-)
+/* =======================
+   FORMAT FUNCTIONS
+======================= */
 
 const formatCardNumber = (value = '') =>
   value
@@ -46,6 +45,33 @@ const formatCardNumber = (value = '') =>
     .slice(0, 16)
     .replace(/(.{4})/g, '$1 ')
     .trim()
+
+const formatExpiryDate = (value = '') => {
+  const cleaned = value.replace(/\D/g, '').slice(0, 4)
+
+  if (cleaned.length >= 3) {
+    return cleaned.slice(0, 2) + '/' + cleaned.slice(2)
+  }
+
+  return cleaned
+}
+
+/* =======================
+   UI COMPONENT
+======================= */
+
+const FormField = ({ label, children }) => (
+  <Box display="flex" flexDirection="column" gap={1}>
+    <Typography fontSize="0.875rem" fontWeight={500}>
+      {label}
+    </Typography>
+    {children}
+  </Box>
+)
+
+/* =======================
+   MAIN COMPONENT
+======================= */
 
 function PaymentForm({ pkg, setSelectedPackage }) {
   const dispatch = useDispatch()
@@ -58,17 +84,16 @@ function PaymentForm({ pkg, setSelectedPackage }) {
       cardExpiryDate: '',
       cardCvv: ''
     },
-    mode: 'all'
+    mode: 'onChange'
   })
 
   const {
-    register,
     control,
     handleSubmit,
-    formState: { errors }
+    formState: { errors, isValid }
   } = form
 
-  const handleSubmitPayment = async () => {
+  const onSubmit = async () => {
     try {
       await createSubcriptionAPI({
         plan: pkg?.name.toUpperCase(),
@@ -79,8 +104,9 @@ function PaymentForm({ pkg, setSelectedPackage }) {
 
       const userInfo = await getUserInfoAPI()
       dispatch(setUserInfo(userInfo))
-      window.location.href = '/dashboard/boards'
+
       toast.success('Thanh toán thành công')
+      window.location.href = '/dashboard/boards'
     } catch (error) {
       toast.error(error.response?.data?.message || 'Thanh toán thất bại')
     }
@@ -88,32 +114,44 @@ function PaymentForm({ pkg, setSelectedPackage }) {
 
   return (
     <FormProvider {...form}>
-      <Box component="form" onSubmit={handleSubmit(handleSubmitPayment)}>
-        <Box className="w-full max-w-sm px-6 py-8 rounded-xl border border-gray-700 flex flex-col gap-4">
+      <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+        <Box
+          maxWidth={400}
+          px={4}
+          py={5}
+          border="1px solid #e0e0e0"
+          borderRadius={3}
+          display="flex"
+          flexDirection="column"
+          gap={3}
+        >
           <Typography variant="h6" textAlign="center">
             Credit Card Details
           </Typography>
 
-          <Box className="border border-dashed border-gray-600 rounded-md p-3 flex items-center gap-3">
-            <Typography className="text-sm">Phương thức thanh toán</Typography>
-            <Box className="flex space-x-2">
-              <Box className="w-10 h-6 bg-red-500 rounded" />
-              <Box className="w-10 h-6 bg-blue-500 rounded" />
-              <Box className="w-10 h-6 bg-cyan-500 rounded" />
-            </Box>
-          </Box>
-
+          {/* Card Name */}
           <FormField label="Tên trên thẻ">
-            <TextField
-              size="small"
-              fullWidth
-              {...register('cardName')}
-              error={!!errors.cardName}
-              helperText={errors.cardName?.message}
-              onChange={(e) => e.target.value.toUpperCase()}
+            <Controller
+              name="cardName"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  size="small"
+                  fullWidth
+                  value={field.value}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').toUpperCase()
+
+                    field.onChange(value)
+                  }}
+                  error={!!errors.cardName}
+                  helperText={errors.cardName?.message}
+                />
+              )}
             />
           </FormField>
 
+          {/* Card Number */}
           <FormField label="Số thẻ">
             <Controller
               name="cardNumber"
@@ -125,68 +163,72 @@ function PaymentForm({ pkg, setSelectedPackage }) {
                   placeholder="0000 0000 0000 0000"
                   value={formatCardNumber(field.value)}
                   onChange={(e) => {
-                    field.onChange(e.target.value.replace(/\s+/g, ''))
-                    if (e.target.value.length > 16) {
-                      return
-                    }
+                    const raw = e.target.value.replace(/\D/g, '').slice(0, 16)
+
+                    field.onChange(raw)
                   }}
                   error={!!errors.cardNumber}
                   helperText={errors.cardNumber?.message}
+                  inputProps={{ inputMode: 'numeric' }}
                 />
               )}
             />
           </FormField>
 
+          {/* Expiry */}
           <FormField label="Hạn sử dụng">
-            <TextField
-              size="small"
-              fullWidth
-              placeholder="MM/YY"
-              {...register('cardExpiryDate')}
-              error={!!errors.cardExpiryDate}
-              helperText={errors.cardExpiryDate?.message}
-              onChange={(e) => {
-                e.target.value = e.target.value.replace(/\D/g, '')
-                if (e.target.value.length > 4) {
-                  return
-                }
-              }}
+            <Controller
+              name="cardExpiryDate"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder="MM/YY"
+                  value={formatExpiryDate(field.value)}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\D/g, '').slice(0, 4)
+
+                    field.onChange(raw)
+                  }}
+                  error={!!errors.cardExpiryDate}
+                  helperText={errors.cardExpiryDate?.message}
+                  inputProps={{ inputMode: 'numeric' }}
+                />
+              )}
             />
           </FormField>
 
+          {/* CVV */}
           <FormField label="Mã bảo mật">
-            <TextField
-              size="small"
-              fullWidth
-              placeholder="CVV"
-              {...register('cardCvv')}
-              error={!!errors.cardCvv}
-              helperText={errors.cardCvv?.message}
-              onChange={(e) => {
-                e.target.value = e.target.value.replace(/\D/g, '')
-                if (e.target.value.length > 3) {
-                  return
-                }
-              }}
+            <Controller
+              name="cardCvv"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder="CVV"
+                  value={field.value}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 3)
+
+                    field.onChange(value)
+                  }}
+                  error={!!errors.cardCvv}
+                  helperText={errors.cardCvv?.message}
+                  inputProps={{ inputMode: 'numeric' }}
+                />
+              )}
             />
           </FormField>
 
+          {/* Package */}
           <FormField label="Gói VIP">
-            <TextField
-              size="small"
-              fullWidth
-              disabled
-              value={pkg?.name}
-              sx={{
-                '& .MuiInputBase-root': {
-                  bgcolor: '#F7F7F7',
-                  cursor: 'not-allowed'
-                }
-              }}
-            />
+            <TextField size="small" fullWidth disabled value={pkg?.name} />
           </FormField>
 
-          <Button fullWidth variant="contained" className="bg-white text-black hover:bg-gray-200" type="submit">
+          <Button fullWidth variant="contained" type="submit" disabled={!isValid}>
             Continue
           </Button>
         </Box>
