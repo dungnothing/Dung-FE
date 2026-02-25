@@ -1,13 +1,14 @@
-import { Box, TextField, Button, Typography, CircularProgress } from '@mui/material'
+import { Box, Button, Typography, CircularProgress } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import * as v from 'valibot'
-import { FormProvider, useForm, Controller } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { createSubcriptionAPI } from '~/apis/v2/subcription'
 import { getUserInfoAPI } from '~/apis/auth'
 import { useDispatch } from 'react-redux'
 import { setUserInfo } from '~/redux/features/comon'
+import RHFInputCustom from '~/helpers/hook-form/RHFInputCustom'
 
 /* =======================
    VALIDATION SCHEMA
@@ -16,15 +17,19 @@ import { setUserInfo } from '~/redux/features/comon'
 const schema = v.object({
   cardName: v.pipe(v.string(), v.nonEmpty('Tên là bắt buộc')),
 
-  cardNumber: v.pipe(v.string(), v.length(16, 'Số thẻ phải đủ 16 số')),
+  cardNumber: v.pipe(
+    v.string(),
+    v.custom((value) => value.replace(/\s+/g, '').length === 16, 'Số thẻ phải đủ 16 số')
+  ),
 
   cardExpiryDate: v.pipe(
     v.string(),
     v.custom((value) => {
-      if (!/^\d{4}$/.test(value)) return false
+      const raw = value.replace(/\D/g, '')
+      if (!/^\d{4}$/.test(raw)) return false
 
-      const month = parseInt(value.slice(0, 2))
-      const year = parseInt('20' + value.slice(2))
+      const month = parseInt(raw.slice(0, 2))
+      const year = parseInt('20' + raw.slice(2))
 
       if (month < 1 || month > 12) return false
 
@@ -61,15 +66,6 @@ const formatExpiryDate = (value = '') => {
    UI COMPONENT
 ======================= */
 
-const FormField = ({ label, children }) => (
-  <Box display="flex" flexDirection="column" gap={1}>
-    <Typography fontSize="0.875rem" fontWeight={500}>
-      {label}
-    </Typography>
-    {children}
-  </Box>
-)
-
 /* =======================
    MAIN COMPONENT
 ======================= */
@@ -84,15 +80,20 @@ function PaymentForm({ pkg, setSelectedPackage }) {
       cardName: '',
       cardNumber: '',
       cardExpiryDate: '',
-      cardCvv: ''
+      cardCvv: '',
+      pkgName: pkg?.name || ''
     },
     mode: 'onChange'
   })
 
+  // Watch selected package correctly if it updates remotely
+  if (pkg?.name && form.getValues('pkgName') !== pkg.name) {
+    form.setValue('pkgName', pkg.name)
+  }
+
   const {
-    control,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting }
+    formState: { isValid, isSubmitting }
   } = form
 
   const onSubmit = async () => {
@@ -120,135 +121,113 @@ function PaymentForm({ pkg, setSelectedPackage }) {
     <FormProvider {...form}>
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
         <Box
-          maxWidth={400}
-          px={4}
-          py={5}
-          border="1px solid #e0e0e0"
-          borderRadius={3}
+          maxWidth={450}
+          px={5}
+          py={6}
+          bgcolor="background.paper"
+          borderRadius={6}
+          boxShadow="0 8px 30px rgba(0,0,0,0.08)"
           display="flex"
           flexDirection="column"
           gap={3}
+          margin="auto"
         >
-          <Typography variant="h6" textAlign="center">
-            Credit Card Details
-          </Typography>
+          <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
+            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-3">
+              <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                />
+              </svg>
+            </div>
+            <Typography variant="h5" fontWeight="bold" textAlign="center">
+              Thông tin thanh toán
+            </Typography>
+            <Typography variant="body2" color="text.secondary" textAlign="center" mt={1}>
+              Bảo mật và an toàn cho mọi giao dịch của bạn
+            </Typography>
+          </Box>
 
-          <Box className="border border-dashed border-gray-600 rounded-md p-3 flex items-center gap-3">
-            <Typography className="text-sm">Phương thức thanh toán</Typography>
-            <Box className="flex space-x-2">
-              <Box className="w-10 h-6 bg-red-500 rounded" />
-              <Box className="w-10 h-6 bg-blue-500 rounded" />
-              <Box className="w-10 h-6 bg-cyan-500 rounded" />
+          <Box className="border border-gray-100 bg-gray-50 rounded-xl p-4 flex items-center justify-between shadow-sm">
+            <Typography className="text-sm font-medium text-gray-700">Chấp nhận thanh toán</Typography>
+            <Box className="flex space-x-3 items-center">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
+                alt="Mastercard"
+                className="h-6"
+              />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" className="h-4" />
             </Box>
           </Box>
 
-          <FormField label="Tên trên thẻ">
-            <Controller
+          <Box className="flex flex-col gap-6 pt-2">
+            <RHFInputCustom
               name="cardName"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  size="small"
-                  fullWidth
-                  value={field.value}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').toUpperCase()
-
-                    field.onChange(value)
-                  }}
-                  error={!!errors.cardName}
-                  helperText={errors.cardName?.message}
-                />
-              )}
+              label="Tên in trên thẻ"
+              onChange={(e, fieldOnChange) => {
+                const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').toUpperCase()
+                fieldOnChange(value)
+              }}
             />
-          </FormField>
 
-          {/* Card Number */}
-          <FormField label="Số thẻ">
-            <Controller
+            <RHFInputCustom
               name="cardNumber"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  size="small"
-                  fullWidth
-                  placeholder="0000 0000 0000 0000"
-                  value={formatCardNumber(field.value)}
-                  onChange={(e) => {
-                    const raw = e.target.value.replace(/\D/g, '').slice(0, 16)
-
-                    field.onChange(raw)
-                  }}
-                  error={!!errors.cardNumber}
-                  helperText={errors.cardNumber?.message}
-                  inputProps={{ inputMode: 'numeric' }}
-                />
-              )}
+              label="Số thẻ"
+              onChange={(e, fieldOnChange) => fieldOnChange(formatCardNumber(e.target.value))}
             />
-          </FormField>
 
-          {/* Expiry */}
-          <FormField label="Hạn sử dụng">
-            <Controller
-              name="cardExpiryDate"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  size="small"
-                  fullWidth
-                  placeholder="MM/YY"
-                  value={formatExpiryDate(field.value)}
-                  onChange={(e) => {
-                    const raw = e.target.value.replace(/\D/g, '').slice(0, 4)
+            <div className="flex gap-4">
+              <RHFInputCustom
+                name="cardExpiryDate"
+                label="Hạn sử dụng (MM/YY)"
+                onChange={(e, fieldOnChange) => fieldOnChange(formatExpiryDate(e.target.value))}
+              />
 
-                    field.onChange(raw)
-                  }}
-                  error={!!errors.cardExpiryDate}
-                  helperText={errors.cardExpiryDate?.message}
-                  inputProps={{ inputMode: 'numeric' }}
-                />
-              )}
-            />
-          </FormField>
+              <RHFInputCustom
+                name="cardCvv"
+                label="Mã bảo mật (CVV)"
+                onChange={(e, fieldOnChange) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 3)
+                  fieldOnChange(value)
+                }}
+              />
+            </div>
 
-          {/* CVV */}
-          <FormField label="Mã bảo mật">
-            <Controller
-              name="cardCvv"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  size="small"
-                  fullWidth
-                  placeholder="CVV"
-                  value={field.value}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '').slice(0, 3)
+            <RHFInputCustom name="pkgName" label="Gói VIP đang chọn" disabled />
+          </Box>
 
-                    field.onChange(value)
-                  }}
-                  error={!!errors.cardCvv}
-                  helperText={errors.cardCvv?.message}
-                  inputProps={{ inputMode: 'numeric' }}
-                />
-              )}
-            />
-          </FormField>
-
-          {/* Package */}
-          <FormField label="Gói VIP">
-            <TextField size="small" fullWidth disabled value={pkg?.name} />
-          </FormField>
-
-          <Button
-            fullWidth
-            variant="contained"
-            type="submit"
-            disabled={!isValid || isSubmitting}
-            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
-          >
-            {isSubmitting ? 'Đang xử lý...' : 'Thanh toán'}
-          </Button>
+          <Box mt={2}>
+            <Button
+              fullWidth
+              variant="contained"
+              type="submit"
+              disabled={!isValid || isSubmitting}
+              startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+              sx={{
+                py: 1.5,
+                borderRadius: '12px',
+                fontSize: '1rem',
+                fontWeight: 600,
+                textTransform: 'none',
+                background: 'linear-gradient(90deg, #4f46e5 0%, #3b82f6 100%)',
+                boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
+                '&:hover': {
+                  background: 'linear-gradient(90deg, #4338ca 0%, #2563eb 100%)',
+                  boxShadow: '0 6px 20px rgba(59, 130, 246, 0.4)'
+                },
+                '&:disabled': {
+                  background: '#e0e0e0',
+                  color: '#9e9e9e',
+                  boxShadow: 'none'
+                }
+              }}
+            >
+              {isSubmitting ? 'Đang xử lý...' : 'Xác nhận thanh toán'}
+            </Button>
+          </Box>
         </Box>
       </Box>
     </FormProvider>

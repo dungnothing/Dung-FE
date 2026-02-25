@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { cn } from '~/utils/constants'
 import { useColorScheme } from '@mui/material/styles'
 
-const RHFInputCustom = ({ name, label, type = 'text', disabled, maxWidth }) => {
+const RHFInputCustom = ({ name, label, type = 'text', disabled, maxWidth, onChange }) => {
   const { control } = useFormContext()
   const [showPassword, setShowPassword] = useState(false)
   const { mode } = useColorScheme()
@@ -17,9 +17,15 @@ const RHFInputCustom = ({ name, label, type = 'text', disabled, maxWidth }) => {
       control={control}
       render={({ field, fieldState: { error } }) => (
         <div className={`relative w-full max-w-[${maxWidth}px]`}>
-          {/* Input */}
           <input
             {...field}
+            onChange={(e) => {
+              if (onChange) {
+                onChange(e, field.onChange)
+              } else {
+                field.onChange(e)
+              }
+            }}
             id={name}
             type={inputType}
             placeholder=" "
@@ -32,8 +38,8 @@ const RHFInputCustom = ({ name, label, type = 'text', disabled, maxWidth }) => {
                     ? 'border-[#666]'
                     : 'border-[#111827]'
                   : isDark
-                  ? 'border-[#444] hover:border-[#666]'
-                  : 'border-[#e5e7eb] hover:border-[#111827]'
+                    ? 'border-[#444] hover:border-[#666]'
+                    : 'border-[#e5e7eb] hover:border-[#111827]'
               }
               ${disabled ? 'cursor-not-allowed opacity-50' : ''}
               `}
