@@ -67,7 +67,7 @@ const PaymentComponent = () => {
       {!user ? (
         <ContentLoading message="Đang tải thông tin gói..." minHeight="400px" />
       ) : (
-        <Box sx={{ display: 'flex', gap: 3, width: '100%' }}>
+        <Box sx={{ display: 'flex', gap: 3, width: '100%', maxHeight: '360px' }}>
           {/* Gói nâng cấp */}
           <Box sx={{ display: 'flex', gap: 2, flex: 2 }}>
             {packages.map((pkg) => {
