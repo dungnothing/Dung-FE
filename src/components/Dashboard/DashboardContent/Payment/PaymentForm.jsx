@@ -1,4 +1,5 @@
-import { Box, TextField, Button, Typography } from '@mui/material'
+import { Box, TextField, Button, Typography, CircularProgress } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import * as v from 'valibot'
 import { FormProvider, useForm, Controller } from 'react-hook-form'
@@ -75,6 +76,7 @@ const FormField = ({ label, children }) => (
 
 function PaymentForm({ pkg, setSelectedPackage }) {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const form = useForm({
     resolver: valibotResolver(schema),
@@ -90,7 +92,7 @@ function PaymentForm({ pkg, setSelectedPackage }) {
   const {
     control,
     handleSubmit,
-    formState: { errors, isValid }
+    formState: { errors, isValid, isSubmitting }
   } = form
 
   const onSubmit = async () => {
@@ -106,7 +108,9 @@ function PaymentForm({ pkg, setSelectedPackage }) {
       dispatch(setUserInfo(userInfo))
 
       toast.success('Thanh toán thành công')
-      window.location.href = '/dashboard/boards'
+      setTimeout(() => {
+        navigate('/dashboard/boards')
+      }, 1000)
     } catch (error) {
       toast.error(error.response?.data?.message || 'Thanh toán thất bại')
     }
@@ -236,8 +240,14 @@ function PaymentForm({ pkg, setSelectedPackage }) {
             <TextField size="small" fullWidth disabled value={pkg?.name} />
           </FormField>
 
-          <Button fullWidth variant="contained" type="submit" disabled={!isValid}>
-            Continue
+          <Button
+            fullWidth
+            variant="contained"
+            type="submit"
+            disabled={!isValid || isSubmitting}
+            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+          >
+            {isSubmitting ? 'Đang xử lý...' : 'Thanh toán'}
           </Button>
         </Box>
       </Box>
