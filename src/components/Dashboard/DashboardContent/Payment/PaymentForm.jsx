@@ -110,7 +110,7 @@ function PaymentForm({ pkg, setSelectedPackage }) {
       toast.success('Thanh toán thành công')
       setTimeout(() => {
         navigate('/dashboard/boards')
-      }, 1000)
+      }, 3000)
     } catch (error) {
       toast.error(error.response?.data?.message || 'Thanh toán thất bại')
     }
