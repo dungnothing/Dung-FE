@@ -106,12 +106,9 @@ function PaymentForm({ pkg, setSelectedPackage }) {
       setSelectedPackage(null)
 
       const userInfo = await getUserInfoAPI()
-      dispatch(setUserInfo(userInfo))
-
+      dispatch(setUserInfo({ ...userInfo, userId: userInfo._id }))
       toast.success('Thanh toán thành công')
-      setTimeout(() => {
-        navigate('/dashboard/boards')
-      }, 3000)
+      navigate('/dashboard/boards')
     } catch (error) {
       toast.error(error.response?.data?.message || 'Thanh toán thất bại')
     }
@@ -180,26 +177,24 @@ function PaymentForm({ pkg, setSelectedPackage }) {
               }}
             />
 
-            <div className="flex gap-4">
-              <RHFInputCustom
-                name="cardExpiryDate"
-                label="Hạn sử dụng (MM/YY)"
-                displayValue={formatExpiryDate(form.watch('cardExpiryDate'))}
-                onChange={(e, fieldOnChange) => {
-                  const raw = e.target.value.replace(/\D/g, '').slice(0, 4)
-                  fieldOnChange(raw)
-                }}
-              />
+            <RHFInputCustom
+              name="cardExpiryDate"
+              label="Hạn sử dụng (MM/YY)"
+              displayValue={formatExpiryDate(form.watch('cardExpiryDate'))}
+              onChange={(e, fieldOnChange) => {
+                const raw = e.target.value.replace(/\D/g, '').slice(0, 4)
+                fieldOnChange(raw)
+              }}
+            />
 
-              <RHFInputCustom
-                name="cardCvv"
-                label="Mã bảo mật (CVV)"
-                onChange={(e, fieldOnChange) => {
-                  const value = e.target.value.replace(/\D/g, '').slice(0, 3)
-                  fieldOnChange(value)
-                }}
-              />
-            </div>
+            <RHFInputCustom
+              name="cardCvv"
+              label="Mã bảo mật (CVV)"
+              onChange={(e, fieldOnChange) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 3)
+                fieldOnChange(value)
+              }}
+            />
 
             <RHFInputCustom name="pkgName" label="Gói VIP đang chọn" disabled />
           </Box>

@@ -69,7 +69,7 @@ const PaymentComponent = () => {
       ) : (
         <Box sx={{ display: 'flex', gap: 3, width: '100%' }}>
           {/* Gói nâng cấp */}
-          <Box sx={{ display: 'flex', gap: 3, flex: 2 }}>
+          <Box sx={{ display: 'flex', gap: 2, flex: 2 }}>
             {packages.map((pkg) => {
               const isExpired = hasValidSubscription && new Date(supData?.expiresAt) < new Date()
               const currentPlan = hasValidSubscription ? supData?.plan : null
@@ -88,35 +88,40 @@ const PaymentComponent = () => {
                   key={pkg?.id}
                   sx={{
                     flex: 1,
-                    borderRadius: '20px',
-                    border: '1px solid #E5E7EB',
-                    height: 'fit-content',
-                    transition: '0.3s',
-                    opacity: isActive ? 1 : 0.4,
+                    borderRadius: '16px',
+                    border: isCurrentPkg ? `2px solid ${pkg?.bdcolor}` : '2px solid #E5E7EB',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: '0.25s',
+                    opacity: isActive ? 1 : 0.45,
+                    boxShadow: isCurrentPkg ? `0 4px 20px ${pkg?.bdcolor}30` : 'none',
                     '&:hover': {
                       transform: isActive ? 'translateY(-4px)' : 'none',
                       boxShadow: isActive ? '0 6px 20px rgba(0,0,0,0.08)' : 'none'
                     }
                   }}
                 >
-                  <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                    {/* Icon */}
-                    <Box
-                      sx={{
-                        width: 30,
-                        height: 30,
-                        bgcolor: 'white',
-                        borderRadius: '50%',
-                        border: `9px solid ${pkg?.bdcolor}`,
-                        mb: 1
-                      }}
-                    />
+                  <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 3, flex: 1 }}>
+                    {/* Header: Icon + Badge */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box
+                        sx={{
+                          width: 28,
+                          height: 28,
+                          bgcolor: 'white',
+                          borderRadius: '50%',
+                          border: `8px solid ${pkg?.bdcolor}`
+                        }}
+                      />
+                    </Box>
 
                     {/* Tên và giá */}
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       {pkg?.name}
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'end', gap: 0.5 }}>
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'end', gap: 0.5, borderBottom: '1px solid #E5E7EB', pb: 1 }}
+                    >
                       <Typography variant="h4" sx={{ fontWeight: 700 }}>
                         {pkg?.price}
                       </Typography>
@@ -130,33 +135,48 @@ const PaymentComponent = () => {
                       <FeatureItem label="Hỗ trợ chăm sóc khách hàng" enabled={pkg?.support} />
                     </Box>
 
-                    {/* Nút thanh toán hoặc thông tin gói hiện tại */}
+                    {/* Nút hoặc thông tin còn lại */}
                     {isCurrentPkg ? (
-                      <Typography
-                        sx={{ mt: 2, fontWeight: 600, textAlign: 'center', color: textColor, height: '36px' }}
+                      <Box
+                        sx={{
+                          mt: 'auto',
+                          py: 1,
+                          px: 2,
+                          bgcolor: `${pkg?.bdcolor}10`,
+                          borderRadius: '10px',
+                          textAlign: 'center',
+                          border: `1px dashed ${pkg?.bdcolor}60`
+                        }}
                       >
-                        Gói này còn {remainingDays} ngày
-                      </Typography>
+                        <Typography sx={{ fontWeight: 600, fontSize: '0.85rem', color: pkg?.bdcolor }}>
+                          Còn {remainingDays} ngày sử dụng
+                        </Typography>
+                      </Box>
                     ) : canBuy ? (
                       <Button
                         fullWidth
                         variant={pkg?.id === 2 ? 'contained' : 'outlined'}
                         onClick={() => setSelectedPackage(pkg)}
                         sx={{
-                          mt: 2,
-                          height: '36px',
-                          borderRadius: '12px',
+                          mt: 'auto',
+                          height: '40px',
+                          borderRadius: '10px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          fontSize: '0.9rem',
                           backgroundColor: pkg?.id === 2 ? '#615FFF' : 'transparent',
                           color: pkg?.id === 2 ? '#fff' : '#615FFF',
                           borderColor: '#615FFF',
                           '&:hover': {
-                            backgroundColor: pkg?.id === 2 ? '#4E4BFF' : 'rgba(97,95,255,0.1)'
+                            backgroundColor: pkg?.id === 2 ? '#4E4BFF' : 'rgba(97,95,255,0.08)'
                           }
                         }}
                       >
                         {buttonText}
                       </Button>
-                    ) : null}
+                    ) : (
+                      <Box sx={{ height: '40px' }} />
+                    )}
                   </CardContent>
                 </Card>
               )

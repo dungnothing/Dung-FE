@@ -51,6 +51,7 @@ const RHFInputCustom = ({ name, label, type = 'text', disabled, maxWidth, onChan
             htmlFor={name}
             className={`
               absolute left-3 transition-all duration-200
+              max-w-[calc(100%-24px)] overflow-hidden truncate
               peer-placeholder-shown:top-3 peer-placeholder-shown:text-[14px]
               peer-focus:top-[-11px] peer-focus:text-[#6C63FF] peer-focus:text-[12px] peer-focus:px-1
               ${isDark ? 'peer-focus:bg-[#1e1e1e]' : 'peer-focus:bg-white'}
