@@ -1,13 +1,14 @@
-import { Box, TextField, Button, Typography, CircularProgress } from '@mui/material'
+import { Box, Button, Typography, CircularProgress } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import * as v from 'valibot'
-import { FormProvider, useForm, Controller } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { createSubcriptionAPI } from '~/apis/v2/subcription'
 import { getUserInfoAPI } from '~/apis/auth'
 import { useDispatch } from 'react-redux'
 import { setUserInfo } from '~/redux/features/comon'
+import RHFInputCustom from '~/helpers/hook-form/RHFInputCustom'
 
 /* =======================
    VALIDATION SCHEMA
@@ -75,15 +76,20 @@ function PaymentForm({ pkg, setSelectedPackage }) {
       cardName: '',
       cardNumber: '',
       cardExpiryDate: '',
-      cardCvv: ''
+      cardCvv: '',
+      pkgName: pkg?.name || ''
     },
     mode: 'onChange'
   })
 
+  // Watch selected package correctly if it updates remotely
+  if (pkg?.name && form.getValues('pkgName') !== pkg.name) {
+    form.setValue('pkgName', pkg.name)
+  }
+
   const {
-    control,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting }
+    formState: { isValid, isSubmitting }
   } = form
 
   const onSubmit = async () => {
@@ -111,7 +117,8 @@ function PaymentForm({ pkg, setSelectedPackage }) {
     <FormProvider {...form}>
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
         <Box
-          maxWidth={450}
+          maxWidth={500}
+          width="100%"
           px={5}
           py={6}
           bgcolor="#ffffff"
@@ -149,106 +156,40 @@ function PaymentForm({ pkg, setSelectedPackage }) {
             </Box>
           </Box>
 
-          <Box className="flex flex-col gap-5">
-            <Controller
+          <Box className="flex flex-col gap-6">
+            <RHFInputCustom
               name="cardName"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Tên in trên thẻ"
-                  fullWidth
-                  variant="outlined"
-                  value={field.value}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').toUpperCase()
-                    field.onChange(value)
-                  }}
-                  error={!!errors.cardName}
-                  helperText={errors.cardName?.message}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-                />
-              )}
+              label="Tên in trên thẻ"
+              onChange={(e, fieldOnChange) => {
+                const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').toUpperCase()
+                fieldOnChange(value)
+              }}
             />
 
-            <Controller
+            <RHFInputCustom
               name="cardNumber"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Số thẻ"
-                  fullWidth
-                  variant="outlined"
-                  placeholder="0000 0000 0000 0000"
-                  value={formatCardNumber(field.value)}
-                  onChange={(e) => {
-                    const raw = e.target.value.replace(/\D/g, '').slice(0, 16)
-                    field.onChange(raw)
-                  }}
-                  error={!!errors.cardNumber}
-                  helperText={errors.cardNumber?.message}
-                  inputProps={{ inputMode: 'numeric' }}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-                />
-              )}
+              label="Số thẻ"
+              onChange={(e, fieldOnChange) => fieldOnChange(formatCardNumber(e.target.value))}
             />
 
-            <Box display="flex" gap={2}>
-              <Controller
+            <div className="flex gap-4">
+              <RHFInputCustom
                 name="cardExpiryDate"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Hạn sử dụng (MM/YY)"
-                    fullWidth
-                    variant="outlined"
-                    placeholder="MM/YY"
-                    value={formatExpiryDate(field.value)}
-                    onChange={(e) => {
-                      const raw = e.target.value.replace(/\D/g, '').slice(0, 4)
-                      field.onChange(raw)
-                    }}
-                    error={!!errors.cardExpiryDate}
-                    helperText={errors.cardExpiryDate?.message}
-                    inputProps={{ inputMode: 'numeric' }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-                  />
-                )}
+                label="Hạn sử dụng (MM/YY)"
+                onChange={(e, fieldOnChange) => fieldOnChange(formatExpiryDate(e.target.value))}
               />
 
-              <Controller
+              <RHFInputCustom
                 name="cardCvv"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Mã bảo mật (CVV)"
-                    fullWidth
-                    variant="outlined"
-                    placeholder="CVV"
-                    value={field.value}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 3)
-                      field.onChange(value)
-                    }}
-                    error={!!errors.cardCvv}
-                    helperText={errors.cardCvv?.message}
-                    inputProps={{ inputMode: 'numeric' }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-                  />
-                )}
+                label="Mã bảo mật (CVV)"
+                onChange={(e, fieldOnChange) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 3)
+                  fieldOnChange(value)
+                }}
               />
-            </Box>
+            </div>
 
-            <TextField
-              label="Gói VIP đang chọn"
-              fullWidth
-              disabled
-              value={pkg?.name || ''}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-            />
+            <RHFInputCustom name="pkgName" label="Gói VIP đang chọn" disabled />
           </Box>
 
           <Button
