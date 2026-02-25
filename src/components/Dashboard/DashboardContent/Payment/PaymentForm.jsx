@@ -129,7 +129,15 @@ function PaymentForm({ pkg, setSelectedPackage }) {
             Credit Card Details
           </Typography>
 
-          {/* Card Name */}
+          <Box className="border border-dashed border-gray-600 rounded-md p-3 flex items-center gap-3">
+            <Typography className="text-sm">Phương thức thanh toán</Typography>
+            <Box className="flex space-x-2">
+              <Box className="w-10 h-6 bg-red-500 rounded" />
+              <Box className="w-10 h-6 bg-blue-500 rounded" />
+              <Box className="w-10 h-6 bg-cyan-500 rounded" />
+            </Box>
+          </Box>
+
           <FormField label="Tên trên thẻ">
             <Controller
               name="cardName"
