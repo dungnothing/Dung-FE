@@ -1,8 +1,8 @@
 // hooks/useFetchUserInfo.js
 import { useEffect, useCallback, useRef } from 'react'
 import { useDispatch } from 'react-redux'
-import { setUserInfo, setStarBoards, setNotifications, setRecentBoards } from '~/redux/features/comon'
-import { getUserInfoAPI } from '~/apis/auth'
+import { setUserInfo, setStarBoards, setNotifications, setRecentBoards, logout } from '~/redux/features/comon'
+import { getUserInfoAPI, logoutAPI } from '~/apis/auth'
 import { getNotificationAPI } from '~/apis/notification'
 import { toast } from 'react-toastify'
 import Cookie from 'js-cookie'
@@ -16,7 +16,16 @@ export const useFetchUserInfo = () => {
   const refreshToken = getCookie('refreshToken')
   const hasFetched = useRef(false)
 
-  const logout = () => {
+  const handleLogout = async () => {
+    const refreshToken = Cookie.get('refreshToken')
+    if (refreshToken) {
+      try {
+        await logoutAPI(refreshToken)
+      } catch {
+        /* bỏ qua nếu BE lỗi */
+      }
+    }
+    dispatch(logout())
     Cookie.remove('accessToken')
     Cookie.remove('refreshToken')
     navigate('/sign-in')
@@ -39,10 +48,10 @@ export const useFetchUserInfo = () => {
     } catch (err) {
       if (err.response?.status === 404) {
         toast.error('Tài khoản không tồn tại')
-        logout()
+        handleLogout()
       } else if (err.response?.status === 401) {
         toast.error('Phiên đăng nhập hết hạn')
-        logout()
+        handleLogout()
       } else {
         toast.error('Lỗi tải dữ liệu người dùng')
       }

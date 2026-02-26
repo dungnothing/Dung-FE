@@ -31,6 +31,21 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
+// Hàm dùng chung để force logout hoàn toàn (cả FE lẫn BE)
+const forceLogout = async () => {
+  const refreshToken = getCookie('refreshToken')
+  if (refreshToken) {
+    try {
+      await axios.post(`${API_ROOT}/v1/users/logout`, { refreshToken })
+    } catch {
+      // Bỏ qua lỗi BE, vẫn tiến hành clear FE
+    }
+  }
+  store.dispatch(logout())
+  Cookie.remove('accessToken')
+  Cookie.remove('refreshToken')
+}
+
 const refreshAccessToken = async () => {
   try {
     const refreshToken = getCookie('refreshToken')
@@ -40,11 +55,13 @@ const refreshAccessToken = async () => {
     const response = await axios.post(`${API_ROOT}/v1/users/refreshToken`, { refreshToken })
     if (response.status === 200) {
       const newAccessToken = response.data.accessToken
-      document.cookie = `accessToken=${newAccessToken}; path=/; max-age=${60 * 60}`
+      // Dùng Cookie.set thay vì document.cookie để nhất quán
+      Cookie.set('accessToken', newAccessToken, { expires: 1 / 24 }) // 1 giờ
       return newAccessToken
     }
-  } catch (error) {
-    store.dispatch(logout())
+  } catch {
+    // refreshToken không hợp lệ / hết hạn / đã bị thu hồi → force logout
+    await forceLogout()
     return null
   }
 }
