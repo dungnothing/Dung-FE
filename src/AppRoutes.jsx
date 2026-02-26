@@ -7,6 +7,7 @@ import Payment from '~/components/Dashboard/DashboardContent/Payment/Payment'
 import GoogleCallback from '~/components/Auth/sign-in/GoogleCallback'
 import { useFetchUserInfo } from './helpers/hooks/useFetchUserInfo'
 import MainPage from '~/components/HomePage/MainPage'
+import HelpCenter from '~/components/HomePage/HelpCenter'
 import MainBoard from '~/components/Dashboard/DashboardContent/MainBoard/MainBoard'
 import Template from '~/components/Dashboard/DashboardContent/Template/Template'
 import Task from '~/components/Dashboard/DashboardContent/Task/Task'
@@ -26,6 +27,7 @@ function AppRoutes() {
       <Route element={<PublicRoute />}>
         <Route element={<HomeLayout />}>
           <Route index element={<MainPage />} />
+          <Route path="help-center" element={<HelpCenter />} />
         </Route>
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/sign-in" element={<SignIn />} />

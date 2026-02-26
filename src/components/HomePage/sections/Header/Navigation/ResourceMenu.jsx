@@ -1,5 +1,5 @@
-import { Divider, Box } from '@mui/material'
-import { AboutMeIcon, NewIcon, BlogIcon, HelpIcon, Help247Icon } from '~/icon/Icon'
+import { Box, Divider } from '@mui/material'
+import { AboutMeIcon, BlogIcon, HelpIcon, NewIcon } from '~/icon/Icon'
 import MenuButton from './MenuButton'
 
 function ResourceMenu() {
@@ -27,8 +27,7 @@ function ResourceMenu() {
       {/* Bên phải - Hỗ trợ */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pl: 6, pr: 8, width: '50%' }}>
         <div className="text-[20px] font-inter font-light text-[#333446]">Hỗ trợ</div>
-        <MenuButton title="Trung tâm trợ giúp" icon={<HelpIcon />} />
-        <MenuButton title="Hỗ trợ bằng cơm" icon={<Help247Icon />} />
+        <MenuButton title="Trung tâm trợ giúp" icon={<HelpIcon />} path="/help-center" />
       </Box>
     </div>
   )
