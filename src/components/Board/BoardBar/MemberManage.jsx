@@ -9,7 +9,7 @@ import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
 import { useState, useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
-import { addMemberToBoardAPI, removeMemberFromBoardAPI, searchUserAPI, getAllUserInBoardAPI } from '~/apis/boards'
+import { addMemberToBoardAPI, removeMemberFromBoardAPI, searchUserAPI } from '~/apis/boards'
 import { IconButton, Popper, Paper, MenuList, MenuItem, CircularProgress } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
@@ -19,8 +19,9 @@ import useDebounce from '~/helpers/hooks/useDebonce'
 import { useConfirm } from 'material-ui-confirm'
 import validation from '~/utils/validation'
 import { UserMinus } from 'lucide-react'
+import { handleError } from '~/utils/messageHelper'
 
-function MemberManage({ board }) {
+function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
   const { boardId } = useParams()
   const user = useSelector((state) => state.comon.user)
   const confirm = useConfirm()
@@ -29,7 +30,6 @@ function MemberManage({ board }) {
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
   const [searchResult, setSearchResult] = useState([])
-  const [allUser, setAllUser] = useState([])
   const searchTerm = useDebounce(input, 500)
   const inputRef = useRef(null)
 
@@ -54,8 +54,7 @@ function MemberManage({ board }) {
   const getAllUser = async () => {
     try {
       setLoadingUser(true)
-      const response = await getAllUserInBoardAPI(boardId)
-      setAllUser(response)
+      await fetchAllUserInBoard()
     } catch (error) {
       toast.error('Lỗi khi lấy thông tin người dùng')
     } finally {
@@ -72,8 +71,9 @@ function MemberManage({ board }) {
       setLoading(true)
       await addMemberToBoardAPI(boardId, { email: input })
       toast.success('Mời thành công')
+      getAllUser()
     } catch (error) {
-      toast.error('Lỗi khi mời người dùng')
+      handleError(error)
     } finally {
       setLoading(false)
     }
@@ -82,10 +82,11 @@ function MemberManage({ board }) {
   const handleRemove = async (userId) => {
     try {
       setLoading(true)
-      await removeMemberFromBoardAPI(userId)
-      toast.success('Mời thành công')
+      await removeMemberFromBoardAPI(board._id, userId)
+      toast.success('Xóa thành công')
+      getAllUser()
     } catch (error) {
-      toast.error('Lỗi khi mời người dùng')
+      handleError(error)
     } finally {
       setLoading(false)
     }
@@ -120,6 +121,7 @@ function MemberManage({ board }) {
           onClose={() => {
             setOpen(false)
             setInput('')
+            setSearchResult([])
           }}
           sx={{
             '& .MuiDialog-paper': {
@@ -130,7 +132,14 @@ function MemberManage({ board }) {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <DialogTitle sx={{ pb: 0, color: textColor }}>Mời thêm các thành viên</DialogTitle>
-            <IconButton onClick={() => setOpen(false)} sx={{ pr: 3, '&:hover': { bgcolor: 'transparent' } }}>
+            <IconButton
+              onClick={() => {
+                setOpen(false)
+                setInput('')
+                setSearchResult([])
+              }}
+              sx={{ pr: 3, '&:hover': { bgcolor: 'transparent' } }}
+            >
               <CloseIcon />
             </IconButton>
           </Box>
@@ -237,18 +246,18 @@ function MemberManage({ board }) {
               <>
                 {/* Hiển thị admin nếu có */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar alt={allUser?.admin?.adminName} src={allUser?.admin?.adminAvatar || ''} />
+                  <Avatar alt={allUserInBoard?.admin?.adminName} src={allUserInBoard?.admin?.adminAvatar || ''} />
                   <div className="flex flex-col gap-1">
                     <p>
-                      {allUser?.admin?.adminName} <span>(Admin)</span>
+                      {allUserInBoard?.admin?.adminName} <span>(Admin)</span>
                     </p>
-                    <p className="text-xs opacity-50">{allUser?.admin?.adminEmail}</p>
+                    <p className="text-xs opacity-50">{allUserInBoard?.admin?.adminEmail}</p>
                   </div>
                 </Box>
 
                 {/* Hiển thị danh sách members */}
                 <Box className="flex flex-col gap-2">
-                  {allUser?.members?.map((member, index) => (
+                  {allUserInBoard?.members?.map((member, index) => (
                     <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Avatar alt={member?.memberName} src={member?.memberAvatar || ''} />

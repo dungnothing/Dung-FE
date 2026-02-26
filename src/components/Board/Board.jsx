@@ -4,7 +4,12 @@ import BoardBar from '../../components/Board/BoardBar/BoardBar'
 import BoardContent from '../../components/Board/BoardContent/BoardContent'
 import { useParams } from 'react-router-dom'
 import { useEffect, useState, useRef } from 'react'
-import { fetchBoardDetailsAPI, updateBoardDetailsAPI, moveCardToDifferentColumnAPI } from '~/apis/boards'
+import {
+  fetchBoardDetailsAPI,
+  updateBoardDetailsAPI,
+  moveCardToDifferentColumnAPI,
+  getAllUserInBoardAPI
+} from '~/apis/boards'
 import { createNewCardAPI } from '~/apis/cards'
 import { createNewColumnAPI, deleteColumnDetailsAPI, updateColumnDetailsAPI } from '~/apis/columns'
 import { generatePlaceholderCard } from '~/utils/formatters'
@@ -17,7 +22,7 @@ import { initBoardSocket, getBoardSocketCallbacks } from '~/sockets/board'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { Box } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 
 function Board() {
   const { boardId } = useParams()
@@ -68,22 +73,33 @@ function Board() {
 
       setBoard(boardRes)
       setPermissions(PERMISSIONS_MAP[boardRes.userRole])
-      setAllUserInBoard({ admin: boardRes.admin, members: boardRes.members })
     } catch (error) {
       if (error.status === 404 || error.status === 403) {
         navigate('/dashboard/boards')
-        toast.error(getErrorMessage(error, 'Không thể truy cập bảng'))
+        handleError(error, 'Không thể truy cập bảng')
         return
       }
-      toast.error(getErrorMessage(error, 'Lỗi khi lấy dữ liệu bảng'))
+      handleError(error, 'Lỗi khi lấy dữ liệu bảng')
     } finally {
       setIsLoading(false)
       setFilterLoading(false)
     }
   }
 
+  const fetchAllUserInBoard = async () => {
+    try {
+      const response = await getAllUserInBoardAPI(boardId)
+      if (response) {
+        setAllUserInBoard(response)
+      }
+    } catch (error) {
+      handleError(error, 'Lỗi khi lấy danh sách người dùng')
+    }
+  }
+
   useEffect(() => {
     fetchBoardData(true)
+    fetchAllUserInBoard()
   }, [boardId])
 
   useEffect(() => {
@@ -278,6 +294,7 @@ function Board() {
         board={board}
         setBoard={setBoard}
         allUserInBoard={allUserInBoard}
+        fetchAllUserInBoard={fetchAllUserInBoard}
         permissions={permissions}
         setFilters={setFilters}
         filters={filters}

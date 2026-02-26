@@ -14,7 +14,16 @@ import { useStarBoard } from './hooks/useStarBoard'
 import { useMenuStates } from './hooks/useMenuStates'
 import { textColor } from '~/utils/constants'
 
-function BoardBar({ board, setBoard, allUserInBoard, permissions, setFilters, filters, filterLoading }) {
+function BoardBar({
+  board,
+  setBoard,
+  allUserInBoard,
+  fetchAllUserInBoard,
+  permissions,
+  setFilters,
+  filters,
+  filterLoading
+}) {
   const boardOps = useBoardOperations(board, setBoard)
   const starBoard = useStarBoard(board)
   const menuStates = useMenuStates()
@@ -141,7 +150,7 @@ function BoardBar({ board, setBoard, allUserInBoard, permissions, setFilters, fi
         />
 
         {/*  Invite */}
-        <MemberManage board={board} allUserInBoard={allUserInBoard} />
+        <MemberManage board={board} allUserInBoard={allUserInBoard} fetchAllUserInBoard={fetchAllUserInBoard} />
 
         {/*  Avatar */}
         <UserAvatars allUserInBoard={allUserInBoard} />
