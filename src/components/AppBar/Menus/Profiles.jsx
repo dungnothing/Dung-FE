@@ -12,6 +12,8 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '~/redux/features/comon'
+import Cookie from 'js-cookie'
+import { logoutAPI } from '~/apis/auth'
 
 function Profiles() {
   const [anchorEl, setAnchorEl] = React.useState(null)
@@ -27,11 +29,20 @@ function Profiles() {
     setAnchorEl(null)
   }
 
-  const logOut = () => {
-    dispatch(logout())
-    document.cookie = 'accessToken=; path=/; max-age=0'
-    document.cookie = 'refreshToken=; path=/; max-age=0'
-    navigate('/')
+  const logOut = async () => {
+    try {
+      const refreshToken = Cookie.get('refreshToken')
+      if (refreshToken) {
+        await logoutAPI(refreshToken)
+      }
+    } catch {
+      // Kể cả khi BE lỗi vẫn tiến hành logout phía FE
+    } finally {
+      dispatch(logout())
+      Cookie.remove('accessToken')
+      Cookie.remove('refreshToken')
+      navigate('/')
+    }
   }
 
   const profile = () => {

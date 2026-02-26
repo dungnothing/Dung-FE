@@ -37,6 +37,7 @@ const ChangePasswordForm = () => {
       }
       await updatePasswordAPI(formData)
       toast.success('Cập nhật mật khẩu thành công')
+      form.reset()
     } catch (error) {
       toast.error(error.response.data.message)
     }

@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Checkbox, Button, Box } from '@mui/material'
 import { toast } from 'react-toastify'
-import { deleteAccountAPI } from '~/apis/auth'
+import { deleteAccountAPI, logoutAPI } from '~/apis/auth'
 import { logout } from '~/redux/features/comon'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { textColor } from '~/utils/constants'
+import Cookie from 'js-cookie'
 
 const DeleteAccountSection = () => {
   const [checked, setChecked] = useState(false)
@@ -14,10 +15,19 @@ const DeleteAccountSection = () => {
 
   const handleDelee = async () => {
     try {
+      const refreshToken = Cookie.get('refreshToken')
       await deleteAccountAPI()
+      // Xóa refreshToken trên BE sau khi xóa tài khoản thành công
+      if (refreshToken) {
+        try {
+          await logoutAPI(refreshToken)
+        } catch {
+          /* bỏ qua nếu lỗi */
+        }
+      }
       dispatch(logout())
-      document.cookie = 'accessToken=; path=/; max-age=0'
-      document.cookie = 'refreshToken=; path=/; max-age=0'
+      Cookie.remove('accessToken')
+      Cookie.remove('refreshToken')
       toast.success('Xóa thành công', {
         onClose: () => navigate('/')
       })

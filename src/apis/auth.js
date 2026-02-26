@@ -74,3 +74,8 @@ export const resetPasswordAPI = async (data) => {
   const response = await axiosInstance.post('/v1/users/resetPassword', data)
   return response.data
 }
+
+export const logoutAPI = async (refreshToken) => {
+  const response = await axiosInstance.post('/v1/users/logout', { refreshToken })
+  return response.data
+}
