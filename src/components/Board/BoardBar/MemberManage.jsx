@@ -31,6 +31,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
   const [open, setOpen] = useState(false)
   const [showPopper, setShowPopper] = useState(false)
   const [input, setInput] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
   const [searchResult, setSearchResult] = useState([])
   const searchTerm = useDebounce(input, 500)
   const inputRef = useRef(null)
@@ -44,6 +45,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
     }
     if (!searchTerm || searchTerm.trim() === '') {
       setSearchResult([])
+      setIsTyping(false)
       return
     }
 
@@ -56,6 +58,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
       setSearchResult([])
     } finally {
       setSearchLoading(false)
+      setIsTyping(false)
     }
   }
 
@@ -166,6 +169,8 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
                     onChange={(e) => {
                       setInput(e.target.value)
                       setShowPopper(true)
+                      setIsTyping(true)
+                      ignoreSearch.current = false
                     }}
                     onFocus={() => {
                       if (input.trim() !== '') setShowPopper(true)
@@ -200,7 +205,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
                       }}
                     >
                       <MenuList>
-                        {searchLoading ? (
+                        {(searchLoading || isTyping) && input.trim() !== '' ? (
                           <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
                             <CircularProgress size={24} />
                           </MenuItem>
@@ -235,13 +240,13 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
                               </Box>
                             </MenuItem>
                           ))
-                        ) : (
+                        ) : input.trim() !== '' ? (
                           <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                               Không tìm thấy người dùng
                             </Typography>
                           </MenuItem>
-                        )}
+                        ) : null}
                       </MenuList>
                     </Paper>
                   </Popper>
