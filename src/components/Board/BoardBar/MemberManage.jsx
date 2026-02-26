@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography'
 import { useState, useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
 import { addMemberToBoardAPI, removeMemberFromBoardAPI, searchUserAPI } from '~/apis/boards'
-import { IconButton, Popper, Paper, MenuList, MenuItem, CircularProgress } from '@mui/material'
+import { IconButton, Popper, Paper, MenuList, MenuItem, CircularProgress, ClickAwayListener } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { useSelector } from 'react-redux'
@@ -26,28 +26,36 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
   const user = useSelector((state) => state.comon.user)
   const confirm = useConfirm()
   const [loading, setLoading] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [loadingUser, setLoadingUser] = useState(false)
   const [open, setOpen] = useState(false)
+  const [showPopper, setShowPopper] = useState(false)
   const [input, setInput] = useState('')
   const [searchResult, setSearchResult] = useState([])
   const searchTerm = useDebounce(input, 500)
   const inputRef = useRef(null)
 
+  const ignoreSearch = useRef(false)
+
   const handleSearchUser = async () => {
+    if (ignoreSearch.current) {
+      ignoreSearch.current = false
+      return
+    }
     if (!searchTerm || searchTerm.trim() === '') {
       setSearchResult([])
       return
     }
 
     try {
-      setLoading(true)
+      setSearchLoading(true)
       const response = await searchUserAPI(searchTerm)
       setSearchResult(response)
     } catch (error) {
       toast.error('Lỗi khi tìm kiếm người dùng')
       setSearchResult([])
     } finally {
-      setLoading(false)
+      setSearchLoading(false)
     }
   }
 
@@ -122,6 +130,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
             setOpen(false)
             setInput('')
             setSearchResult([])
+            setShowPopper(false)
           }}
           sx={{
             '& .MuiDialog-paper': {
@@ -137,6 +146,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
                 setOpen(false)
                 setInput('')
                 setSearchResult([])
+                setShowPopper(false)
               }}
               sx={{ pr: 3, '&:hover': { bgcolor: 'transparent' } }}
             >
@@ -145,87 +155,98 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
           </Box>
           <Box>
             <DialogContent sx={{ display: 'flex', gap: 1, position: 'relative' }}>
-              <Box sx={{ flex: 1, position: 'relative' }}>
-                <TextField
-                  fullWidth
-                  ref={inputRef}
-                  placeholder="Tên/Email"
-                  variant="outlined"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  slotProps={{
-                    input: {
-                      sx: {
-                        height: 40,
-                        '& input': {
-                          padding: '0 14px',
-                          fontSize: '14px',
-                          color: textColor
+              <ClickAwayListener onClickAway={() => setShowPopper(false)}>
+                <Box sx={{ flex: 1, position: 'relative' }}>
+                  <TextField
+                    fullWidth
+                    ref={inputRef}
+                    placeholder="Tên/Email"
+                    variant="outlined"
+                    value={input}
+                    onChange={(e) => {
+                      setInput(e.target.value)
+                      setShowPopper(true)
+                    }}
+                    onFocus={() => {
+                      if (input.trim() !== '') setShowPopper(true)
+                    }}
+                    slotProps={{
+                      input: {
+                        sx: {
+                          height: 40,
+                          '& input': {
+                            padding: '0 14px',
+                            fontSize: '14px',
+                            color: textColor
+                          }
                         }
                       }
-                    }
-                  }}
-                />
-                <Popper
-                  open={Boolean(inputRef.current) && input.trim() !== ''}
-                  anchorEl={inputRef.current}
-                  placement="bottom-start"
-                  style={{ zIndex: 1300, width: inputRef.current?.offsetWidth }}
-                  disablePortal={false}
-                >
-                  <Paper
-                    elevation={3}
-                    sx={{
-                      maxHeight: 300,
-                      overflowY: 'auto',
-                      mt: 0.5,
-                      boxShadow: '0px 4px 20px rgba(0,0,0,0.1)'
                     }}
+                  />
+                  <Popper
+                    open={showPopper && input.trim() !== ''}
+                    anchorEl={inputRef.current}
+                    placement="bottom-start"
+                    style={{ zIndex: 1300, width: inputRef.current?.offsetWidth }}
+                    disablePortal={false}
                   >
-                    <MenuList>
-                      {loading ? (
-                        <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            Đang tìm kiếm...
-                          </Typography>
-                        </MenuItem>
-                      ) : searchResult?.length > 0 ? (
-                        searchResult?.map((user, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => {
-                              setInput(user?.email || user?.userName)
-                              inputRef.current = null
-                            }}
-                            sx={{
-                              display: 'flex',
-                              gap: 1.5,
-                              alignItems: 'center',
-                              py: 1.5
-                            }}
-                          >
-                            <Avatar alt={user?.userName} src={user?.userAvatar || ''} sx={{ width: 36, height: 36 }} />
-                            <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                              <Typography variant="body2" sx={{ color: textColor, fontWeight: 500 }}>
-                                {user?.userName}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                {user?.email}
-                              </Typography>
-                            </Box>
+                    <Paper
+                      elevation={3}
+                      sx={{
+                        maxHeight: 300,
+                        overflowY: 'auto',
+                        mt: 0.5,
+                        boxShadow: '0px 4px 20px rgba(0,0,0,0.1)'
+                      }}
+                    >
+                      <MenuList>
+                        {searchLoading ? (
+                          <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
+                            <CircularProgress size={24} />
                           </MenuItem>
-                        ))
-                      ) : (
-                        <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            Không tìm thấy người dùng
-                          </Typography>
-                        </MenuItem>
-                      )}
-                    </MenuList>
-                  </Paper>
-                </Popper>
-              </Box>
+                        ) : searchResult?.length > 0 ? (
+                          searchResult?.map((user, index) => (
+                            <MenuItem
+                              key={index}
+                              onClick={() => {
+                                ignoreSearch.current = true
+                                setInput(user?.email || user?.userName)
+                                setShowPopper(false)
+                              }}
+                              sx={{
+                                display: 'flex',
+                                gap: 1.5,
+                                alignItems: 'center',
+                                py: 1.5
+                              }}
+                            >
+                              <Avatar
+                                alt={user?.userName}
+                                src={user?.userAvatar || ''}
+                                sx={{ width: 36, height: 36 }}
+                              />
+                              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                <Typography variant="body2" sx={{ color: textColor, fontWeight: 500 }}>
+                                  {user?.userName}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                  {user?.email}
+                                </Typography>
+                              </Box>
+                            </MenuItem>
+                          ))
+                        ) : (
+                          <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                              Không tìm thấy người dùng
+                            </Typography>
+                          </MenuItem>
+                        )}
+                      </MenuList>
+                    </Paper>
+                  </Popper>
+                </Box>
+              </ClickAwayListener>
               <Button
                 variant="outlined"
                 onClick={handleInvite}
