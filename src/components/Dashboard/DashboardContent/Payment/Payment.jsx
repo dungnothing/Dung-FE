@@ -67,7 +67,7 @@ const PaymentComponent = () => {
       {!user ? (
         <ContentLoading message="Đang tải thông tin gói..." minHeight="400px" />
       ) : (
-        <Box sx={{ display: 'flex', gap: 3, width: '100%', maxHeight: 'fit-content' }}>
+        <Box sx={{ display: 'flex', gap: 3, width: '100%', alignItems: 'flex-start' }}>
           {/* Gói nâng cấp */}
           <Box sx={{ display: 'flex', gap: 2, flex: 2 }}>
             {packages.map((pkg) => {
@@ -88,6 +88,7 @@ const PaymentComponent = () => {
                   key={pkg?.id}
                   sx={{
                     flex: 1,
+                    height: '100%', // add height to allow child to calculate flex properly
                     borderRadius: '16px',
                     border: isCurrentPkg ? `2px solid ${pkg?.bdcolor}` : '2px solid #E5E7EB',
                     display: 'flex',
@@ -101,7 +102,7 @@ const PaymentComponent = () => {
                     }
                   }}
                 >
-                  <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 3, flex: 1 }}>
+                  <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 3, flex: 1, height: '100%' }}>
                     {/* Header: Icon + Badge */}
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Box
