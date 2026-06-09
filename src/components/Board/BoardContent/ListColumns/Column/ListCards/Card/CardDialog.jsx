@@ -2,7 +2,7 @@ import { Dialog, IconButton, Typography, Box, TextField, DialogTitle } from '@mu
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { toast } from 'react-toastify'
-import { updateCardAPI, getMemberAPI } from '~/apis/cards'
+import { updateCardAPI } from '~/apis/cards'
 import { useState, useEffect } from 'react'
 import EditTimeCard from './CardTime'
 import { useTheme } from '@mui/material/styles'
@@ -28,9 +28,6 @@ function CardDialog({
   onCommentCountChange
 }) {
   const [openTimeDialog, setOpenTimeDialog] = useState(false)
-  const [openMemberDialog, setOpenMemberDialog] = useState(false)
-  const [anchorEl, setAnchorEl] = useState(null)
-  const [memberInCard, setMemberInCard] = useState()
   const [cardTitle, setCardTitle] = useState(card?.title)
   const [editTitle, setEditTitle] = useState(false)
   const [description, setDescription] = useState(card?.description)
@@ -65,15 +62,6 @@ function CardDialog({
       setNewData('description', newDescription)
     } catch (error) {
       toast.error('Loi roi')
-    }
-  }
-
-  const getMemberInCard = async () => {
-    try {
-      const members = await getMemberAPI(card._id)
-      setMemberInCard(members)
-    } catch (error) {
-      toast.error('Lỗi lấy thành viên!')
     }
   }
 
@@ -124,10 +112,13 @@ function CardDialog({
     >
       <Box
         sx={{
-          borderBottom: '1px solid #ccc',
+          borderBottom: '1px solid #e0e0e0',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'flex-start'
+          alignItems: 'center',
+          px: 2,
+          py: 0.5,
+          minHeight: 52
         }}
       >
         {/* Phần title / TextField */}
@@ -147,14 +138,11 @@ function CardDialog({
             size="small"
             autoFocus
             sx={{
-              px: 3,
-              py: 2,
               input: {
                 color: textColor,
-                fontSize: '20px',
-                fontWeight: 500,
-                py: '2px',
-                pl: '4px'
+                fontSize: '18px',
+                fontWeight: 600,
+                py: '4px'
               }
             }}
             onKeyDown={(e) => {
@@ -168,11 +156,14 @@ function CardDialog({
           <DialogTitle
             sx={{
               color: textColor,
-              cursor: 'pointer',
+              cursor: isBoardClosed ? 'default' : 'pointer',
               flex: 1,
-              p: 2
+              p: 0,
+              fontSize: '1.1rem',
+              fontWeight: 600,
+              lineHeight: 1.4
             }}
-            onClick={() => setEditTitle(true)}
+            onClick={() => !isBoardClosed && setEditTitle(true)}
           >
             {cardTitle}
           </DialogTitle>
@@ -180,18 +171,14 @@ function CardDialog({
 
         {/* Nút đóng */}
         <IconButton
-          disableRipple
-          sx={{
-            alignSelf: 'flex-start',
-            p: 2,
-            pt: 2.5
-          }}
+          size="small"
+          sx={{ ml: 1, flexShrink: 0, color: 'text.secondary' }}
           onClick={(event) => {
             event.stopPropagation()
             setOpenDialog()
           }}
         >
-          <CloseIcon />
+          <CloseIcon fontSize="small" />
         </IconButton>
       </Box>
 
@@ -236,14 +223,7 @@ function CardDialog({
           {/**Thanh thao tác */}
           <CardButtonGroup
             card={card}
-            anchorEl={anchorEl}
-            setAnchorEl={setAnchorEl}
-            openMemberDialog={openMemberDialog}
-            setOpenMemberDialog={setOpenMemberDialog}
-            getMemberInCard={getMemberInCard}
-            memberInCard={memberInCard}
             setOpenTimeDialog={setOpenTimeDialog}
-            boardState={boardState}
             isBoardClosed={isBoardClosed}
             fetchBoarData={fetchBoarData}
             handleToggleDone={handleToggleDone}

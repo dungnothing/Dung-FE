@@ -1,6 +1,5 @@
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import AttachFileIcon from '@mui/icons-material/AttachFile'
-import GroupIcon from '@mui/icons-material/Group'
 import ImageIcon from '@mui/icons-material/Image'
 import { Box, Checkbox } from '@mui/material'
 import { useRef, useState } from 'react'
@@ -9,17 +8,10 @@ import { updateCardBackgroundAPI, uploadFileAPI } from '~/apis/cards'
 import { getErrorMessage } from '~/utils/messageHelper'
 import AddMemberInCard from './AddMemberInCard'
 import CardUpload from './CardUpload'
-import MemberInCard from './MemberInCard'
 import RenderTooltip from './RenderTooltip'
 
 function CardButtonGroup({
   card,
-  anchorEl,
-  setAnchorEl,
-  openMemberDialog,
-  setOpenMemberDialog,
-  getMemberInCard,
-  memberInCard,
   setOpenTimeDialog,
   isBoardClosed,
   fetchBoarData,
@@ -27,6 +19,7 @@ function CardButtonGroup({
 }) {
   const [isLoading, setIsLoading] = useState(false)
   const [loadingFile, setLoadingFile] = useState(false)
+
   const backgroundRef = useRef(null)
   const fileRef = useRef(null)
   const allowBackground = ['image/png', 'image/jpeg', 'image/jpg']
@@ -80,55 +73,40 @@ function CardButtonGroup({
     <Box
       sx={{
         display: 'flex',
+        flexWrap: 'wrap',
         gap: 1,
         alignItems: 'center',
-        py: 1
+        py: 0.5,
+        px: 0.5,
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : '#f8f9fa',
+        borderRadius: '10px',
+        border: '1px solid #DCDFE4'
       }}
     >
-      <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
-        <Checkbox
-          checked={!!card?.isDone}
-          onChange={handleToggleDone}
-          disabled={isBoardClosed}
-          sx={{
-            display: { xs: 'inline-flex', sm: 'none' },
-            color: '#5CB338',
-            '&.Mui-checked': { color: '#5CB338' },
-            px: 0
-          }}
-        />
-      </Box>
+      <Checkbox
+        checked={!!card?.isDone}
+        onChange={handleToggleDone}
+        disabled={isBoardClosed}
+        size="small"
+        sx={{
+          color: '#5CB338',
+          '&.Mui-checked': { color: '#5CB338' },
+          p: '6px'
+        }}
+      />
 
       <AddMemberInCard disabled={isBoardClosed} boardId={card?.boardId} card={card} fetchBoarData={fetchBoarData} />
 
       <RenderTooltip
-        title="Thành viên"
-        icon={<GroupIcon />}
-        handleClick={(event) => {
-          setAnchorEl(event.currentTarget)
-          setOpenMemberDialog(true)
-          getMemberInCard()
-        }}
-        disabled={isBoardClosed}
-      />
-
-      <MemberInCard
-        anchorEl={anchorEl}
-        memberInCard={memberInCard}
-        open={openMemberDialog}
-        onClose={() => setOpenMemberDialog(false)}
-      />
-
-      <RenderTooltip
         title="Thời gian"
-        icon={<AccessTimeIcon />}
+        icon={<AccessTimeIcon fontSize="small" />}
         handleClick={() => setOpenTimeDialog(true)}
         disabled={isBoardClosed}
       />
 
       <CardUpload
         title="Thêm ảnh bìa"
-        icon={<ImageIcon />}
+        icon={<ImageIcon fontSize="small" />}
         loading={isLoading}
         disabled={isBoardClosed}
         accept="image/png,image/jpeg,image/jpg,image/webp"
@@ -138,7 +116,7 @@ function CardButtonGroup({
 
       <CardUpload
         title="Đính kèm file"
-        icon={<AttachFileIcon />}
+        icon={<AttachFileIcon fontSize="small" />}
         loading={loadingFile}
         disabled={isBoardClosed}
         accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"

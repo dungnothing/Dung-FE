@@ -50,88 +50,122 @@ function AddMemberInCard({ disabled, card, fetchBoarData }) {
 
   return (
     <>
-      <Tooltip title="Thêm thành viên">
-        <Button
-          startIcon={<PersonAddIcon />}
-          sx={{
-            color: textColor,
-            border: '1px solid #DCDFE4'
-          }}
-          onClick={(e) => setOpenAnchor(e.currentTarget)}
-          variant="outlined"
-          disabled={disabled}
-        ></Button>
+      <Tooltip title="Thành viên" arrow>
+        <span>
+          <IconButton
+            size="small"
+            onClick={(e) => setOpenAnchor(e.currentTarget)}
+            disabled={disabled}
+            sx={{
+              color: textColor,
+              border: '1px solid #DCDFE4',
+              borderRadius: '8px',
+              p: '6px',
+              '&:hover': { bgcolor: 'rgba(0,0,0,0.06)', borderColor: '#b0b7c3' },
+              '&.Mui-disabled': { opacity: 0.4 }
+            }}
+          >
+            <PersonAddIcon fontSize="small" />
+          </IconButton>
+        </span>
       </Tooltip>
+
       <Popover
         anchorEl={openAnchor}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left'
-        }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         open={Boolean(openAnchor)}
         onClose={() => setOpenAnchor(null)}
         slotProps={{
           paper: {
             sx: {
-              minWidth: '320px',
-              height: 'auto',
-              maxHeight: '400px',
+              width: 300,
+              maxHeight: 420,
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              borderRadius: '12px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
             }
           }
         }}
       >
         {/* Header */}
-        <Box sx={{ display: 'flex' }}>
-          <Typography
-            sx={{
-              pl: 2,
-              flexGrow: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-            variant="subtitle1"
-          >
+        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pt: 1.5, pb: 1, borderBottom: '1px solid #f0f0f0' }}>
+          <Typography sx={{ flex: 1, fontWeight: 600, fontSize: '0.95rem', color: textColor }}>
             Thành viên
           </Typography>
-          <IconButton onClick={() => setOpenAnchor(null)} disableRipple>
-            <CloseIcon />
+          <IconButton size="small" onClick={() => setOpenAnchor(null)} sx={{ color: 'text.secondary' }}>
+            <CloseIcon fontSize="small" />
           </IconButton>
         </Box>
 
         {/* Search */}
-        <TextField
-          size="small"
-          sx={{ pl: 2, pr: 2, width: '100%' }}
-          placeholder="Tìm kiếm"
-          onChange={(e) => setTerm(e.target.value)}
-        />
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <TextField
+            size="small"
+            fullWidth
+            placeholder="Tìm kiếm..."
+            onChange={(e) => setTerm(e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': { borderRadius: '8px' }
+            }}
+          />
+        </Box>
 
         {/* Danh sách user */}
-        <Box sx={{ flex: 1, overflowY: 'auto', p: 2 }}>
+        <Box sx={{ flex: 1, overflowY: 'auto', px: 1, pb: 1 }}>
           {users.length > 0 ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {users.map((user) => (
-                <Box key={user._id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Checkbox checked={selectedUsers.includes(user._id)} onChange={() => handleToggleUser(user._id)} />
-                  <Avatar src={user?.avatar} alt="" sizes="" sx={{ width: 30, height: 30 }} />
-                  <Typography variant="body2">{user.userName}</Typography>
+            users.map((user) => {
+              const isSelected = selectedUsers.includes(user._id)
+              return (
+                <Box
+                  key={user._id}
+                  onClick={() => handleToggleUser(user._id)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    px: 1.5,
+                    py: 1,
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    bgcolor: isSelected ? 'rgba(99,91,255,0.06)' : 'transparent',
+                    '&:hover': { bgcolor: isSelected ? 'rgba(99,91,255,0.1)' : 'rgba(0,0,0,0.04)' }
+                  }}
+                >
+                  <Avatar src={user?.avatar} alt={user.userName} sx={{ width: 32, height: 32 }} />
+                  <Typography variant="body2" sx={{ flex: 1, fontWeight: 500, color: textColor }}>
+                    {user.userName}
+                  </Typography>
+                  <Checkbox
+                    checked={isSelected}
+                    size="small"
+                    sx={{
+                      p: 0,
+                      color: '#635FFF',
+                      '&.Mui-checked': { color: '#635FFF' }
+                    }}
+                  />
                 </Box>
-              ))}
-            </Box>
+              )
+            })
           ) : (
-            <Typography className="flex items-center justify-center p-4">Không tìm thấy thành viên</Typography>
+            <Box sx={{ py: 4, textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Không tìm thấy thành viên
+              </Typography>
+            </Box>
           )}
         </Box>
 
-        <Box sx={{ p: 1, borderTop: '1px solid #eee', display: 'flex', justifyContent: 'flex-end' }}>
-          <Button variant="contained" sx={{ bgcolor: '#C38FFF' }} onClick={handleSubmit}>
+        {/* Footer */}
+        <Box sx={{ px: 2, py: 1.5, borderTop: '1px solid #f0f0f0', display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+          <Button variant="outlined" size="small" onClick={() => setOpenAnchor(null)}
+            sx={{ borderRadius: '8px', textTransform: 'none', color: textColor, borderColor: '#DCDFE4' }}>
+            Hủy
+          </Button>
+          <Button variant="contained" size="small" onClick={handleSubmit}
+            sx={{ borderRadius: '8px', textTransform: 'none', bgcolor: '#635FFF', '&:hover': { bgcolor: '#4E4BFF' } }}>
             Lưu
           </Button>
         </Box>
