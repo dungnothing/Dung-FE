@@ -11,7 +11,7 @@ import useDebounce from '~/helpers/hooks/useDebonce'
 import { useParams } from 'react-router-dom'
 import { getErrorMessage } from '~/utils/messageHelper'
 
-function AddMemberInCard({ disabled, card, fetchBoarData }) {
+function AddMemberInCard({ disabled, card, fetchBoarData, renderTrigger }) {
   const { boardId } = useParams()
   const [openAnchor, setOpenAnchor] = useState(null)
   const [term, setTerm] = useState('')
@@ -50,25 +50,29 @@ function AddMemberInCard({ disabled, card, fetchBoarData }) {
 
   return (
     <>
-      <Tooltip title="Thành viên" arrow>
-        <span>
-          <IconButton
-            size="small"
-            onClick={(e) => setOpenAnchor(e.currentTarget)}
-            disabled={disabled}
-            sx={{
-              color: textColor,
-              border: '1px solid #DCDFE4',
-              borderRadius: '8px',
-              p: '6px',
-              '&:hover': { bgcolor: 'rgba(0,0,0,0.06)', borderColor: '#b0b7c3' },
-              '&.Mui-disabled': { opacity: 0.4 }
-            }}
-          >
-            <PersonAddIcon fontSize="small" />
-          </IconButton>
-        </span>
-      </Tooltip>
+      {renderTrigger
+        ? renderTrigger((e) => setOpenAnchor(e.currentTarget))
+        : (
+          <Tooltip title="Thành viên" arrow>
+            <span>
+              <IconButton
+                size="small"
+                onClick={(e) => setOpenAnchor(e.currentTarget)}
+                disabled={disabled}
+                sx={{
+                  color: textColor,
+                  borderRadius: '8px',
+                  p: '6px',
+                  '&:hover': { bgcolor: 'rgba(0,0,0,0.06)' },
+                  '&.Mui-disabled': { opacity: 0.4 }
+                }}
+              >
+                <PersonAddIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )
+      }
 
       <Popover
         anchorEl={openAnchor}

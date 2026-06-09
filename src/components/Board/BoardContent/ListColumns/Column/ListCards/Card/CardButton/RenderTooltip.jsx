@@ -11,10 +11,9 @@ const RenderTooltip = ({ title, icon, handleClick, disabled }) => {
           disabled={disabled}
           sx={{
             color: textColor,
-            border: '1px solid #DCDFE4',
             borderRadius: '8px',
             p: '6px',
-            '&:hover': { bgcolor: 'rgba(0,0,0,0.06)', borderColor: '#b0b7c3' },
+            '&:hover': { bgcolor: 'rgba(0,0,0,0.06)' },
             '&.Mui-disabled': { opacity: 0.4 }
           }}
         >
