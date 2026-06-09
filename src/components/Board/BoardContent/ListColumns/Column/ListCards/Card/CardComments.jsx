@@ -102,7 +102,7 @@ function CardComments({ card, isBoardClosed, onCommentCountChange }) {
   }
 
   return (
-    <Box sx={{ pt: 1, flexDirection: 'column', gap: 1.5, display: 'flex', width: '38%', pr: 2 }}>
+    <Box sx={{ pt: 1, flexDirection: 'column', gap: 1.5, display: 'flex', width: { xs: '100%', sm: '38%' }, px: { xs: 2, sm: 0 }, pr: { sm: 2 }, flexShrink: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <AutoAwesomeMosaicIcon sx={{ color: textColor }} />

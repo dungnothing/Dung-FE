@@ -111,9 +111,11 @@ function CardDialog({
       slotProps={{
         paper: {
           sx: {
-            width: '1000px',
-            maxHeight: '620px',
+            width: { xs: '100%', sm: '90vw', md: '1000px' },
+            maxWidth: '1000px',
+            maxHeight: { xs: '92dvh', sm: '620px' },
             height: '100%',
+            m: { xs: 1, sm: 2 },
             display: 'flex',
             flexDirection: 'column'
           }
@@ -202,19 +204,20 @@ function CardDialog({
       )}
 
       {/* Nội dung chính */}
-      <Box sx={{ display: 'flex', gap: 1, width: '100%', height: '100%', overflow: 'hidden', pb: 1 }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, width: '100%', height: '100%', overflow: { xs: 'auto', sm: 'hidden' }, pb: 1 }}>
         <Box
           sx={{
-            width: '62%',
-            borderRight: '1px solid #ccc',
+            width: { xs: '100%', sm: '62%' },
+            borderRight: { xs: 'none', sm: '1px solid #ccc' },
+            borderBottom: { xs: '1px solid #ccc', sm: 'none' },
             pt: 1,
             pb: 2,
             px: 2,
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
-            maxHeight: '100%',
-            overflow: 'auto'
+            maxHeight: { xs: 'none', sm: '100%' },
+            overflow: { xs: 'visible', sm: 'auto' }
           }}
         >
           {time && (
