@@ -23,7 +23,6 @@ import { initBoardSocket, getBoardSocketCallbacks } from '~/sockets/board'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { Box } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import { handleError } from '~/utils/messageHelper'
 
 function Board() {
   const { boardId } = useParams()
