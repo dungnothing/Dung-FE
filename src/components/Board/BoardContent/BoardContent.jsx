@@ -284,9 +284,9 @@ function BoardContent({
     <DndContext
       sensors={sensors}
       collisionDetection={collisionDetectionStrategy}
-      onDragEnd={handleDragEnd}
-      onDragOver={handleDragOver}
-      onDragStart={handleDragStart}
+      onDragEnd={isBoardClosed ? undefined : handleDragEnd}
+      onDragOver={isBoardClosed ? undefined : handleDragOver}
+      onDragStart={isBoardClosed ? undefined : handleDragStart}
     >
       {isBoardClosed && (
         <Box
@@ -311,7 +311,8 @@ function BoardContent({
           height: (theme) => theme.trello.boardContentHeight,
           p: '10px 0',
           opacity: 0.95,
-          pointerEvents: isBoardClosed ? 'none' : 'auto',
+          pointerEvents: 'auto',
+          userSelect: isBoardClosed ? 'none' : 'auto',
           position: 'relative'
         }}
       >
