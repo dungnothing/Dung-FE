@@ -41,23 +41,24 @@ const ToolBtn = ({ title, onClick, active, children }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: 28,
-          height: 28,
-          borderRadius: '6px',
+          width: { xs: 40, sm: 32 },
+          height: { xs: 40, sm: 32 },
+          borderRadius: '8px',
           cursor: 'pointer',
           color: active
             ? '#635FFF'
             : theme.palette.mode === 'dark' ? '#B6C2CF' : '#44546f',
-          bgcolor: active
-            ? 'rgba(99,95,255,0.12)'
-            : 'transparent',
+          bgcolor: active ? 'rgba(99,95,255,0.12)' : 'transparent',
           transition: 'background 0.15s, color 0.15s',
           '&:hover': {
-            bgcolor: active ? 'rgba(99,95,255,0.18)' : theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'
-          }
+            bgcolor: active
+              ? 'rgba(99,95,255,0.18)'
+              : theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'
+          },
+          flexShrink: 0
         }}
       >
-        {children}
+        <Box sx={{ display: 'flex', fontSize: { xs: 22, sm: 18 } }}>{children}</Box>
       </Box>
     </Tooltip>
   )
@@ -125,48 +126,48 @@ function RichTextEditor({ value, onChange, cardId }) {
           display: 'flex',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: 0.25,
-          px: 1,
-          py: 0.75,
+          gap: { xs: 0.5, sm: 0.25 },
+          px: { xs: 1.5, sm: 1 },
+          py: { xs: 1, sm: 0.75 },
           bgcolor: toolbarBg,
           borderBottom: `1px solid ${borderColor}`
         }}
       >
         {/* Text style */}
         <ToolBtn title="In đậm (Ctrl+B)" onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')}>
-          <FormatBoldIcon sx={{ fontSize: 18 }} />
+          <FormatBoldIcon sx={{ fontSize: { xs: 22, sm: 18 } }} />
         </ToolBtn>
         <ToolBtn title="Nghiêng (Ctrl+I)" onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')}>
-          <FormatItalicIcon sx={{ fontSize: 18 }} />
+          <FormatItalicIcon sx={{ fontSize: { xs: 22, sm: 18 } }} />
         </ToolBtn>
         <ToolBtn title="Gạch ngang" onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')}>
-          <FormatStrikethroughIcon sx={{ fontSize: 18 }} />
+          <FormatStrikethroughIcon sx={{ fontSize: { xs: 22, sm: 18 } }} />
         </ToolBtn>
         <ToolBtn title="Tiêu đề" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })}>
-          <TitleIcon sx={{ fontSize: 18 }} />
+          <TitleIcon sx={{ fontSize: { xs: 22, sm: 18 } }} />
         </ToolBtn>
 
         <Divider orientation="vertical" flexItem sx={{ mx: 0.5, my: 0.25, borderColor }} />
 
         {/* List */}
         <ToolBtn title="Danh sách" onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')}>
-          <FormatListBulletedIcon sx={{ fontSize: 18 }} />
+          <FormatListBulletedIcon sx={{ fontSize: { xs: 22, sm: 18 } }} />
         </ToolBtn>
         <ToolBtn title="Danh sách số" onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')}>
-          <FormatListNumberedIcon sx={{ fontSize: 18 }} />
+          <FormatListNumberedIcon sx={{ fontSize: { xs: 22, sm: 18 } }} />
         </ToolBtn>
 
         <Divider orientation="vertical" flexItem sx={{ mx: 0.5, my: 0.25, borderColor }} />
 
         {/* Block */}
         <ToolBtn title="Trích dẫn" onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')}>
-          <FormatQuoteIcon sx={{ fontSize: 18 }} />
+          <FormatQuoteIcon sx={{ fontSize: { xs: 22, sm: 18 } }} />
         </ToolBtn>
         <ToolBtn title="Code" onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive('code')}>
-          <CodeIcon sx={{ fontSize: 18 }} />
+          <CodeIcon sx={{ fontSize: { xs: 22, sm: 18 } }} />
         </ToolBtn>
         <ToolBtn title="Đường kẻ ngang" onClick={() => editor.chain().focus().setHorizontalRule().run()} active={false}>
-          <HorizontalRuleIcon sx={{ fontSize: 18 }} />
+          <HorizontalRuleIcon sx={{ fontSize: { xs: 22, sm: 18 } }} />
         </ToolBtn>
 
         <Divider orientation="vertical" flexItem sx={{ mx: 0.5, my: 0.25, borderColor }} />
@@ -177,7 +178,7 @@ function RichTextEditor({ value, onChange, cardId }) {
           onClick={() => !uploading && inputRef.current?.click()}
           active={false}
         >
-          {uploading ? <CircularProgress size={15} /> : <ImageIcon sx={{ fontSize: 18 }} />}
+          {uploading ? <CircularProgress size={15} /> : <ImageIcon sx={{ fontSize: { xs: 22, sm: 18 } }} />}
         </ToolBtn>
         <input
           type="file"

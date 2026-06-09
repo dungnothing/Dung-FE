@@ -15,15 +15,15 @@ const ActionBtn = ({ title, icon, onClick, disabled, active = false, activeColor
   <Tooltip title={title} arrow placement="top">
     <span>
       <IconButton
-        size="small"
         onClick={onClick}
         disabled={disabled}
         sx={{
           borderRadius: '8px',
-          p: '7px',
+          p: { xs: '10px', sm: '7px' },
           color: active ? activeColor : 'text.secondary',
           bgcolor: active ? `${activeColor}18` : 'transparent',
           transition: 'background 0.15s, color 0.15s',
+          '& svg': { fontSize: { xs: 22, sm: 18 } },
           '&:hover': { bgcolor: active ? `${activeColor}28` : 'action.hover' },
           '&.Mui-disabled': { opacity: 0.38 }
         }}
