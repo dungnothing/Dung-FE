@@ -1,9 +1,12 @@
 import Container from '@mui/material/Container'
+import { Box } from '@mui/material'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react'
+import { isEmpty } from 'lodash'
+import { toast } from 'react-toastify'
 import AppBar from '~/components/AppBar/AppBar'
 import BoardBar from '../../components/Board/BoardBar/BoardBar'
 import BoardContent from '../../components/Board/BoardContent/BoardContent'
-import { useParams } from 'react-router-dom'
-import { useEffect, useState, useRef } from 'react'
 import {
   fetchBoardDetailsAPI,
   updateBoardDetailsAPI,
@@ -13,64 +16,62 @@ import {
 import { createNewCardAPI } from '~/apis/cards'
 import { createNewColumnAPI, deleteColumnDetailsAPI, updateColumnDetailsAPI } from '~/apis/columns'
 import { generatePlaceholderCard } from '~/utils/formatters'
-import { isEmpty } from 'lodash'
 import { mapOrder } from '~/utils/sort'
 import BasicLoading from '~/helpers/components/BasicLoading'
-import { toast } from 'react-toastify'
 import { PERMISSIONS_MAP } from '~/utils/permissions'
 import { handleError } from '~/utils/messageHelper'
 import { initBoardSocket, getBoardSocketCallbacks } from '~/sockets/board'
 import useDebounce from '~/helpers/hooks/useDebonce'
-import { Box } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+
+const EMPTY_FILTERS = { term: '', overdue: '', dueTomorrow: '', noDue: '' }
+const isPlaceholderId = (id) => typeof id === 'string' && id.includes('placehorlder-card')
+
+// Gắn cards (đã sắp xếp) vào mỗi column; column rỗng dùng placeholder card
+const withOrderedCards = (column) => {
+  if (isEmpty(column.cardOrderIds)) {
+    const placeholder = generatePlaceholderCard(column)
+    return { ...column, cards: [placeholder], cardOrderIds: [placeholder._id] }
+  }
+  return { ...column, cards: mapOrder(column.cards, column.cardOrderIds, '_id') }
+}
 
 function Board() {
   const { boardId } = useParams()
-  const [board, setBoard] = useState(null)
   const navigate = useNavigate()
+  const [board, setBoard] = useState(null)
   const [permissions, setPermissions] = useState(null)
   const [allUserInBoard, setAllUserInBoard] = useState({ admin: {}, members: [] })
   const [isLoading, setIsLoading] = useState(false)
   const [filterLoading, setFilterLoading] = useState(false)
-  const [filters, setFilters] = useState({
-    term: '',
-    overdue: '',
-    dueTomorrow: '',
-    noDue: ''
-  })
+  const [filters, setFilters] = useState(EMPTY_FILTERS)
   const debouncedFilters = useDebounce(filters, 500)
   const firstFilterRun = useRef(true)
-  const isFiltering =
-    !!debouncedFilters.term || !!debouncedFilters.overdue || !!debouncedFilters.dueTomorrow || !!debouncedFilters.noDue
+  const isFiltering = Object.values(debouncedFilters).some(Boolean)
+
+  // Báo lỗi rồi trả false nếu không đủ điều kiện thao tác (quyền / đang lọc)
+  const ensure = (hasPermission, { blockWhileFiltering = false } = {}) => {
+    if (!hasPermission) {
+      toast.error('Bạn không có quyền')
+      return false
+    }
+    if (blockWhileFiltering && isFiltering) {
+      toast.error('Không thể thực hiện khi đang lọc')
+      return false
+    }
+    return true
+  }
 
   const fetchBoardData = async (firstLoad = false) => {
     try {
-      if (firstLoad) {
-        setIsLoading(true)
-      } else {
-        setFilterLoading(true)
-      }
-
+      firstLoad ? setIsLoading(true) : setFilterLoading(true)
       const params = {
         overdue: debouncedFilters.overdue || undefined,
         dueTomorrow: debouncedFilters.dueTomorrow || undefined,
         noDue: debouncedFilters.noDue || undefined,
         term: debouncedFilters.term?.trim() || undefined
       }
-
       const boardRes = await fetchBoardDetailsAPI(boardId, params)
-      boardRes.columns = mapOrder(boardRes.columns, boardRes.columnOrderIds, '_id')
-
-      boardRes.columns.forEach((column) => {
-        if (isEmpty(column.cardOrderIds)) {
-          const placeholderCard = generatePlaceholderCard(column)
-          column.cards = [placeholderCard]
-          column.cardOrderIds = [placeholderCard._id]
-        } else {
-          column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
-        }
-      })
-
+      boardRes.columns = mapOrder(boardRes.columns, boardRes.columnOrderIds, '_id').map(withOrderedCards)
       setBoard(boardRes)
       setPermissions(PERMISSIONS_MAP[boardRes.userRole])
     } catch (error) {
@@ -89,9 +90,7 @@ function Board() {
   const fetchAllUserInBoard = async () => {
     try {
       const response = await getAllUserInBoardAPI(boardId)
-      if (response) {
-        setAllUserInBoard(response)
-      }
+      if (response) setAllUserInBoard(response)
     } catch (error) {
       handleError(error, 'Lỗi khi lấy danh sách người dùng')
     }
@@ -110,60 +109,55 @@ function Board() {
     fetchBoardData(false)
   }, [debouncedFilters])
 
-  // Socket
   useEffect(() => {
     if (!boardId) return
-    const socketHandlers = getBoardSocketCallbacks(setBoard, navigate)
-    const cleanup = initBoardSocket(boardId, socketHandlers)
-    return cleanup
+    return initBoardSocket(boardId, getBoardSocketCallbacks(setBoard, navigate))
   }, [boardId])
 
-  const createNewColumn = async (newColumnData) => {
-    if (!permissions.CREATE_COLUMN) {
-      toast.error('Bạn không có quyền')
-      return
-    }
-    const newColumn = await createNewColumnAPI({
-      ...newColumnData,
-      boardId: board._id
-    })
-    const placeholderCard = generatePlaceholderCard(newColumn)
-    newColumn.cards = [placeholderCard]
-    newColumn.cardOrderIds = [placeholderCard._id]
+  // Cập nhật 1 column trong board theo cách immutable (các column khác giữ nguyên reference)
+  const patchColumn = (columnId, updater) =>
     setBoard((prev) => ({
       ...prev,
-      columns: [...prev.columns, newColumn],
+      columns: prev.columns.map((col) => (col._id === columnId ? updater(col) : col))
+    }))
+
+  // Ghi đè thứ tự card của 1 column bằng order thật từ BE. Trả false nếu FE thiếu card (cần refetch)
+  const reconcileColumnOrder = (columnId, serverOrderIds) => {
+    if (!serverOrderIds) return true
+    let synced = true
+    patchColumn(columnId, (col) => {
+      if (isEmpty(serverOrderIds)) {
+        const placeholder = generatePlaceholderCard(col)
+        return { ...col, cards: [placeholder], cardOrderIds: [placeholder._id] }
+      }
+      const cardsById = new Map(col.cards.map((c) => [c._id, c]))
+      const orderedCards = serverOrderIds.map((id) => cardsById.get(id)).filter(Boolean)
+      if (orderedCards.length !== serverOrderIds.length) synced = false
+      return { ...col, cards: orderedCards, cardOrderIds: serverOrderIds }
+    })
+    return synced
+  }
+
+  const createNewColumn = async (newColumnData) => {
+    if (!ensure(permissions.CREATE_COLUMN)) return
+    const newColumn = await createNewColumnAPI({ ...newColumnData, boardId: board._id })
+    const placeholder = generatePlaceholderCard(newColumn)
+    setBoard((prev) => ({
+      ...prev,
+      columns: [...prev.columns, { ...newColumn, cards: [placeholder], cardOrderIds: [placeholder._id] }],
       columnOrderIds: [...prev.columnOrderIds, newColumn._id]
     }))
   }
 
   const createNewCard = async (newCardData) => {
-    if (isFiltering) {
-      toast.error('Không thể thực hiện khi đang lọc')
-      return
-    }
+    if (!ensure(permissions.CREATE_CARD, { blockWhileFiltering: true })) return
     try {
-      if (!permissions.CREATE_CARD) {
-        toast.error('Bạn không có quyền')
-        return
-      }
-      const newCard = await createNewCardAPI({
-        ...newCardData,
-        boardId: board._id
-      })
-      setBoard((prev) => {
-        const newBoard = { ...prev }
-        const col = newBoard.columns.find((col) => col._id === newCardData.columnId)
-        if (col) {
-          if (col.cards.some((card) => card.FE_PlaceholderCard)) {
-            col.cards = [newCard]
-            col.cardOrderIds = [newCard._id]
-          } else {
-            col.cards.push(newCard)
-            col.cardOrderIds.push(newCard._id)
-          }
-        }
-        return newBoard
+      const newCard = await createNewCardAPI({ ...newCardData, boardId: board._id })
+      patchColumn(newCardData.columnId, (col) => {
+        const hasPlaceholder = col.cards.some((card) => card.FE_PlaceholderCard)
+        return hasPlaceholder
+          ? { ...col, cards: [newCard], cardOrderIds: [newCard._id] }
+          : { ...col, cards: [...col.cards, newCard], cardOrderIds: [...col.cardOrderIds, newCard._id] }
       })
     } catch (error) {
       toast.error('Lỗi khi tạo card')
@@ -171,120 +165,113 @@ function Board() {
   }
 
   const moveColumns = async (dndOrderedColumns) => {
+    if (!ensure(permissions.MOVING_COLUMN)) return
+    const snapshot = { columns: board.columns, columnOrderIds: board.columnOrderIds }
+    const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
+
+    setBoard((prev) => ({ ...prev, columns: dndOrderedColumns, columnOrderIds: dndOrderedColumnsIds }))
+
     try {
-      if (!permissions.MOVING_COLUMN) {
-        toast.error('Bạn không có quyền')
-        return
+      const updatedBoard = await updateBoardDetailsAPI(board._id, { columnOrderIds: dndOrderedColumnsIds })
+      if (updatedBoard?.columnOrderIds) {
+        setBoard((prev) => ({
+          ...prev,
+          columns: mapOrder(prev.columns, updatedBoard.columnOrderIds, '_id'),
+          columnOrderIds: updatedBoard.columnOrderIds
+        }))
       }
-      // Update cho chuan du lieu state Board
-      const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
-      setBoard((prev) => ({
-        ...prev,
-        columns: dndOrderedColumns,
-        columnOrderIds: dndOrderedColumnsIds
-      }))
-      await updateBoardDetailsAPI(board._id, { columnOrderIds: dndOrderedColumnsIds })
     } catch (error) {
       toast.error('Lỗi khi di chuyển column')
+      setBoard((prev) => ({ ...prev, ...snapshot }))
     }
   }
 
   const moverCardInTheSameColumn = async (dndOrderedCards, dndOrderedCardIds, columnId) => {
-    if (isFiltering) {
-      toast.error('Không thể thực hiện khi đang lọc')
-      return
-    }
-    if (!permissions.MOVING_CARD) {
-      toast.error('Bạn không có quyền')
-      return
-    }
-    const rollBackData = { ...board }
+    if (!ensure(permissions.MOVING_CARD, { blockWhileFiltering: true })) return
 
-    // Lấy thứ tự gốc trước khi update để BE có thể kiểm tra conflict
-    const prevCardOrderIds = board.columns.find((col) => col._id === columnId)?.cardOrderIds ?? []
+    const sourceColumn = board.columns.find((col) => col._id === columnId)
+    const snapshot = { cards: sourceColumn?.cards, cardOrderIds: sourceColumn?.cardOrderIds }
+    const prevCardOrderIds = sourceColumn?.cardOrderIds ?? []
+
+    patchColumn(columnId, (col) => ({ ...col, cards: dndOrderedCards, cardOrderIds: dndOrderedCardIds }))
 
     try {
-      const newBoard = { ...board }
-      const columnToUpdate = newBoard.columns.find((column) => column._id === columnId)
-      if (columnToUpdate) {
-        columnToUpdate.cards = dndOrderedCards
-        columnToUpdate.cardOrderIds = dndOrderedCardIds
-        newBoard.cards = dndOrderedCards
-      }
-      setBoard(newBoard)
-
-      await updateColumnDetailsAPI(columnId, {
+      const updatedColumn = await updateColumnDetailsAPI(columnId, {
         cardOrderIds: dndOrderedCardIds,
         prevCardOrderIds,
         boardId: board._id
       })
+      const synced = reconcileColumnOrder(columnId, updatedColumn?.cardOrderIds)
+      if (!synced) await fetchBoardData()
     } catch (error) {
       if (error?.response?.status === 409) {
         handleError(error, 'Xung đột dữ liệu')
         await fetchBoardData()
       } else {
         toast.error('Lỗi khi di chuyển card')
-        setBoard(rollBackData)
+        patchColumn(columnId, (col) => ({ ...col, ...snapshot }))
       }
     }
   }
 
   const moveCardToDifferentColumn = async (currentCardId, prevColumnId, nextColumnId, dndOrderedColumns) => {
-    if (!permissions.MOVING_CARD) {
-      toast.error('Bạn không có quyền')
-      return
+    if (!ensure(permissions.MOVING_CARD, { blockWhileFiltering: true })) return
+
+    const snapshot = {
+      prev: board.columns.find((c) => c._id === prevColumnId),
+      next: board.columns.find((c) => c._id === nextColumnId)
     }
-    const rollBackData = { ...board }
+
+    setBoard((prev) => ({
+      ...prev,
+      columns: dndOrderedColumns,
+      columnOrderIds: dndOrderedColumns.map((c) => c._id)
+    }))
+
+    // Khi kéo card cuối cùng ra khỏi column, column rỗng có placeholder-card → gửi mảng rỗng cho BE
+    let prevCardOrderIds = dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds
+    if (isPlaceholderId(prevCardOrderIds?.[0])) prevCardOrderIds = []
+
+    const data = {
+      currentCardId,
+      prevColumnId,
+      prevCardOrderIds,
+      nextColumnId,
+      nextCardOrderIds: dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds,
+      boardId: board._id
+    }
+
     try {
-      if (isFiltering) {
-        toast.error('Không thể thực hiện khi đang lọc')
-        return
-      }
-      // Update cho chuan du lieu state Board
-      const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
-      const newBoard = { ...board }
-      newBoard.columns = dndOrderedColumns
-      newBoard.columnOrderIds = dndOrderedColumnsIds
-      setBoard(newBoard)
-
-      // Goi API xu li
-      let prevCardOrderIds = dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds
-      // Xu li van de khi keo Card cuoi cung ra khoi Column, column rong se co placehorlder-card, can xoa di truoc khi gui du lieu cho BE
-      if (prevCardOrderIds[0].includes('placehorlder-card')) prevCardOrderIds = []
-
-      const data = {
-        currentCardId,
-        prevColumnId,
-        prevCardOrderIds,
-        nextColumnId,
-        nextCardOrderIds: dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds,
-        boardId: board._id
-      }
-
-      await moveCardToDifferentColumnAPI(data)
+      const result = await moveCardToDifferentColumnAPI(data)
+      const okPrev = reconcileColumnOrder(prevColumnId, result?.prevCardOrderIds)
+      const okNext = reconcileColumnOrder(nextColumnId, result?.nextCardOrderIds)
+      if (!okPrev || !okNext) await fetchBoardData()
     } catch (error) {
-      // 409 Conflict: có người khác đã kéo card trước → fetch lại board để đồng bộ
       if (error?.response?.status === 409) {
         handleError(error, 'Xung đột dữ liệu')
         await fetchBoardData()
       } else {
         toast.error('Lỗi khi di chuyển card')
-        setBoard(rollBackData)
+        setBoard((prev) => ({
+          ...prev,
+          columns: prev.columns.map((col) => {
+            if (col._id === prevColumnId && snapshot.prev) return snapshot.prev
+            if (col._id === nextColumnId && snapshot.next) return snapshot.next
+            return col
+          })
+        }))
       }
     }
   }
 
   const deleteColumnDetails = async (columnId) => {
+    if (!ensure(permissions.DELETE_COLUMN)) return
     try {
-      if (!permissions.DELETE_COLUMN) {
-        toast.error('Bạn không có quyền')
-        return
-      }
-      const newBoard = { ...board }
-      newBoard.columns = newBoard.columns.filter((c) => c._id !== columnId)
-      newBoard.columnOrderIds = newBoard.columnOrderIds.filter((_id) => _id !== columnId)
-      setBoard(newBoard)
-
+      setBoard((prev) => ({
+        ...prev,
+        columns: prev.columns.filter((c) => c._id !== columnId),
+        columnOrderIds: prev.columnOrderIds.filter((id) => id !== columnId)
+      }))
       await deleteColumnDetailsAPI(columnId, boardId)
       toast.success('Xóa cột thành công')
     } catch (error) {
