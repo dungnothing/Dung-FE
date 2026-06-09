@@ -50,34 +50,33 @@ function BoardBar({
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 1,
-        paddingX: 1,
-        overflowX: 'auto',
-        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333446' : 'transparent'),
-        '&::-webkit-scrollbar-track': { m: 1 }
+        px: 1,
+        overflow: 'hidden',
+        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333446' : 'transparent')
       }}
     >
       {/** Bên trái */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ pl: 2, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 2 }}>
-          <BoardTitle
-            isEditing={boardOps.isEditing}
-            setIsEditing={boardOps.setIsEditing}
-            editedTitle={boardOps.editedTitle}
-            setEditedTitle={boardOps.setEditedTitle}
-            boardTitle={board?.title}
-            handleUpdateTitle={boardOps.handleUpdateTitle}
-          />
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 }, pl: { xs: 1, sm: 2 }, minWidth: 0, overflow: 'hidden' }}>
+        <BoardTitle
+          isEditing={boardOps.isEditing}
+          setIsEditing={boardOps.setIsEditing}
+          editedTitle={boardOps.editedTitle}
+          setEditedTitle={boardOps.setEditedTitle}
+          boardTitle={board?.title}
+          handleUpdateTitle={boardOps.handleUpdateTitle}
+        />
 
-          <VisibilityToggle
-            visibility={boardOps.visibility}
-            anchorEl={menuStates.anchorEl}
-            setAnchorEl={menuStates.setAnchorEl}
-            open={menuStates.open}
-            setOpen={menuStates.setOpen}
-            handleVisibilityChange={boardOps.handleVisibilityChange}
-            loading={boardOps.visibilityLoading}
-          />
+        <VisibilityToggle
+          visibility={boardOps.visibility}
+          anchorEl={menuStates.anchorEl}
+          setAnchorEl={menuStates.setAnchorEl}
+          open={menuStates.open}
+          setOpen={menuStates.setOpen}
+          handleVisibilityChange={boardOps.handleVisibilityChange}
+          loading={boardOps.visibilityLoading}
+        />
 
+        <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
           <StarButton
             isStarred={starBoard.isStarred}
             handleStarBoard={starBoard.handleStarBoard}
@@ -88,52 +87,28 @@ function BoardBar({
       </Box>
 
       {/** Bên phải */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        {/* Filter Controls */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, flexShrink: 0 }}>
+        {/* Filter */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Box
-            onClick={(e) => {
-              menuStates.setAnchorFilter(e.currentTarget)
-            }}
+            onClick={(e) => menuStates.setAnchorFilter(e.currentTarget)}
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              cursor: 'pointer',
-              width: 34,
-              height: 34,
-              justifyContent: 'center',
-              '&:hover': {
-                bgcolor: '#DCDFE4'
-              },
-              '&:active': {
-                bgcolor: '#DCDFE4'
-              },
-              px: 1
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 34, height: 34, cursor: 'pointer', borderRadius: '4px',
+              '&:hover': { bgcolor: 'rgba(0,0,0,0.08)' }
             }}
           >
             <FilterListIcon sx={{ color: textColor }} />
           </Box>
 
-          {/* Reset Filter Button - Only show when filters are active */}
           {hasActiveFilters() && (
             <Box
               onClick={handleResetFilters}
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                cursor: 'pointer',
-                width: 34,
-                height: 34,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 34, height: 34, cursor: 'pointer', borderRadius: '4px',
                 color: textColor,
-                justifyContent: 'center',
-                '&:hover': {
-                  bgcolor: '#DCDFE4'
-                },
-                '&:active': {
-                  bgcolor: '#DCDFE4'
-                },
-                px: 1
+                '&:hover': { bgcolor: 'rgba(0,0,0,0.08)' }
               }}
             >
               <RotateCcw size={16} />
@@ -149,13 +124,12 @@ function BoardBar({
           filterLoading={filterLoading}
         />
 
-        {/*  Invite */}
         <MemberManage board={board} allUserInBoard={allUserInBoard} fetchAllUserInBoard={fetchAllUserInBoard} />
 
-        {/*  Avatar */}
-        <UserAvatars allUserInBoard={allUserInBoard} />
+        <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
+          <UserAvatars allUserInBoard={allUserInBoard} />
+        </Box>
 
-        {/*  Board Actions Menu */}
         <BoardActionsMenu
           anchorElMore={menuStates.anchorElMore}
           setAnchorElMore={menuStates.setAnchorElMore}
@@ -164,9 +138,11 @@ function BoardBar({
           handleChangStateBoard={boardOps.handleChangStateBoard}
           handleConfirmDeleteBoard={boardOps.handleConfirmDeleteBoard}
           setOpenDialog={boardOps.setOpenDialog}
+          isStarred={starBoard.isStarred}
+          handleStarBoard={starBoard.handleStarBoard}
+          allUserInBoard={allUserInBoard}
         />
 
-        {/* Dialog thay đổi admin */}
         <DialogChangeAdmin
           open={boardOps.openDialog}
           onClose={() => boardOps.setOpenDialog(false)}
