@@ -121,11 +121,14 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
           sx={{
             color: textColor,
             borderColor: textColor,
+            minWidth: 'unset',
+            '& .MuiButton-startIcon': { mr: { xs: 0, sm: '8px' } },
+            px: { xs: '8px', sm: '15px' },
             '&:hover': { borderColor: textColor }
           }}
           onClick={() => setOpen(true)}
         >
-          Mời
+          <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Mời</Box>
         </Button>
         <Dialog
           open={open}

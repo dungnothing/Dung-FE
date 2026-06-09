@@ -42,10 +42,14 @@ function BoardTitle({ isEditing, setIsEditing, editedTitle, setEditedTitle, boar
       variant="subtitle2"
       onClick={() => setIsEditing(true)}
       sx={{
-        fontSize: '18px',
+        fontSize: { xs: '15px', sm: '18px' },
         fontWeight: 700,
         color: textColor,
-        cursor: 'pointer'
+        cursor: 'pointer',
+        maxWidth: { xs: '110px', sm: '260px', md: 'none' },
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
       }}
     >
       {boardTitle}
