@@ -126,7 +126,19 @@ function PersonalInfo() {
             {user?.userName || 'Chưa có tên'}
           </Typography>
 
-          <Box className="flex items-center gap-6 mt-1 text-sm" sx={{ color: textColor, opacity: 0.7 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: { xs: '6px 16px', sm: '4px 24px' },
+              mt: 1,
+              fontSize: '0.875rem',
+              color: textColor,
+              opacity: 0.7,
+              px: 2
+            }}
+          >
             <Box className="flex items-center gap-1">
               <Briefcase size={14} /> {user?.organization || 'Chưa có chức vụ'}
             </Box>
@@ -147,9 +159,18 @@ function PersonalInfo() {
           </Box>
         </Box>
 
-        {/* Thanh hoàn thành hồ sơ + nút hành động */}
-        <Box className="flex items-center justify-between h-full">
-          <Box className="px-6 pb-4 w-80">
+        {/* Thanh hoàn thành hồ sơ + trạng thái vip */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2,
+            px: 3,
+            pb: 3,
+            pt: 1
+          }}
+        >
+          <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography variant="body2" sx={{ color: textColor, opacity: 0.7, mb: 1 }}>
               Mức độ hoàn thiện
             </Typography>
@@ -162,19 +183,16 @@ function PersonalInfo() {
                   borderRadius: 3,
                   flex: 1,
                   backgroundColor: '#E5E7EB',
-                  '& .MuiLinearProgress-bar': {
-                    backgroundColor: '#16A34A'
-                  }
+                  '& .MuiLinearProgress-bar': { backgroundColor: '#16A34A' }
                 }}
               />
-              <Typography variant="body2" sx={{ color: textColor, opacity: 0.7 }}>
+              <Typography variant="body2" sx={{ color: textColor, opacity: 0.7, whiteSpace: 'nowrap' }}>
                 {rate}%
               </Typography>
             </Box>
           </Box>
 
-          {/* Action buttons */}
-          <Box className="px-6 pb-4 w-80">
+          <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography variant="body2" sx={{ color: textColor, opacity: 0.7, mb: 1 }}>
               Trạng thái vip
             </Typography>

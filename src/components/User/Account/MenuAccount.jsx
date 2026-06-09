@@ -1,19 +1,24 @@
-import { Box, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
+import { Box, List, ListItemButton, ListItemIcon, ListItemText, Tooltip, useMediaQuery, useTheme } from '@mui/material'
 import { User, Lock, Trash2 } from 'lucide-react'
 import { InstagramIcon as Instagram } from '~/icon/Icon'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { textColor } from '~/utils/constants'
 
+const ACTIVE_COLOR = '#7C3AED'
+
 const tabsData = [
   { label: 'Thông tin cơ bản', icon: <User size={18} />, path: '/user/info' },
   { label: 'Mật khẩu', icon: <Lock size={18} />, path: '/user/password' },
-  { label: 'Mạng xã hội (Incoming)', icon: <Instagram size={18} /> },
+  { label: 'Mạng xã hội (Incoming)', icon: <Instagram size={18} />, path: null },
   { label: 'Xóa tài khoản', icon: <Trash2 size={18} />, path: '/user/delete' }
 ]
 
 export default function ProfileSidebar() {
   const navigate = useNavigate()
   const location = useLocation()
+  const theme = useTheme()
+  const isXs = useMediaQuery(theme.breakpoints.only('xs'))
+
   return (
     <Box
       sx={{
@@ -22,42 +27,55 @@ export default function ProfileSidebar() {
         bgcolor: 'background.paper',
         overflow: 'hidden',
         py: 1,
-        width: '100%',
-        maxWidth: 300,
+        width: { xs: 'auto', sm: '100%' },
+        maxWidth: { xs: 'none', sm: 300 },
         height: 'fit-content'
       }}
     >
       <List disablePadding>
-        {tabsData.map((tab) => (
-          <ListItemButton
-            key={tab.label}
-            selected={location.pathname === tab.path}
-            onClick={() => {
-              navigate(tab.path)
-            }}
-            sx={{
-              py: 1.2,
-              px: 2,
-              gap: 1.5,
-              alignItems: 'center',
-              borderLeft: location.pathname === tab.path ? '3px solid #7C3AED' : '3px solid transparent',
-              '&.Mui-selected': {
-                bgcolor: 'rgba(124, 58, 237, 0.08)', // tím nhạt
-                color: '#7C3AED',
-                '& .MuiListItemIcon-root': { color: '#7C3AED' }
-              },
-              '&:hover': {
-                bgcolor: 'rgba(124, 58, 237, 0.04)'
-              }
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 24, color: '#64748b' }}>{tab.icon}</ListItemIcon>
-            <ListItemText
-              primary={tab.label}
-              sx={{ fontSize: 14, fontWeight: 500, color: location.pathname === tab.path ? '#7C3AED' : textColor }}
-            />
-          </ListItemButton>
-        ))}
+        {tabsData.map((tab) => {
+          const active = location.pathname === tab.path
+          const item = (
+            <ListItemButton
+              key={tab.label}
+              selected={active}
+              onClick={() => tab.path && navigate(tab.path)}
+              sx={{
+                py: 1.2,
+                px: { xs: 1, sm: 2 },
+                gap: 1.5,
+                alignItems: 'center',
+                justifyContent: { xs: 'center', sm: 'flex-start' },
+                minWidth: { xs: 44, sm: 'auto' },
+                borderLeft: active ? `3px solid ${ACTIVE_COLOR}` : '3px solid transparent',
+                '&.Mui-selected': {
+                  bgcolor: 'rgba(124, 58, 237, 0.08)',
+                  color: ACTIVE_COLOR,
+                  '& .MuiListItemIcon-root': { color: ACTIVE_COLOR }
+                },
+                '&:hover': { bgcolor: 'rgba(124, 58, 237, 0.04)' }
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 24, color: active ? ACTIVE_COLOR : '#64748b' }}>
+                {tab.icon}
+              </ListItemIcon>
+              {!isXs && (
+                <ListItemText
+                  primary={tab.label}
+                  primaryTypographyProps={{ fontSize: 14, fontWeight: active ? 600 : 500, color: active ? ACTIVE_COLOR : textColor }}
+                />
+              )}
+            </ListItemButton>
+          )
+
+          return isXs ? (
+            <Tooltip key={tab.label} title={tab.label} placement="right" arrow>
+              {item}
+            </Tooltip>
+          ) : (
+            <span key={tab.label}>{item}</span>
+          )
+        })}
       </List>
     </Box>
   )
