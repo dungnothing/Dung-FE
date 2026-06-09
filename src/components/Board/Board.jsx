@@ -18,6 +18,7 @@ import { mapOrder } from '~/utils/sort'
 import BasicLoading from '~/helpers/components/BasicLoading'
 import { toast } from 'react-toastify'
 import { PERMISSIONS_MAP } from '~/utils/permissions'
+import { handleError } from '~/utils/messageHelper'
 import { initBoardSocket, getBoardSocketCallbacks } from '~/sockets/board'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { Box } from '@mui/material'
@@ -200,12 +201,10 @@ function Board() {
     }
     const rollBackData = { ...board }
 
+    // Lấy thứ tự gốc trước khi update để BE có thể kiểm tra conflict
+    const prevCardOrderIds = board.columns.find((col) => col._id === columnId)?.cardOrderIds ?? []
+
     try {
-      // Update cho chuan du lieu
-      if (isFiltering) {
-        toast.error('Không thể thực hiện khi đang lọc')
-        return
-      }
       const newBoard = { ...board }
       const columnToUpdate = newBoard.columns.find((column) => column._id === columnId)
       if (columnToUpdate) {
@@ -215,11 +214,19 @@ function Board() {
       }
       setBoard(newBoard)
 
-      // Goi API update Column
-      await updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds, boardId: board._id })
+      await updateColumnDetailsAPI(columnId, {
+        cardOrderIds: dndOrderedCardIds,
+        prevCardOrderIds,
+        boardId: board._id
+      })
     } catch (error) {
-      toast.error('Lỗi khi di chuyển card')
-      setBoard(rollBackData)
+      if (error?.response?.status === 409) {
+        handleError(error, 'Xung đột dữ liệu')
+        await fetchBoardData()
+      } else {
+        toast.error('Lỗi khi di chuyển card')
+        setBoard(rollBackData)
+      }
     }
   }
 
@@ -257,8 +264,14 @@ function Board() {
 
       await moveCardToDifferentColumnAPI(data)
     } catch (error) {
-      toast.error('Lỗi khi di chuyển card')
-      setBoard(rollBackData)
+      // 409 Conflict: có người khác đã kéo card trước → fetch lại board để đồng bộ
+      if (error?.response?.status === 409) {
+        handleError(error, 'Xung đột dữ liệu')
+        await fetchBoardData()
+      } else {
+        toast.error('Lỗi khi di chuyển card')
+        setBoard(rollBackData)
+      }
     }
   }
 
