@@ -1,4 +1,4 @@
-import { Box, Typography, Divider, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Typography, Divider, Tooltip, useMediaQuery, useTheme } from '@mui/material'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import PaymentIcon from '@mui/icons-material/Payment'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -6,6 +6,19 @@ import ViewListIcon from '@mui/icons-material/ViewList'
 import TaskIcon from '@mui/icons-material/Task'
 import { useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { textColor } from '~/utils/constants'
+
+const ACTIVE_COLOR = '#578FCA'
+
+const TOP_ITEMS = [
+  { path: 'boards', label: 'Bảng', icon: DashboardIcon },
+  { path: 'templates', label: 'Mẫu', icon: ViewListIcon }
+]
+
+const WORKSPACE_ITEMS = [
+  { path: 'tasks', label: 'Nhiệm vụ', icon: TaskIcon },
+  { path: 'settings', label: 'Cài đặt', icon: SettingsIcon },
+  { path: 'payment', label: 'Thanh toán', icon: PaymentIcon }
+]
 
 const DashboardContent = ({ searchValue }) => {
   const navigate = useNavigate()
@@ -21,6 +34,60 @@ const DashboardContent = ({ searchValue }) => {
   }
 
   const bgMenu = (theme) => (theme.palette.mode === 'dark' ? '#1C2B41' : '#e9f2ff')
+  const bgHover = (theme) => (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(87,143,202,0.08)')
+
+  const MenuItem = ({ item }) => {
+    const active = isActive(item.path)
+    const Icon = item.icon
+    const content = (
+      <Box
+        onClick={() => navigate(item.path)}
+        sx={{
+          position: 'relative',
+          bgcolor: active ? bgMenu : 'transparent',
+          color: active ? ACTIVE_COLOR : textColor,
+          borderRadius: '10px',
+          height: '42px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: { xs: 'center', sm: 'flex-start' },
+          px: { xs: 0, sm: '12px' },
+          width: { xs: '40px', sm: '100%' },
+          cursor: 'pointer',
+          transition: 'background-color 0.2s ease, color 0.2s ease, transform 0.15s ease',
+          // thanh chỉ báo dọc bên trái khi active
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            left: { xs: '50%', sm: 0 },
+            top: { xs: 'auto', sm: '50%' },
+            bottom: { xs: 4, sm: 'auto' },
+            transform: { xs: 'translateX(-50%)', sm: 'translateY(-50%)' },
+            width: { xs: active ? '16px' : 0, sm: '3px' },
+            height: { xs: '3px', sm: active ? '20px' : 0 },
+            borderRadius: '3px',
+            bgcolor: ACTIVE_COLOR,
+            transition: 'all 0.2s ease'
+          },
+          '&:hover': {
+            bgcolor: active ? bgMenu : bgHover,
+            transform: 'translateX(2px)'
+          }
+        }}
+      >
+        <Icon sx={{ color: active ? ACTIVE_COLOR : 'inherit', fontSize: '22px' }} />
+        {!isXs && <Typography sx={{ pl: 1.5, fontWeight: active ? 600 : 500, fontSize: '0.95rem' }}>{item.label}</Typography>}
+      </Box>
+    )
+
+    return isXs ? (
+      <Tooltip title={item.label} placement="right" arrow>
+        {content}
+      </Tooltip>
+    ) : (
+      content
+    )
+  }
 
   return (
     <Box
@@ -49,119 +116,31 @@ const DashboardContent = ({ searchValue }) => {
             minWidth: '72px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 1,
+            gap: 0.75,
             py: { xs: 0, sm: 6 }
           }}
         >
-          <Box
-            onClick={() => navigate('boards')}
-            sx={{
-              bgcolor: isActive('boards') ? bgMenu : 'transparent',
-              color: textColor,
-              borderRadius: '8px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              px: '8px',
-              py: '6px',
-              width: { xs: '40px', sm: '100%' },
-              cursor: 'pointer'
-            }}
-          >
-            <DashboardIcon sx={{ color: isActive('boards') ? '#578FCA' : 'inherit' }} />
-            {!isXs && <Typography sx={{ pl: 1, color: isActive('boards') ? '#578FCA' : 'inherit' }}>Bảng</Typography>}
-          </Box>
+          {TOP_ITEMS.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
 
-          <Box
-            onClick={() => navigate('templates')}
-            sx={{
-              bgcolor: isActive('templates') ? bgMenu : 'transparent',
-              color: textColor,
-              borderRadius: '8px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              px: '8px',
-              py: '6px',
-              width: { xs: '40px', sm: '100%' },
-              cursor: 'pointer'
-            }}
-          >
-            <ViewListIcon sx={{ color: isActive('templates') ? '#578FCA' : 'inherit' }} />
-            {!isXs && <Typography sx={{ pl: 1, color: isActive('templates') ? '#578FCA' : 'inherit' }}>Mẫu</Typography>}
-          </Box>
-
-          {!isXs && (
+          {!isXs ? (
             <>
-              <Divider />
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ px: '8px', py: '6px', color: textColor }}>
+              <Divider sx={{ my: 1 }} />
+              <Typography
+                variant="overline"
+                sx={{ px: '12px', py: '4px', color: 'text.secondary', fontWeight: 700, letterSpacing: '0.5px' }}
+              >
                 Không gian làm việc
               </Typography>
             </>
+          ) : (
+            <Divider sx={{ my: 0.5 }} />
           )}
 
-          <Box
-            onClick={() => navigate('tasks')}
-            sx={{
-              bgcolor: isActive('tasks') ? bgMenu : 'transparent',
-              color: textColor,
-              borderRadius: '8px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              px: '8px',
-              py: '6px',
-              width: { xs: '40px', sm: '100%' },
-              cursor: 'pointer'
-            }}
-          >
-            <TaskIcon sx={{ color: isActive('tasks') ? '#578FCA' : 'inherit' }} />
-            {!isXs && (
-              <Typography sx={{ pl: 1, color: isActive('tasks') ? '#578FCA' : 'inherit' }}>Nhiệm vụ</Typography>
-            )}
-          </Box>
-
-          <Box
-            onClick={() => navigate('settings')}
-            sx={{
-              bgcolor: isActive('settings') ? bgMenu : 'transparent',
-              color: textColor,
-              borderRadius: '8px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              px: '8px',
-              py: '6px',
-              width: { xs: '40px', sm: '100%' },
-              cursor: 'pointer'
-            }}
-          >
-            <SettingsIcon sx={{ color: isActive('settings') ? '#578FCA' : 'inherit' }} />
-            {!isXs && (
-              <Typography sx={{ pl: 1, color: isActive('settings') ? '#578FCA' : 'inherit' }}>Cài đặt</Typography>
-            )}
-          </Box>
-
-          <Box
-            onClick={() => navigate('payment')}
-            sx={{
-              bgcolor: isActive('payment') ? bgMenu : 'transparent',
-              color: textColor,
-              borderRadius: '8px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              px: '8px',
-              py: '6px',
-              width: { xs: '40px', sm: '100%' },
-              cursor: 'pointer'
-            }}
-          >
-            <PaymentIcon sx={{ color: isActive('payment') ? '#578FCA' : 'inherit' }} />
-            {!isXs && (
-              <Typography sx={{ pl: 1, color: isActive('payment') ? '#578FCA' : 'inherit' }}>Thanh toán</Typography>
-            )}
-          </Box>
+          {WORKSPACE_ITEMS.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
         </Box>
       </Box>
       {/* Main content */}
