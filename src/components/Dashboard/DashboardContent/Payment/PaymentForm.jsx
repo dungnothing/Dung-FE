@@ -120,8 +120,8 @@ function PaymentForm({ pkg, setSelectedPackage }) {
         <Box
           maxWidth={500}
           width="100%"
-          px={5}
-          py={6}
+          px={{ xs: 3, sm: 5 }}
+          py={{ xs: 4, sm: 6 }}
           bgcolor="#ffffff"
           borderRadius={4}
           boxShadow="0 10px 40px rgba(0,0,0,0.08)"

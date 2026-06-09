@@ -59,7 +59,10 @@ const PaymentComponent = () => {
 
   return (
     <Box className="flex flex-col p-4 gap-4">
-      <Typography variant="h4" sx={{ color: textColor, fontWeight: 600 }}>
+      <Typography
+        variant="h4"
+        sx={{ color: textColor, fontWeight: 600, fontSize: { xs: '1.5rem', md: '2.125rem' } }}
+      >
         Nâng cấp tài khoản lên VIP
       </Typography>
 
@@ -67,9 +70,17 @@ const PaymentComponent = () => {
       {!user ? (
         <ContentLoading message="Đang tải thông tin gói..." minHeight="400px" />
       ) : (
-        <Box sx={{ display: 'flex', gap: 3, width: '100%', alignItems: 'flex-start' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 3,
+            width: '100%',
+            alignItems: { xs: 'stretch', md: 'flex-start' }
+          }}
+        >
           {/* Gói nâng cấp */}
-          <Box sx={{ display: 'flex', gap: 2, flex: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, flex: 2, width: '100%' }}>
             {packages.map((pkg) => {
               const isExpired = hasValidSubscription && new Date(supData?.expiresAt) < new Date()
               const currentPlan = hasValidSubscription ? supData?.plan : null
@@ -88,7 +99,8 @@ const PaymentComponent = () => {
                   key={pkg?.id}
                   sx={{
                     flex: 1,
-                    height: '100%', // add height to allow child to calculate flex properly
+                    width: '100%',
+                    height: 'auto',
                     borderRadius: '16px',
                     border: isCurrentPkg ? `2px solid ${pkg?.bdcolor}` : '2px solid #E5E7EB',
                     display: 'flex',
@@ -185,9 +197,11 @@ const PaymentComponent = () => {
           </Box>
 
           {/* Form thanh toán */}
-          <Box sx={{ flex: 1 }}>
-            {selectedPackage && <PaymentForm pkg={selectedPackage} setSelectedPackage={setSelectedPackage} />}
-          </Box>
+          {selectedPackage && (
+            <Box sx={{ flex: 1, width: '100%' }}>
+              <PaymentForm pkg={selectedPackage} setSelectedPackage={setSelectedPackage} />
+            </Box>
+          )}
         </Box>
       )}
       <PaymentRequiredDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
