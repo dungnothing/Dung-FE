@@ -91,8 +91,8 @@ function PersonalInfo() {
           alt="cover"
         />
 
-        {/* Avatar */}
-        <Box className="absolute top-2/5 left-1/2 -translate-x-1/2 -translate-y-1/2 w-fit flex justify-center items-center">
+        {/* Avatar — đặt chính giữa, bottom của cover = top-[77px] (125px cover - 48px bán kính avatar) */}
+        <Box sx={{ position: 'absolute', top: 77, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Avatar
             src={user?.avatar || '/default-avatar.png'}
             sx={{
@@ -121,7 +121,7 @@ function PersonalInfo() {
         </Box>
 
         {/* Thông tin cơ bản */}
-        <Box className="flex flex-col items-center mt-[60px] mb-4">
+        <Box className="flex flex-col items-center mt-[56px] mb-4">
           <Typography variant="h6" sx={{ fontWeight: 600, color: textColor }}>
             {user?.userName || 'Chưa có tên'}
           </Typography>
