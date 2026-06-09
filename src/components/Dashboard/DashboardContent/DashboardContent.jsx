@@ -52,26 +52,25 @@ const DashboardContent = ({ searchValue }) => {
           alignItems: 'center',
           justifyContent: { xs: 'center', sm: 'flex-start' },
           px: { xs: 0, sm: '12px' },
-          width: { xs: '40px', sm: '100%' },
+          width: '100%',
           cursor: 'pointer',
           transition: 'background-color 0.2s ease, color 0.2s ease, transform 0.15s ease',
-          // thanh chỉ báo dọc bên trái khi active
+          // thanh dọc bên trái — chỉ hiện trên desktop (sm+)
           '&::before': {
             content: '""',
             position: 'absolute',
-            left: { xs: '50%', sm: 0 },
-            top: { xs: 'auto', sm: '50%' },
-            bottom: { xs: 4, sm: 'auto' },
-            transform: { xs: 'translateX(-50%)', sm: 'translateY(-50%)' },
-            width: { xs: active ? '16px' : 0, sm: '3px' },
-            height: { xs: '3px', sm: active ? '20px' : 0 },
+            left: 0,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: { xs: 0, sm: active ? '3px' : 0 },
+            height: active ? '20px' : 0,
             borderRadius: '3px',
             bgcolor: ACTIVE_COLOR,
             transition: 'all 0.2s ease'
           },
           '&:hover': {
             bgcolor: active ? bgMenu : bgHover,
-            transform: 'translateX(2px)'
+            transform: { xs: 'none', sm: 'translateX(2px)' }
           }
         }}
       >
@@ -102,22 +101,21 @@ const DashboardContent = ({ searchValue }) => {
       {/* Sidebar */}
       <Box
         sx={{
-          width: { xs: '40px', sm: '30%' },
+          width: { xs: '56px', sm: '30%' },
           height: '100%',
-          display: { xs: 'flex', sm: 'flex' },
-          gap: 1,
-          justifyContent: { xs: 'flex-start', sm: 'flex-end' },
-          pr: 1
+          display: 'flex',
+          justifyContent: { xs: 'center', sm: 'flex-end' },
+          pr: { xs: 0, sm: 1 }
         }}
       >
         <Box
           sx={{
-            width: isXs ? '72px' : '256px',
-            minWidth: '72px',
+            width: isXs ? '48px' : '256px',
             display: 'flex',
             flexDirection: 'column',
             gap: 0.75,
-            py: { xs: 0, sm: 6 }
+            py: { xs: 1, sm: 6 },
+            px: { xs: 0.5, sm: 0 }
           }}
         >
           {TOP_ITEMS.map((item) => (
