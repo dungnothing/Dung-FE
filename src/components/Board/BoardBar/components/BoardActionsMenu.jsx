@@ -1,6 +1,6 @@
 import {
   Box, IconButton, Menu, MenuItem, Drawer, Typography, Divider,
-  Avatar, AvatarGroup, Tooltip, List, ListItemButton, ListItemIcon, ListItemText,
+  Avatar, Chip, List, ListItemButton, ListItemIcon, ListItemText,
   useMediaQuery, useTheme
 } from '@mui/material'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
@@ -10,7 +10,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen'
 import LockIcon from '@mui/icons-material/Lock'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
-import { ChevronsUp } from 'lucide-react'
+import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { useState } from 'react'
 
@@ -61,82 +61,86 @@ function BoardActionsMenu({
         </MenuItem>
       </Menu>
 
-      {/* Mobile: Drawer từ dưới */}
+      {/* Mobile: Drawer từ phải */}
       <Drawer
         anchor="right"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         slotProps={{
           paper: {
-            sx: {
-              width: 280,
-              pt: 1,
-              pb: 2
-            }
+            sx: { width: 280, display: 'flex', flexDirection: 'column' }
           }
         }}
       >
         {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, pt: 1, pb: 1 }}>
-          <Typography variant="subtitle2" fontWeight={700} sx={{ color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.75rem' }}>
-            Tuỳ chọn bảng
-          </Typography>
-          <IconButton size="small" onClick={() => setDrawerOpen(false)}>
-            <MoreVertIcon sx={{ fontSize: 18 }} />
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, pt: 2, pb: 1.5 }}>
+          <Box>
+            <Typography variant="h6" fontWeight={700} sx={{ color: textColor, lineHeight: 1.2 }}>
+              {board?.title}
+            </Typography>
+            <Chip
+              size="small"
+              label={isClosed ? 'Đã đóng' : 'Đang mở'}
+              sx={{
+                mt: 0.5,
+                height: 20,
+                fontSize: '0.7rem',
+                bgcolor: isClosed ? 'error.lighter' : '#e3fcef',
+                color: isClosed ? 'error.main' : '#006644',
+                fontWeight: 600
+              }}
+            />
+          </Box>
+          <IconButton size="small" onClick={() => setDrawerOpen(false)} sx={{ color: 'text.secondary' }}>
+            <CloseIcon sx={{ fontSize: 20 }} />
           </IconButton>
         </Box>
 
-        {/* Board name */}
-        <Box sx={{ px: 2, pb: 1.5 }}>
-          <Typography variant="subtitle1" fontWeight={700} sx={{ color: textColor, mb: 0.5 }}>
-            {board?.title}
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {isClosed ? '🔒 Bảng đã đóng' : '🟢 Bảng đang mở'}
-          </Typography>
-        </Box>
+        <Divider />
 
         {/* Members */}
         {allUserInBoard && (
           <>
-            <Divider />
-            <Box sx={{ px: 2, py: 1.5 }}>
-              <Typography variant="caption" fontWeight={600} sx={{ color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <Box sx={{ px: 2, pt: 1.5, pb: 1 }}>
+              <Typography variant="caption" fontWeight={600} sx={{ color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', mb: 1 }}>
                 Thành viên
               </Typography>
-              <Box sx={{ mt: 1, position: 'relative', display: 'inline-flex' }}>
-                <AvatarGroup
-                  max={7}
-                  sx={{ '& .MuiAvatar-root': { width: 36, height: 36, fontSize: 14, border: '2px solid #fff' } }}
-                >
-                  <Tooltip title={allUserInBoard.admin?.adminName + ' (Admin)'}>
-                    <Avatar src={allUserInBoard.admin?.adminAvatar} alt={allUserInBoard.admin?.adminName} />
-                  </Tooltip>
-                  {allUserInBoard.members?.map((m, i) => (
-                    <Tooltip key={i} title={m.memberName}>
-                      <Avatar src={m.memberAvatar} alt={m.memberName} />
-                    </Tooltip>
-                  ))}
-                </AvatarGroup>
-                <Box sx={{ position: 'absolute', top: -4, left: 22, zIndex: 10 }}>
-                  <ChevronsUp strokeWidth={4} color="#172b4d" size={14} />
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {/* Admin */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Avatar src={allUserInBoard.admin?.adminAvatar} alt={allUserInBoard.admin?.adminName} sx={{ width: 32, height: 32, fontSize: 13 }} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="body2" fontWeight={600} sx={{ color: textColor, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {allUserInBoard.admin?.adminName}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>Quản trị viên</Typography>
+                  </Box>
+                  <Chip size="small" label="Admin" sx={{ height: 18, fontSize: '0.65rem', bgcolor: '#635FFF', color: '#fff', fontWeight: 600 }} />
                 </Box>
+                {/* Members */}
+                {allUserInBoard.members?.map((m, i) => (
+                  <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Avatar src={m.memberAvatar} alt={m.memberName} sx={{ width: 32, height: 32, fontSize: 13 }} />
+                    <Typography variant="body2" sx={{ color: textColor, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {m.memberName}
+                    </Typography>
+                  </Box>
+                ))}
               </Box>
             </Box>
+            <Divider />
           </>
         )}
 
-        <Divider />
-
         {/* Actions */}
-        <List disablePadding>
+        <List disablePadding sx={{ pt: 0.5 }}>
           <ListItemButton onClick={() => { handleStarBoard?.(); closeAll() }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
               {isStarred
                 ? <StarIcon sx={{ color: '#F5A623', fontSize: 20 }} />
                 : <StarOutlineIcon sx={{ fontSize: 20 }} />}
             </ListItemIcon>
-            <ListItemText primary={isStarred ? 'Bỏ gắn sao' : 'Gắn sao bảng'} />
+            <ListItemText primary={isStarred ? 'Bỏ gắn sao' : 'Gắn sao bảng'} primaryTypographyProps={{ fontSize: '0.9rem' }} />
           </ListItemButton>
 
           <ListItemButton onClick={() => { handleChangStateBoard(); closeAll() }}>
@@ -145,14 +149,14 @@ function BoardActionsMenu({
                 ? <LockOpenIcon sx={{ fontSize: 20 }} />
                 : <LockIcon sx={{ fontSize: 20 }} />}
             </ListItemIcon>
-            <ListItemText primary={isClosed ? 'Mở cửa trái tim' : 'Đóng cửa trái tim'} />
+            <ListItemText primary={isClosed ? 'Mở cửa trái tim' : 'Đóng cửa trái tim'} primaryTypographyProps={{ fontSize: '0.9rem' }} />
           </ListItemButton>
 
           <ListItemButton disabled={!permissions?.CHANGE_ADMIN} onClick={() => { setOpenDialog(true); closeAll() }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
               <AdminPanelSettingsIcon sx={{ fontSize: 20 }} />
             </ListItemIcon>
-            <ListItemText primary="Thay đổi admin" />
+            <ListItemText primary="Thay đổi admin" primaryTypographyProps={{ fontSize: '0.9rem' }} />
           </ListItemButton>
 
           <ListItemButton
@@ -163,7 +167,7 @@ function BoardActionsMenu({
             <ListItemIcon sx={{ minWidth: 36 }}>
               <DeleteOutlineIcon sx={{ fontSize: 20 }} />
             </ListItemIcon>
-            <ListItemText primary="Xóa bảng" />
+            <ListItemText primary="Xóa bảng" primaryTypographyProps={{ fontSize: '0.9rem' }} />
           </ListItemButton>
         </List>
       </Drawer>
