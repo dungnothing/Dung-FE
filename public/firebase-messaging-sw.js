@@ -22,12 +22,18 @@ const messaging = firebase.messaging()
 
 // BE gửi data-only message nên tự hiển thị notification ở đây
 messaging.onBackgroundMessage((payload) => {
+  console.log('[sw] onBackgroundMessage received:', payload)
   const { title, body, boardId } = payload.data || {}
   self.registration.showNotification(title || 'Wednesday Light', {
     body: body || '',
     icon: '/W.svg',
     data: { boardId }
   })
+})
+
+// Log mọi push event để debug (notification message thì handler trên không chạy, nhưng event này vẫn bắn)
+self.addEventListener('push', (event) => {
+  console.log('[sw] push event raw:', event.data?.text?.())
 })
 
 // Click vào notification: focus tab đang mở hoặc mở tab mới tới board liên quan
