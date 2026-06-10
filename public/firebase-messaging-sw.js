@@ -23,7 +23,6 @@ const messaging = firebase.messaging()
 // BE gửi data-only message (đọc từ payload.data); Firebase Console gửi notification message
 // (đọc từ payload.notification) - merge cả 2 để cùng 1 SW xử lý được cả 2 nguồn.
 messaging.onBackgroundMessage((payload) => {
-  console.log('[sw] onBackgroundMessage received:', payload)
   const data = payload.data || {}
   const notification = payload.notification || {}
   const title = data.title || notification.title || 'Wednesday Light'
@@ -33,11 +32,6 @@ messaging.onBackgroundMessage((payload) => {
     icon: '/W.svg',
     data: { boardId: data.boardId }
   })
-})
-
-// Log mọi push event để debug (notification message thì handler trên không chạy, nhưng event này vẫn bắn)
-self.addEventListener('push', (event) => {
-  console.log('[sw] push event raw:', event.data?.text?.())
 })
 
 // Click vào notification: focus tab đang mở hoặc mở tab mới tới board liên quan
