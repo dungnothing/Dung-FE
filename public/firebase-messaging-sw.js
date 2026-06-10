@@ -20,14 +20,18 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging()
 
-// BE gửi data-only message nên tự hiển thị notification ở đây
+// BE gửi data-only message (đọc từ payload.data); Firebase Console gửi notification message
+// (đọc từ payload.notification) - merge cả 2 để cùng 1 SW xử lý được cả 2 nguồn.
 messaging.onBackgroundMessage((payload) => {
   console.log('[sw] onBackgroundMessage received:', payload)
-  const { title, body, boardId } = payload.data || {}
-  self.registration.showNotification(title || 'Wednesday Light', {
-    body: body || '',
+  const data = payload.data || {}
+  const notification = payload.notification || {}
+  const title = data.title || notification.title || 'Wednesday Light'
+  const body = data.body || notification.body || ''
+  self.registration.showNotification(title, {
+    body,
     icon: '/W.svg',
-    data: { boardId }
+    data: { boardId: data.boardId }
   })
 })
 
