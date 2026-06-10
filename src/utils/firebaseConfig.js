@@ -14,7 +14,8 @@ export const FIREBASE_CONFIG = {
 }
 
 // Firebase Console -> Project settings -> Cloud Messaging -> Web Push certificates -> Key pair
-export const FIREBASE_VAPID_KEY = '1:244131214320:web:dfdbf2ac7a1ead6ad5e335'
+export const FIREBASE_VAPID_KEY =
+  'BI9BNYxlZxNcSS0xDdo8N3BGAXGSTspD_WsPRnh_x5g3uk9SnwOJHCKSwkNnSX-zZ6-e7cjQcrZqf0XkROZo9pc'
 
 // Chưa điền key thì toàn bộ tính năng FCM tự tắt, app vẫn chạy bình thường
 export const isFirebaseConfigured = () => Boolean(FIREBASE_CONFIG.apiKey && FIREBASE_VAPID_KEY)
