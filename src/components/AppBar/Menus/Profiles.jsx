@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '~/redux/features/comon'
 import Cookie from 'js-cookie'
 import { logoutAPI } from '~/apis/auth'
+import { disableFcm } from '~/utils/fcm'
 
 function Profiles() {
   const [anchorEl, setAnchorEl] = React.useState(null)
@@ -31,6 +32,7 @@ function Profiles() {
 
   const logOut = async () => {
     try {
+      await disableFcm()
       const refreshToken = Cookie.get('refreshToken')
       if (refreshToken) {
         await logoutAPI(refreshToken)

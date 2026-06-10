@@ -66,6 +66,13 @@ const commonSlice = createSlice({
     setNotifications: (state, action) => {
       state.notifications = action.payload
     },
+    addNotification: (state, action) => {
+      // Tránh trùng khi vừa nhận qua socket vừa refetch qua API
+      const exists = state.notifications.some((notification) => notification._id === action.payload._id)
+      if (!exists) {
+        state.notifications = [action.payload, ...state.notifications]
+      }
+    },
     setRecentBoards: (state, action) => {
       state.recentBoards = action.payload
     },
@@ -80,7 +87,15 @@ const commonSlice = createSlice({
   }
 })
 
-export const { setStarBoards, setUserInfo, logout, updateUserInfo, setNotifications, setRecentBoards, setMarkAsRead } =
-  commonSlice.actions
+export const {
+  setStarBoards,
+  setUserInfo,
+  logout,
+  updateUserInfo,
+  setNotifications,
+  addNotification,
+  setRecentBoards,
+  setMarkAsRead
+} = commonSlice.actions
 
 export default commonSlice.reducer

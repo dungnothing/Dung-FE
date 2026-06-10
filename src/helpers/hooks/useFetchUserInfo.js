@@ -4,6 +4,8 @@ import { useDispatch } from 'react-redux'
 import { setUserInfo, setStarBoards, setNotifications, setRecentBoards, logout } from '~/redux/features/comon'
 import { getUserInfoAPI, logoutAPI } from '~/apis/auth'
 import { getNotificationAPI } from '~/apis/notification'
+import { reconnectSocket } from '~/sockets/socket'
+import { initFcm, disableFcm } from '~/utils/fcm'
 import { toast } from 'react-toastify'
 import Cookie from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
@@ -17,6 +19,7 @@ export const useFetchUserInfo = () => {
   const hasFetched = useRef(false)
 
   const handleLogout = async () => {
+    await disableFcm()
     const refreshToken = Cookie.get('refreshToken')
     if (refreshToken) {
       try {
@@ -45,6 +48,12 @@ export const useFetchUserInfo = () => {
       dispatch(setStarBoards(userInfo.starBoards))
       dispatch(setRecentBoards(userInfo.recentBoards))
       dispatch(setNotifications(notifications))
+
+      // Đảm bảo socket được kết nối lại với accessToken mới sau khi đăng nhập
+      reconnectSocket()
+
+      // Đăng ký FCM push (tự bỏ qua nếu chưa cấu hình Firebase hoặc user từ chối quyền)
+      initFcm()
     } catch (err) {
       if (err.response?.status === 404) {
         toast.error('Tài khoản không tồn tại')
