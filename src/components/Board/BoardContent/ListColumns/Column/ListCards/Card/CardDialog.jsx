@@ -67,6 +67,10 @@ function CardDialog({
 
   const handleUpdateCardTitle = async () => {
     try {
+      if (cardTitle.trim().length > 50) {
+        setCardTitle(card?.title)
+        return
+      }
       const formData = { cardId: card._id, title: cardTitle, boardId: board._id }
       await updateCardAPI(card._id, formData)
       setEditTitle(false)
@@ -101,7 +105,7 @@ function CardDialog({
           sx: {
             width: { xs: '100%', sm: '90vw', md: '1000px' },
             maxWidth: '1000px',
-            maxHeight: { xs: '92dvh', sm: '620px' },
+            maxHeight: { xs: '90dvh' },
             height: '100%',
             m: { xs: 1, sm: 2 },
             display: 'flex',
@@ -115,9 +119,8 @@ function CardDialog({
           borderBottom: '1px solid #e0e0e0',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          px: 2,
-          py: 0.5,
+          alignItems: 'start',
+          p: 2,
           minHeight: 52
         }}
       >
@@ -127,14 +130,13 @@ function CardDialog({
             value={cardTitle}
             onChange={(e) => setCardTitle(e.target.value)}
             onBlur={() => {
-              setEditTitle(false)
-              if (cardTitle.trim().length > 50) return
               handleUpdateCardTitle()
+              setEditTitle(false)
             }}
             error={cardTitle.trim().length > 50}
             helperText={cardTitle.trim().length > 50 ? 'Tiêu đề không được vượt quá 50 ký tự' : ' '}
             fullWidth
-            variant="outlined"
+            variant="standard"
             size="small"
             autoFocus
             sx={{
@@ -142,12 +144,13 @@ function CardDialog({
                 color: textColor,
                 fontSize: '18px',
                 fontWeight: 600,
-                py: '4px'
+                py: '4px',
+                px: 0,
+                border: 0
               }
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                if (cardTitle.trim().length > 50) return
                 handleUpdateCardTitle()
               }
             }}
@@ -191,7 +194,17 @@ function CardDialog({
       )}
 
       {/* Nội dung chính */}
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, width: '100%', height: '100%', overflow: { xs: 'auto', sm: 'hidden' }, pb: 1 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: 1,
+          width: '100%',
+          height: '100%',
+          overflow: { xs: 'auto', sm: 'hidden' },
+          pb: 1
+        }}
+      >
         <Box
           sx={{
             width: { xs: '100%', sm: '62%' },
