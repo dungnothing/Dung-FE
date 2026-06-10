@@ -29,7 +29,6 @@ export const initFcm = async () => {
       vapidKey: FIREBASE_VAPID_KEY,
       serviceWorkerRegistration: registration
     })
-    console.log('fcmToken', fcmToken)
     if (fcmToken) {
       await registerFcmTokenAPI(fcmToken)
     }
