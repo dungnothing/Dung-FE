@@ -43,6 +43,7 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.546.0",
     "material-ui-confirm": "^3.0.9",
+    "motion": "^12.40.0",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

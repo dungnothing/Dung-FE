@@ -1,6 +1,7 @@
 import { Box, Button } from '@mui/material'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
 function HeroSection() {
   const navigate = useNavigate()
@@ -21,18 +22,35 @@ function HeroSection() {
         p: 2
       }}
     >
-      <div className="md:text-[72px] text-[40px] font-light min-w-[400px] w-0.6 text-center">Mạnh mẽ và linh hoạt</div>
+      <motion.div
+        className="md:text-[72px] text-[40px] font-light min-w-[400px] w-0.6 text-center"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+        Mạnh mẽ và linh hoạt
+      </motion.div>
 
       {/* Text cho màn hình >= md */}
-      <div className="hidden md:block text-[20px] font-light min-w-[400px] max-w-[700px] text-center pb-2">
+      <motion.div
+        className="hidden md:block text-[20px] font-light min-w-[400px] max-w-[700px] text-center pb-2"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
         Hợp lý hóa quy trình làm việc, tạo sự kết nối liền mạch giữa các nhóm và nâng cao hiệu quả vận hành nhờ một hệ
         thống linh hoạt, giúp bạn luôn nắm bắt toàn cảnh để ra quyết định nhanh chóng, chính xác và tự tin hơn mỗi ngày.
-      </div>
+      </motion.div>
 
       {/* Text cho màn hình < md */}
-      <div className="block md:hidden text-[16px] font-light text-center pb-2">
+      <motion.div
+        className="block md:hidden text-[16px] font-light text-center pb-2"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
         Quản lý dễ dàng, kết nối nhóm hiệu quả và vận hành nhanh hơn.
-      </div>
+      </motion.div>
 
       <Button
         variant="contained"
