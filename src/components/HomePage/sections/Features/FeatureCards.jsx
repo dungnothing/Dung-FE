@@ -286,6 +286,7 @@ function CardArrow() {
           <ArrowForwardIcon sx={{ fontSize: '30px', color: '#FFFFFF' }} />
         </IconButton>
       </Box>
+      </Box>
     </motion.div>
   )
 }
