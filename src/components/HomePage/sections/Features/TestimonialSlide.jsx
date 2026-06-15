@@ -32,7 +32,7 @@ function TestimonialSlide({ quote, author, title, stat, source }) {
           width: { xs: '100%', lg: '34%' },
           p: 4,
           bgcolor: '#91BAFE',
-          color: 'white',
+
           display: 'flex',
           flexDirection: 'column',
           gap: 2,
@@ -43,7 +43,8 @@ function TestimonialSlide({ quote, author, title, stat, source }) {
           sx={{
             fontWeight: 700,
             lineHeight: 1.5,
-            fontSize: { xs: '0.875rem', lg: '1rem' }
+            fontSize: { xs: '0.875rem', lg: '1rem' },
+            color: 'white'
           }}
         >
           {stat}
