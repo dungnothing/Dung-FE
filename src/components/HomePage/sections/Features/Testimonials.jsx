@@ -1,6 +1,8 @@
 import Slider from 'react-slick'
 import { Box } from '@mui/material'
+import { motion } from 'motion/react'
 import TestimonialSlide from './TestimonialSlide'
+import { fadeUpVariants, scrollViewport } from '~/helpers/hooks/useScrollAnimation'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 
@@ -42,13 +44,20 @@ const settings = {
 
 function NoiPhet() {
   return (
-    <Box sx={{ width: 'full', px: { xs: 4, md: 10, lg: 30 } }}>
-      <Slider {...settings} className="custom-slick">
-        {testimonials.map((item, index) => (
-          <TestimonialSlide key={index} {...item} />
-        ))}
-      </Slider>
-    </Box>
+    <motion.div
+      variants={fadeUpVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={scrollViewport}
+    >
+      <Box sx={{ width: 'full', px: { xs: 4, md: 10, lg: 30 } }}>
+        <Slider {...settings} className="custom-slick">
+          {testimonials.map((item, index) => (
+            <TestimonialSlide key={index} {...item} />
+          ))}
+        </Slider>
+      </Box>
+    </motion.div>
   )
 }
 

@@ -9,6 +9,8 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter'
 import SupportAgentIcon from '@mui/icons-material/SupportAgent'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'motion/react'
+import { fadeUpVariants, scrollViewport } from '~/helpers/hooks/useScrollAnimation'
 
 const cardData = [
   {
@@ -121,26 +123,32 @@ function CardArrow() {
   const sliderRef = useRef(null)
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        p: 4,
-        position: 'relative',
-        '& .slick-slide': {
-          padding: '0 10px',
-          boxSizing: 'border-box',
-          display: 'flex',
-          justifyContent: 'center'
-        },
-        '& .slick-list': {
-          margin: '0 -10px'
-        },
-        '& .slick-slide > div': {
-          display: 'flex',
-          justifyContent: 'center'
-        }
-      }}
+    <motion.div
+      variants={fadeUpVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={scrollViewport}
     >
+      <Box
+        sx={{
+          width: '100%',
+          p: 4,
+          position: 'relative',
+          '& .slick-slide': {
+            padding: '0 10px',
+            boxSizing: 'border-box',
+            display: 'flex',
+            justifyContent: 'center'
+          },
+          '& .slick-list': {
+            margin: '0 -10px'
+          },
+          '& .slick-slide > div': {
+            display: 'flex',
+            justifyContent: 'center'
+          }
+        }}
+      >
       <Slider ref={sliderRef} {...settings}>
         {cardData.map((card, index) => (
           <div key={index}>
@@ -278,7 +286,7 @@ function CardArrow() {
           <ArrowForwardIcon sx={{ fontSize: '30px', color: '#FFFFFF' }} />
         </IconButton>
       </Box>
-    </Box>
+    </motion.div>
   )
 }
 

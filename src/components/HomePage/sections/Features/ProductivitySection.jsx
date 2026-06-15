@@ -1,8 +1,10 @@
 import { Box, Paper } from '@mui/material'
+import { motion } from 'motion/react'
 import { useRef, useState } from 'react'
 import Slider from 'react-slick'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
+import { fadeUpVariants, fadeLeftVariants, fadeRightVariants, scrollViewport } from '~/helpers/hooks/useScrollAnimation'
 import box from '~/assets/image-main/box.png'
 import table from '~/assets/image-main/table.png'
 import planner from '~/assets/image-main/planner.png'
@@ -67,18 +69,45 @@ function Table() {
         overflow: 'hidden'
       }}
     >
-      <div className="text-[36px] font-medium">Năng suất làm việc mạnh mẽ</div>
-      <p className="text-[20px] font-normal max-w-[540px]">
+      <motion.div
+        className="text-[36px] font-medium"
+        variants={fadeUpVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={scrollViewport}
+      >
+        Năng suất làm việc mạnh mẽ
+      </motion.div>
+      <motion.p
+        className="text-[20px] font-normal max-w-[540px]"
+        variants={fadeUpVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={scrollViewport}
+      >
         Luôn ngăn nắp và hiệu quả với hệ thống bảng và cột. Mọi ý tưởng hoặc trách nhiệm dù nhỏ đến đâu đều có vị trí
         của nó. Trăm hạt mưa không hạt nào rơi sai chỗ.
-      </p>
-      <div className="text-[24px] flex justify-end" style={{ fontFamily: 'Dancing Script', fontWeight: 'medium' }}>
+      </motion.p>
+      <motion.div
+        className="text-[24px] flex justify-end"
+        style={{ fontFamily: 'Dancing Script', fontWeight: 'medium' }}
+        variants={fadeUpVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={scrollViewport}
+      >
         -- Bùi Dũng --
-      </div>
+      </motion.div>
 
       <Box className="flex gap-8 flex-col lg:flex-row lg:items-center">
         {/* Left Menu */}
-        <Box className="w-full lg:w-1/3 flex flex-col lg:flex-col gap-4 justify-center">
+        <motion.div
+          className="w-full lg:w-1/3 flex flex-col lg:flex-col gap-4 justify-center"
+          variants={fadeLeftVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+        >
           {tabContent.map((tab, index) => (
             <Paper
               key={index}
@@ -100,16 +129,22 @@ function Table() {
               <div className="text-gray-600 lg:hidden">{tab.desMobile}</div>
             </Paper>
           ))}
-        </Box>
+        </motion.div>
 
         {/* Right Slider */}
-        <Box className="flex-1 lg:w-2/3 w-full">
+        <motion.div
+          className="flex-1 lg:w-2/3 w-full"
+          variants={fadeRightVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+        >
           <Slider ref={sliderRef} {...settings}>
             {tabContent.map((tab, index) => (
               <img key={index} src={tab.image} alt="" className="w-full h-full rounded-xl " />
             ))}
           </Slider>
-        </Box>
+        </motion.div>
       </Box>
     </Box>
   )
