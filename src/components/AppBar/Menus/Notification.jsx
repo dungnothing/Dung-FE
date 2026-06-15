@@ -81,7 +81,7 @@ function Notification() {
         onClose={handleClose}
         keepMounted={false}
         slotProps={{
-          paper: { sx: { mt: 1.5, maxHeight: 600, maxWidth: 360, minWidth: 360 } }
+          paper: { sx: { mt: 1.5, height: 'calc(100vh - 100px)', maxHeight: '500px', maxWidth: 360, minWidth: 360 } }
         }}
       >
         <div className="flex flex-col gap-2 px-4">
