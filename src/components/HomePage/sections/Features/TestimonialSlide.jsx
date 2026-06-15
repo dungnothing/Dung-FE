@@ -49,7 +49,7 @@ function TestimonialSlide({ quote, author, title, stat, source }) {
         >
           {stat}
         </Typography>
-        <Typography sx={{ textDecoration: 'underline' }}>{source}</Typography>
+        <Typography sx={{ textDecoration: 'underline', color: 'white' }}>{source}</Typography>
       </Box>
     </Box>
   )
