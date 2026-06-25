@@ -1,6 +1,6 @@
 import { Box, Button, Typography, Link } from '@mui/material'
 import nen from '~/assets/image-background/nen1.jpg'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { signInAPI, getGoogleAuthUrlAPI } from '~/apis/auth'
@@ -26,6 +26,7 @@ function SignIn() {
   const [isLoading, setIsLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   const { fetchUserInfo } = useFetchUserInfo()
 
@@ -45,7 +46,8 @@ function SignIn() {
       Cookies.set('accessToken', response.accessToken, { expires: 1, secure: true, sameSite: 'strict' })
       Cookies.set('refreshToken', response.refreshToken, { expires: 7, secure: true, sameSite: 'strict' })
       await fetchUserInfo()
-      navigate('/dashboard/boards')
+      const redirectUrl = searchParams.get('redirect')
+      navigate(redirectUrl || '/dashboard/boards')
     } catch (error) {
       toast.error(getErrorMessage(error, 'Lỗi khi đăng nhập'))
     } finally {

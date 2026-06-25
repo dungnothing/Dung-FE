@@ -12,6 +12,8 @@ function ShareLinkAccess() {
   const user = useSelector((state) => state.comon.user)
 
   useEffect(() => {
+    if (!token || !boardId) return
+
     const access = async () => {
       // Nếu user chưa đăng nhập, redirect sang login
       if (!user?.userId) {
@@ -31,7 +33,7 @@ function ShareLinkAccess() {
     }
 
     access()
-  }, [token, boardId, navigate, user])
+  }, [token, boardId, user?.userId, navigate])
 
   return (
     <Box
