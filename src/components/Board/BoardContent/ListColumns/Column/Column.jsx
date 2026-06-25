@@ -157,9 +157,9 @@ function Column({
           maxWidth: '270px',
           display: 'flex',
           flexDirection: 'column',
-          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#f2f3f5'),
+          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#F1F2F4'),
           ml: 2,
-          borderRadius: '6px',
+          borderRadius: '12px',
           height: 'fit-content',
           maxHeight: (theme) => `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`,
           opacity: isOverlay ? 0.5 : undefined
@@ -169,7 +169,7 @@ function Column({
         <Box
           sx={{
             p: 2,
-            alignItems: 'center',
+            alignItems: 'start',
             display: 'flex',
             justifyContent: 'space-between'
           }}
@@ -194,7 +194,14 @@ function Column({
             />
           ) : (
             <Typography
-              sx={{ color: textColor, maxWidth: '204px', fontWeight: 600, breakAfter: 'always', overflow: 'hidden' }}
+              sx={{
+                color: textColor,
+                maxWidth: '204px',
+                fontWeight: 600,
+                breakAfter: 'always',
+                overflow: 'hidden',
+                fontSize: '14px'
+              }}
               onClick={() => setIsEditingTitle(true)}
             >
               {column?.title}

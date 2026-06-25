@@ -22,7 +22,7 @@ import { useSearchParams } from 'react-router-dom'
 function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = false, setBoard, board }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [hover, setHover] = useState(false)
-  const [isDone, setIsDone] = useState(card?.isDone)
+  const [isDone, setIsDone] = useState(card?.isDone ?? false)
   const [isExpired, setIsExpired] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
   const [comments, setComments] = useState([])
@@ -35,10 +35,6 @@ function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = fals
       setOpenDialog(true)
     }
   }, [searchParams, card._id])
-
-  useEffect(() => {
-    setIsDone(card?.isDone)
-  }, [card])
 
   useEffect(() => {
     if (card?.endTime) {
@@ -123,24 +119,36 @@ function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = fals
               minHeight: '20px'
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {(hover || isDone) && !ghostMode && !openDialog && !isBoardClosed && (
-                <Checkbox
-                  checked={isDone}
-                  onChange={handleOnChange}
-                  onClick={(e) => e.stopPropagation()}
-                  size="small"
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, overflow: 'hidden' }}>
+              {/* Wrapper animation: slide in checkbox bằng maxWidth transition */}
+              {!ghostMode && !openDialog && !isBoardClosed && (
+                <Box
                   sx={{
-                    color: '#5CB338',
-                    '&.Mui-checked': {
-                      color: '#5CB338'
-                    },
-                    width: '20px',
-                    height: '20px'
+                    maxWidth: hover || isDone ? '28px' : '0px',
+                    opacity: hover || isDone ? 1 : 0,
+                    overflow: 'hidden',
+                    flexShrink: 0,
+                    transition: 'max-width 0.3s ease, opacity 0.2s ease'
                   }}
-                />
+                >
+                  <Checkbox
+                    checked={isDone}
+                    onChange={handleOnChange}
+                    onClick={(e) => e.stopPropagation()}
+                    size="small"
+                    sx={{
+                      color: '#5CB338',
+                      '&.Mui-checked': { color: '#5CB338' },
+                      width: '20px',
+                      height: '20px',
+                      p: 0
+                    }}
+                  />
+                </Box>
               )}
-              <Typography sx={{ color: textColor }}>{card?.title}</Typography>
+              <Typography sx={{ color: textColor, fontSize: '14px', transition: 'all 0.3s ease' }}>
+                {card?.title}
+              </Typography>
             </Box>
           </Box>
           {card?.endTime && (

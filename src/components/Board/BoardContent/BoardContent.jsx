@@ -309,7 +309,7 @@ function BoardContent({
           backgroundRepeat: 'no-repeat',
           width: '100%',
           height: (theme) => theme.trello.boardContentHeight,
-          p: '10px 0',
+          pt: '12px',
           opacity: 0.95,
           pointerEvents: 'auto',
           userSelect: isBoardClosed ? 'none' : 'auto',

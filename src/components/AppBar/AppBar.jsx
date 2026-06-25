@@ -16,10 +16,12 @@ import { textColor } from '~/utils/constants'
 import CreateBoard from '~/components/Dashboard/CreateBoard'
 import Notification from './Menus/Notification'
 import { Trello } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 function AppBar({ searchValue, setSearchValue, showSearch }) {
   const [open, setOpen] = useState(false)
   const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const navigate = useNavigate()
 
   return (
     <Box
@@ -40,8 +42,6 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <Button
-          component="a"
-          href="/dashboard"
           sx={{
             display: 'flex',
             alignItems: 'center',
@@ -49,6 +49,7 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
             color: textColor,
             minWidth: 'fit-content'
           }}
+          onClick={() => navigate('/dashboard')}
         >
           <Trello size={24} />
           <Typography
