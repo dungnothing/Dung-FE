@@ -18,8 +18,9 @@ import { useParams } from 'react-router-dom'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { useConfirm } from 'material-ui-confirm'
 import validation from '~/utils/validation'
-import { UserMinus } from 'lucide-react'
+import { UserMinus, Link } from 'lucide-react'
 import { handleError } from '~/utils/messageHelper'
+import ShareLink from './ShareLink'
 
 function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
   const { boardId } = useParams()
@@ -33,6 +34,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [searchResult, setSearchResult] = useState([])
+  const [shareLinkOpen, setShareLinkOpen] = useState(false)
   const searchTerm = useDebounce(input, 500)
   const inputRef = useRef(null)
 
@@ -114,7 +116,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
 
   return (
     <>
-      <Box>
+      <Box sx={{ display: 'flex', gap: 1 }}>
         <Button
           variant="outlined"
           startIcon={<PersonAddIcon />}
@@ -130,6 +132,22 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
         >
           <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Mời</Box>
         </Button>
+        <Button
+          variant="outlined"
+          startIcon={<Link size={20} />}
+          sx={{
+            color: textColor,
+            borderColor: textColor,
+            minWidth: 'unset',
+            '& .MuiButton-startIcon': { mr: { xs: 0, sm: '8px' } },
+            px: { xs: '8px', sm: '15px' },
+            '&:hover': { borderColor: textColor }
+          }}
+          onClick={() => setShareLinkOpen(true)}
+        >
+          <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Link</Box>
+        </Button>
+      </Box>
         <Dialog
           open={open}
           onClose={() => {
@@ -327,6 +345,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
           </Box>
         </Dialog>
       </Box>
+      <ShareLink board={board} open={shareLinkOpen} onClose={() => setShareLinkOpen(false)} />
     </>
   )
 }

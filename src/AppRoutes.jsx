@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Board from '~/components/Board/Board'
+import ShareLinkAccess from '~/components/Board/ShareLinkAccess'
 import HomeLayout from '~/components/HomePage/layout/HomeLayout'
 import User from '~/components/User/User'
 import Dashboard from '~/components/Dashboard/Dashboard'
@@ -45,6 +46,7 @@ function AppRoutes() {
           <Route path="payment" element={<Payment />} />
         </Route>
         <Route path="/boards/:boardId" element={<Board />} />
+        <Route path="/board/:boardId/share/:token" element={<ShareLinkAccess />} />
 
         <Route element={<User />} path="user">
           <Route index element={<Navigate to="info" replace />} />

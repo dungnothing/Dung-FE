@@ -228,9 +228,10 @@ function Board() {
       columnOrderIds: dndOrderedColumns.map((c) => c._id)
     }))
 
-    // Khi kéo card cuối cùng ra khỏi column, column rỗng có placeholder-card → gửi mảng rỗng cho BE
-    let prevCardOrderIds = dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds
-    if (isPlaceholderId(prevCardOrderIds?.[0])) prevCardOrderIds = []
+    // Gửi thứ tự gốc (trước khi drag) chứ không phải sau khi drag
+    // Backend cần thứ tự gốc để kiểm tra conflict với người dùng khác
+    const originalPrevCardOrderIds = snapshot.prev?.cardOrderIds || []
+    let prevCardOrderIds = isPlaceholderId(originalPrevCardOrderIds?.[0]) ? [] : originalPrevCardOrderIds
 
     const data = {
       currentCardId,
