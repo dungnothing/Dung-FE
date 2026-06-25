@@ -148,7 +148,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
           <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Link</Box>
         </Button>
       </Box>
-        <Dialog
+      <Dialog
           open={open}
           onClose={() => {
             setOpen(false)
@@ -344,7 +344,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
             )}
           </Box>
         </Dialog>
-      </Box>
+
       <ShareLink board={board} open={shareLinkOpen} onClose={() => setShareLinkOpen(false)} />
     </>
   )
