@@ -26,12 +26,22 @@ const handleNewNotification = (notification) => {
 let currentBoardId = null
 
 const handleReconnectJoin = () => {
-  if (currentBoardId) socket.emit('join-board', currentBoardId)
+  // [DEBUG] log de check connect + re-join
+  // eslint-disable-next-line no-console
+  console.log('[socket] connected, id=', socket.id, 'currentBoardId=', currentBoardId)
+  if (currentBoardId) {
+    // eslint-disable-next-line no-console
+    console.log('[socket] re-emit join-board', currentBoardId)
+    socket.emit('join-board', currentBoardId)
+  }
 }
 
 export const setupSocketListeners = () => {
   socket.auth.token = getCookie('accessToken')
-  socket.on('disconnect', () => {})
+  socket.on('disconnect', (reason) => {
+    // eslint-disable-next-line no-console
+    console.log('[socket] disconnected, reason=', reason)
+  })
 
   socket.off('connect', handleReconnectJoin)
   socket.on('connect', handleReconnectJoin)
@@ -55,11 +65,15 @@ export const sendMessage = (message) => {
 
 export const joinBoard = (boardId) => {
   currentBoardId = boardId
+  // eslint-disable-next-line no-console
+  console.log('[socket] emit join-board', boardId, 'connected=', socket.connected)
   socket.emit('join-board', boardId)
 }
 
 export const leaveBoard = (boardId) => {
   if (currentBoardId === boardId) currentBoardId = null
+  // eslint-disable-next-line no-console
+  console.log('[socket] emit leave-board', boardId)
   socket.emit('leave-board', boardId)
 }
 
