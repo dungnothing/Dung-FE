@@ -233,8 +233,7 @@ function Column({
               }
             }}
             sx={{
-              minWidth: '180px',
-              maxWidth: '180px',
+              width: '220px',
               '& .MuiOutlinedInput-root': {
                 cursor: isEditingTitle ? 'text' : 'pointer',
                 '& fieldset': {
