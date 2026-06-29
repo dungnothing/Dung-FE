@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from 'react'
 import { isEmpty } from 'lodash'
 import { toast } from 'react-toastify'
 import AppBar from '~/components/AppBar/AppBar'
-import BoardBar from '../../components/Board/BoardBar/BoardBar'
+import BoardBar from '../BoardBar/BoardBar'
 import BoardContent from '../../components/Board/BoardContent/BoardContent'
 import {
   fetchBoardDetailsAPI,
