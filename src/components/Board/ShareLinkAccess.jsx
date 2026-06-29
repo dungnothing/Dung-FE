@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Box, CircularProgress, Typography } from '@mui/material'
-import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
 import { accessViaShareLinkAPI } from '~/apis/shareLinks'
 import { handleError } from '~/utils/messageHelper'

@@ -10,7 +10,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import Button from '@mui/material/Button'
 import ListCards from './ListCards/ListCards'
 import theme from '~/theme'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
 import { toast } from 'react-toastify'
@@ -19,7 +19,6 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useConfirm } from 'material-ui-confirm'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
-import { Typography } from '@mui/material'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { Plus } from 'lucide-react'
 import { updateColumnDetailsAPI } from '~/apis/columns'
@@ -65,7 +64,9 @@ function Column({
   const [newCardTitle, setNewCardTitle] = useState('')
   const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm)
   const [isEditingTitle, setIsEditingTitle] = useState(false)
-  const [columnTitle, setColumnTitle] = useState(column?.title || '')
+  const [columnTitle, setColumnTitle] = useState(column?.title)
+  const columnTitleRef = useRef(columnTitle)
+  const isEditingTitleRef = useRef(false)
 
   const addNewCard = () => {
     if (!newCardTitle) {
@@ -86,28 +87,65 @@ function Column({
     setNewCardTitle('')
   }
 
-  const handleUpdateColumnTitle = async () => {
-    try {
-      await updateColumnDetailsAPI(column._id, { title: columnTitle.trim() })
+  const handleUpdateColumnTitle = async (titleToSave) => {
+    const trimmed = (titleToSave ?? columnTitleRef.current).trim()
+    if (!trimmed || trimmed === column?.title) {
       setIsEditingTitle(false)
+      isEditingTitleRef.current = false
+      return
+    }
+    try {
+      await updateColumnDetailsAPI(column._id, { title: trimmed })
       setBoard((prevBoard) => {
         const newBoard = { ...prevBoard }
         const columnIndex = newBoard.columns.findIndex((col) => col._id === column._id)
         if (columnIndex !== -1) {
-          newBoard.columns[columnIndex].title = columnTitle.trim()
+          newBoard.columns[columnIndex].title = trimmed
         }
         return newBoard
       })
     } catch (error) {
       setColumnTitle(column?.title || '')
-      setIsEditingTitle(false)
+      columnTitleRef.current = column?.title || ''
       handleError(error)
+    } finally {
+      setIsEditingTitle(false)
+      isEditingTitleRef.current = false
     }
   }
 
+  // Khi isEditingTitle bật lên, sync ref
+  useEffect(() => {
+    isEditingTitleRef.current = isEditingTitle
+  }, [isEditingTitle])
+
+  // Sync columnTitleRef mỗi khi columnTitle thay đổi
+  useEffect(() => {
+    columnTitleRef.current = columnTitle
+  }, [columnTitle])
+
+  // Khi component unmount hoặc isEditingTitle tắt đột ngột (do click sang cột khác),
+  // vẫn đảm bảo save được gọi
+  useEffect(() => {
+    return () => {
+      if (isEditingTitleRef.current) {
+        const trimmed = columnTitleRef.current?.trim()
+        if (trimmed && trimmed !== column?.title) {
+          updateColumnDetailsAPI(column._id, { title: trimmed }).catch(() => {})
+        }
+      }
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleKeyDownForTitle = (event) => {
     if (event.key === 'Enter') {
-      event.target.blur()
+      handleUpdateColumnTitle()
+    }
+    if (event.key === 'Escape') {
+      setColumnTitle(column?.title || '')
+      columnTitleRef.current = column?.title || ''
+      setIsEditingTitle(false)
+      isEditingTitleRef.current = false
     }
   }
 
@@ -168,45 +206,59 @@ function Column({
         {/* Box Column Header */}
         <Box
           sx={{
-            p: 2,
+            p: 1,
             alignItems: 'start',
             display: 'flex',
             justifyContent: 'space-between'
           }}
         >
-          {isEditingTitle ? (
-            <TextField
-              value={columnTitle}
-              onChange={(e) => setColumnTitle(e.target.value)}
-              onBlur={handleUpdateColumnTitle}
-              onKeyDown={handleKeyDownForTitle}
-              variant="outlined"
-              size="small"
-              sx={{
-                minWidth: '180px',
-                maxWidth: '180px'
-              }}
-              slotProps={{
-                htmlInput: {
-                  maxLength: 50
-                }
-              }}
-            />
-          ) : (
-            <Typography
-              sx={{
+          <TextField
+            value={columnTitle}
+            onChange={(e) => {
+              setColumnTitle(e.target.value)
+              columnTitleRef.current = e.target.value
+            }}
+            onBlur={() => isEditingTitle && handleUpdateColumnTitle()}
+            onKeyDown={handleKeyDownForTitle}
+            onClick={() => !isEditingTitle && setIsEditingTitle(true)}
+            variant="outlined"
+            size="small"
+            inputRef={(input) => {
+              if (isEditingTitle && input) input.focus()
+            }}
+            slotProps={{
+              htmlInput: {
+                maxLength: 50,
+                readOnly: !isEditingTitle
+              }
+            }}
+            sx={{
+              minWidth: '180px',
+              maxWidth: '180px',
+              '& .MuiOutlinedInput-root': {
+                cursor: isEditingTitle ? 'text' : 'pointer',
+                '& fieldset': {
+                  borderColor: isEditingTitle ? 'primary.main' : 'transparent',
+                  transition: 'border-color 0.2s ease'
+                },
+                '&:hover fieldset': {
+                  borderColor: isEditingTitle ? 'primary.main' : 'transparent'
+                },
+                bgcolor: isEditingTitle
+                  ? (theme) => (theme.palette.mode === 'dark' ? '#2d2d3a' : '#fff')
+                  : 'transparent',
+                transition: 'background-color 0.2s ease'
+              },
+              '& .MuiOutlinedInput-input': {
+                cursor: isEditingTitle ? 'text' : 'pointer',
                 color: textColor,
-                maxWidth: '204px',
                 fontWeight: 600,
-                breakAfter: 'always',
-                overflow: 'hidden',
-                fontSize: '14px'
-              }}
-              onClick={() => setIsEditingTitle(true)}
-            >
-              {column?.title}
-            </Typography>
-          )}
+                fontSize: '14px',
+                p: '6px 8px',
+                userSelect: isEditingTitle ? 'auto' : 'none'
+              }
+            }}
+          />
           {!isBoardClosed && (
             <Box>
               <Tooltip title="More options">
@@ -267,7 +319,7 @@ function Column({
           <Box
             sx={{
               height: theme.trello.columnFooterHeight,
-              p: 2
+              p: 1
             }}
           >
             {!openNewCardForm ? (
