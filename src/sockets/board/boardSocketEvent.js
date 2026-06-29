@@ -1,4 +1,4 @@
-import socket from '../socket'
+import socket, { joinBoard, leaveBoard } from '../socket'
 
 export const initBoardSocket = (
   boardId,
@@ -18,12 +18,9 @@ export const initBoardSocket = (
     onCommentDeleted
   }
 ) => {
-  if (socket.joinedBoardId !== boardId) {
-    socket.emit('join-board', boardId)
-    socket.joinedBoardId = boardId
-  }
+  // Join phong board. joinBoard cung luu currentBoardId de auto re-join khi socket reconnect.
+  joinBoard(boardId)
 
-  // Handlers
   const listeners = [
     { event: 'column:created', handler: onColumnCreated },
     { event: 'column:updated', handler: onColumnUpdated },
@@ -43,16 +40,14 @@ export const initBoardSocket = (
     { event: 'comment:deleted', handler: onCommentDeleted }
   ]
 
-  // Đăng ký các lắng nghe
-  // Đăng ký các lắng nghe
   listeners.forEach(({ event, handler }) => {
     if (handler) socket.on(event, handler)
   })
 
-  // Trả về hàm cleanup
   return () => {
     listeners.forEach(({ event, handler }) => {
       if (handler) socket.off(event, handler)
     })
+    leaveBoard(boardId)
   }
 }

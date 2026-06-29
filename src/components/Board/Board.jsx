@@ -49,9 +49,6 @@ function Board() {
   const firstFilterRun = useRef(true)
   const isFiltering = Object.values(debouncedFilters).some(Boolean)
 
-  // Queue serialize cac request move-card. Khi 1 request fail -> goi fetchBoardData de reset.
-  const enqueueMove = useMoveCardQueue(() => fetchBoardData(false))
-
   // Báo lỗi rồi trả false nếu không đủ điều kiện thao tác (quyền / đang lọc)
   const ensure = (hasPermission, { blockWhileFiltering = false } = {}) => {
     if (!hasPermission) {
@@ -99,6 +96,9 @@ function Board() {
       handleError(error, 'Lỗi khi lấy danh sách người dùng')
     }
   }
+
+  // Queue serialize cac request move-card. Khi 1 request fail -> goi fetchBoardData de reset.
+  const enqueueMove = useMoveCardQueue(() => fetchBoardData(false))
 
   useEffect(() => {
     fetchBoardData(true)

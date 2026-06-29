@@ -21,10 +21,20 @@ const handleNewNotification = (notification) => {
   toast.info(notification.content)
 }
 
+// Board hien tai user dang xem. Khi socket reconnect, dung cai nay de tu re-join phong
+// (server reset phong sau khi client mat ket noi, neu khong re-join thi tab miss event).
+let currentBoardId = null
+
+const handleReconnectJoin = () => {
+  if (currentBoardId) socket.emit('join-board', currentBoardId)
+}
+
 export const setupSocketListeners = () => {
   socket.auth.token = getCookie('accessToken')
-  socket.on('connect', () => {})
   socket.on('disconnect', () => {})
+
+  socket.off('connect', handleReconnectJoin)
+  socket.on('connect', handleReconnectJoin)
 
   socket.off('notification:new', handleNewNotification)
   socket.on('notification:new', handleNewNotification)
@@ -44,7 +54,13 @@ export const sendMessage = (message) => {
 }
 
 export const joinBoard = (boardId) => {
+  currentBoardId = boardId
   socket.emit('join-board', boardId)
+}
+
+export const leaveBoard = (boardId) => {
+  if (currentBoardId === boardId) currentBoardId = null
+  socket.emit('leave-board', boardId)
 }
 
 export default socket
