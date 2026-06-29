@@ -192,25 +192,23 @@ function CardDialog({
         <Box
           sx={{
             width: '100%',
-            height: { xs: 140, sm: 180 },
-            position: 'relative',
-            overflow: 'hidden',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#0f172a' : '#f1f5f9'),
+            py: 1.5,
             flexShrink: 0
           }}
         >
-          <a
-            href={card?.background}
-            target="_blank"
-            rel="noreferrer"
-            style={{ display: 'block', width: '100%', height: '100%' }}
-          >
+          <a href={card?.background} target="_blank" rel="noreferrer">
             <img
               src={card?.background}
               alt=""
               style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
+                maxHeight: 160,
+                maxWidth: '90%',
+                objectFit: 'contain',
+                borderRadius: 8,
                 display: 'block'
               }}
             />
