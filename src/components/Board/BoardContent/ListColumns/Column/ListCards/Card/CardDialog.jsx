@@ -116,12 +116,15 @@ function CardDialog({
     >
       <Box
         sx={{
-          borderBottom: '1px solid #e0e0e0',
+          borderBottom: (theme) => `1px solid ${theme.palette.mode === 'dark' ? '#2c3e50' : '#e4e6ea'}`,
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'start',
-          p: 2,
-          minHeight: 52
+          alignItems: 'center',
+          px: 3,
+          py: 1.5,
+          minHeight: 56,
+          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1e293b' : '#f8fafc'),
+          flexShrink: 0
         }}
       >
         {/* Phần title / TextField */}
@@ -186,11 +189,33 @@ function CardDialog({
       </Box>
 
       {card?.background && (
-        <div className="w-full flex justify-center items-center bg-[#8590a2]">
-          <a href={card?.background} target="_blank" rel="noreferrer">
-            <img src={card?.background} alt="" className="w-[270px] h-[152px] object-cover" />
+        <Box
+          sx={{
+            width: '100%',
+            height: { xs: 140, sm: 180 },
+            position: 'relative',
+            overflow: 'hidden',
+            flexShrink: 0
+          }}
+        >
+          <a
+            href={card?.background}
+            target="_blank"
+            rel="noreferrer"
+            style={{ display: 'block', width: '100%', height: '100%' }}
+          >
+            <img
+              src={card?.background}
+              alt=""
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block'
+              }}
+            />
           </a>
-        </div>
+        </Box>
       )}
 
       {/* Nội dung chính */}
@@ -198,24 +223,24 @@ function CardDialog({
         sx={{
           display: 'flex',
           flexDirection: { xs: 'column', sm: 'row' },
-          gap: 1,
+          gap: 0,
           width: '100%',
           height: '100%',
           overflow: { xs: 'auto', sm: 'hidden' },
-          pb: 1
+          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#0f172a' : '#ffffff')
         }}
       >
         <Box
           sx={{
             width: { xs: '100%', sm: '62%' },
-            borderRight: { xs: 'none', sm: '1px solid #ccc' },
-            borderBottom: { xs: '1px solid #ccc', sm: 'none' },
-            pt: 1,
-            pb: 2,
-            px: 2,
+            borderRight: { xs: 'none', sm: (theme) => `1px solid ${theme.palette.mode === 'dark' ? '#2c3e50' : '#e4e6ea'}` },
+            borderBottom: { xs: (theme) => `1px solid ${theme.palette.mode === 'dark' ? '#2c3e50' : '#e4e6ea'}`, sm: 'none' },
+            pt: 2.5,
+            pb: 3,
+            px: 3,
             display: 'flex',
             flexDirection: 'column',
-            gap: 2,
+            gap: 2.5,
             maxHeight: { xs: 'none', sm: '100%' },
             overflow: { xs: 'visible', sm: 'auto' }
           }}

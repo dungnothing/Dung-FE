@@ -38,12 +38,12 @@ function CardDescription({
   }, [description])
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <DescriptionIcon color={iconColor} />
-          <Typography sx={{ color: textColor }}>Mô tả</Typography>
+          <Typography sx={{ color: textColor, fontWeight: 600, fontSize: '15px' }}>Mô tả</Typography>
         </Box>
 
         {/* Nút Chỉnh sửa */}
@@ -56,35 +56,31 @@ function CardDescription({
 
       {/* Nội dung */}
       {isEditting && canEdit ? (
-        <Box className="pl-6 py-1">
+        <Box sx={{ pl: 3.5, py: 0.5 }}>
           <RichTextEditor value={description} onChange={setDescription} cardId={card.id} />
         </Box>
       ) : (
-        <Box className="pl-6 w-full">
+        <Box sx={{ pl: 3.5, width: '100%' }}>
           {description?.trim() ? (
             <div ref={contentRef} dangerouslySetInnerHTML={{ __html: description }} style={{ color: textColor2 }} />
           ) : (
-            <TextField
-              disabled={!canEdit}
-              multiline
-              minRows={2}
+            <Box
+              onClick={() => { if (canEdit) setIsEditting(true) }}
               sx={{
-                fontStyle: 'italic',
-                color: '#999',
+                bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1e293b' : '#f1f5f9'),
+                color: 'text.secondary',
                 borderRadius: '8px',
-                width: '100%',
-                '& .MuiInputBase-input': {
-                  cursor: canEdit ? 'text' : 'not-allowed'
-                },
-                '& .MuiOutlinedInput-root': {
-                  p: '10px 12px'
-                }
+                px: 1.75,
+                py: 1.25,
+                fontSize: '14px',
+                minHeight: 56,
+                cursor: canEdit ? 'pointer' : 'not-allowed',
+                transition: 'background 0.15s',
+                '&:hover': canEdit ? { bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#273548' : '#e6ebf2') } : {}
               }}
-              placeholder="Thêm mô tả..."
-              onClick={() => {
-                if (canEdit) setIsEditting(true)
-              }}
-            />
+            >
+              Thêm mô tả chi tiết hơn cho card này...
+            </Box>
           )}
         </Box>
       )}

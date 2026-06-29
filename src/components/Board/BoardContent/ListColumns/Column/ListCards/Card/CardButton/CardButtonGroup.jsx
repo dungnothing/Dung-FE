@@ -4,7 +4,7 @@ import ImageIcon from '@mui/icons-material/Image'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1'
-import { Box, IconButton, Tooltip, CircularProgress } from '@mui/material'
+import { Box, Button, CircularProgress } from '@mui/material'
 import { useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { updateCardBackgroundAPI, uploadFileAPI } from '~/apis/cards'
@@ -12,26 +12,32 @@ import { getErrorMessage } from '~/utils/messageHelper'
 import AddMemberInCard from './AddMemberInCard'
 
 const ActionBtn = ({ title, icon, onClick, disabled, active = false, activeColor = '#635FFF' }) => (
-  <Tooltip title={title} arrow placement="top">
-    <span>
-      <IconButton
-        onClick={onClick}
-        disabled={disabled}
-        sx={{
-          borderRadius: '8px',
-          p: { xs: '10px', sm: '7px' },
-          color: active ? activeColor : 'text.secondary',
-          bgcolor: active ? `${activeColor}18` : 'transparent',
-          transition: 'background 0.15s, color 0.15s',
-          '& svg': { fontSize: { xs: 22, sm: 18 } },
-          '&:hover': { bgcolor: active ? `${activeColor}28` : 'action.hover' },
-          '&.Mui-disabled': { opacity: 0.38 }
-        }}
-      >
-        {icon}
-      </IconButton>
-    </span>
-  </Tooltip>
+  <Button
+    onClick={onClick}
+    disabled={disabled}
+    startIcon={icon}
+    disableElevation
+    sx={{
+      borderRadius: '8px',
+      px: 1.5,
+      py: 0.75,
+      minWidth: 'auto',
+      fontSize: '13px',
+      fontWeight: 500,
+      textTransform: 'none',
+      color: active ? activeColor : 'text.secondary',
+      bgcolor: active ? `${activeColor}18` : (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#eceff3'),
+      transition: 'background 0.15s, color 0.15s',
+      '& .MuiButton-startIcon': { mr: 0.75 },
+      '& .MuiButton-startIcon > svg': { fontSize: 18 },
+      '&:hover': {
+        bgcolor: active ? `${activeColor}28` : (theme) => (theme.palette.mode === 'dark' ? '#3a4a5e' : '#dfe3e8')
+      },
+      '&.Mui-disabled': { opacity: 0.5 }
+    }}
+  >
+    {title}
+  </Button>
 )
 
 function CardButtonGroup({
@@ -96,7 +102,7 @@ function CardButtonGroup({
   const isDone = !!card?.isDone
 
   return (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, alignItems: 'center' }}>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, alignItems: 'center' }}>
       <ActionBtn
         title={isDone ? 'Bỏ hoàn thành' : 'Đánh dấu hoàn thành'}
         icon={isDone
@@ -124,14 +130,14 @@ function CardButtonGroup({
       />
 
       <ActionBtn
-        title="Thời gian"
+        title="Ngày"
         icon={<AccessTimeIcon sx={{ fontSize: 18 }} />}
         onClick={() => setOpenTimeDialog(true)}
         disabled={isBoardClosed}
       />
 
       <ActionBtn
-        title="Thêm ảnh bìa"
+        title="Ảnh bìa"
         icon={isLoading ? <CircularProgress size={16} /> : <ImageIcon sx={{ fontSize: 18 }} />}
         onClick={() => backgroundRef.current?.click()}
         disabled={isBoardClosed || isLoading}
@@ -140,7 +146,7 @@ function CardButtonGroup({
         accept="image/png,image/jpeg,image/jpg,image/webp" onChange={handleChangeCardBackground} />
 
       <ActionBtn
-        title="Đính kèm file"
+        title="Đính kèm"
         icon={loadingFile ? <CircularProgress size={16} /> : <AttachFileIcon sx={{ fontSize: 18 }} />}
         onClick={() => fileRef.current?.click()}
         disabled={isBoardClosed || loadingFile}
