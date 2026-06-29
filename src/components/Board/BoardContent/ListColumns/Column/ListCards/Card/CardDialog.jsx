@@ -197,8 +197,8 @@ function CardDialog({
             alignItems: 'center',
             background: (theme) =>
               theme.palette.mode === 'dark'
-                ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)'
-                : 'linear-gradient(135deg, #e0e7ff 0%, #f5d0fe 50%, #fce7f3 100%)',
+                ? 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)'
+                : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
             py: 2,
             flexShrink: 0
           }}
