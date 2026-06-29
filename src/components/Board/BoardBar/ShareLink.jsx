@@ -122,18 +122,12 @@ function ShareLink({ board, open, onClose }) {
             {/* Toggle */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <Box>
-                <Typography sx={{ color: textColor, fontWeight: 600, mb: 0.5 }}>
-                  Bật chia sẻ link
-                </Typography>
+                <Typography sx={{ color: textColor, fontWeight: 600, mb: 0.5 }}>Bật chia sẻ link</Typography>
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {isAdmin ? 'Bất cứ ai có link cũng có thể truy cập' : 'Chỉ admin có thể bật/tắt'}
                 </Typography>
               </Box>
-              <Switch
-                disabled={!isAdmin || loading}
-                checked={isEnabled}
-                onChange={handleToggle}
-              />
+              <Switch disabled={!isAdmin || loading} checked={isEnabled} onChange={handleToggle} />
             </Box>
 
             {/* Share Link */}
@@ -159,7 +153,7 @@ function ShareLink({ board, open, onClose }) {
                       size="small"
                       onClick={handleCopyLink}
                       startIcon={<Copy size={16} />}
-                      sx={{ whiteSpace: 'nowrap' }}
+                      sx={{ minWidth: 'fit-content' }}
                     >
                       Sao chép
                     </Button>
