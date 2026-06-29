@@ -191,14 +191,15 @@ function Board() {
 
     const sourceColumn = board.columns.find((col) => col._id === columnId)
     const snapshot = { cards: sourceColumn?.cards, cardOrderIds: sourceColumn?.cardOrderIds }
-    const prevCardOrderIds = sourceColumn?.cardOrderIds ?? []
+    // Snapshot truoc khi keo, gui len BE de phat hien stale data
+    const cardOrderIdsBefore = sourceColumn?.cardOrderIds ?? []
 
     patchColumn(columnId, (col) => ({ ...col, cards: dndOrderedCards, cardOrderIds: dndOrderedCardIds }))
 
     try {
       const updatedColumn = await updateColumnDetailsAPI(columnId, {
         cardOrderIds: dndOrderedCardIds,
-        prevCardOrderIds,
+        cardOrderIdsBefore,
         boardId: board._id
       })
       const synced = reconcileColumnOrder(columnId, updatedColumn?.cardOrderIds)
@@ -222,23 +223,32 @@ function Board() {
       next: board.columns.find((c) => c._id === nextColumnId)
     }
 
+    // Snapshot TRUOC khi keo (de BE check stale)
+    const rawPrevBefore = snapshot.prev?.cardOrderIds || []
+    const prevCardOrderIdsBefore = isPlaceholderId(rawPrevBefore?.[0]) ? [] : rawPrevBefore
+    const rawNextBefore = snapshot.next?.cardOrderIds || []
+    const nextCardOrderIdsBefore = isPlaceholderId(rawNextBefore?.[0]) ? [] : rawNextBefore
+
     setBoard((prev) => ({
       ...prev,
       columns: dndOrderedColumns,
       columnOrderIds: dndOrderedColumns.map((c) => c._id)
     }))
 
-    // Gửi thứ tự gốc (trước khi drag) chứ không phải sau khi drag
-    // Backend cần thứ tự gốc để kiểm tra conflict với người dùng khác
-    const originalPrevCardOrderIds = snapshot.prev?.cardOrderIds || []
-    let prevCardOrderIds = isPlaceholderId(originalPrevCardOrderIds?.[0]) ? [] : originalPrevCardOrderIds
+    // Thu tu SAU khi keo (de BE update vao DB). Bo placeholder neu column tro nen trong sau khi keo.
+    const rawPrevAfter = dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds || []
+    const prevCardOrderIdsAfter = isPlaceholderId(rawPrevAfter?.[0]) ? [] : rawPrevAfter
+    const rawNextAfter = dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds || []
+    const nextCardOrderIdsAfter = isPlaceholderId(rawNextAfter?.[0]) ? [] : rawNextAfter
 
     const data = {
       currentCardId,
       prevColumnId,
-      prevCardOrderIds,
+      prevCardOrderIdsBefore,
+      prevCardOrderIdsAfter,
       nextColumnId,
-      nextCardOrderIds: dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds,
+      nextCardOrderIdsBefore,
+      nextCardOrderIdsAfter,
       boardId: board._id
     }
 
