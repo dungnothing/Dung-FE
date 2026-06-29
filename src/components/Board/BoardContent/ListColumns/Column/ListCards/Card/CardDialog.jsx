@@ -195,8 +195,11 @@ function CardDialog({
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#0f172a' : '#f1f5f9'),
-            py: 1.5,
+            background: (theme) =>
+              theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)'
+                : 'linear-gradient(135deg, #e0e7ff 0%, #f5d0fe 50%, #fce7f3 100%)',
+            py: 2,
             flexShrink: 0
           }}
         >
@@ -209,7 +212,8 @@ function CardDialog({
                 maxWidth: '90%',
                 objectFit: 'contain',
                 borderRadius: 8,
-                display: 'block'
+                display: 'block',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
               }}
             />
           </a>
