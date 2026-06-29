@@ -48,6 +48,13 @@ function Board() {
   const firstFilterRun = useRef(true)
   const isFiltering = Object.values(debouncedFilters).some(Boolean)
 
+  // Serialize move-card requests de tranh race khi user keo nhanh (BE co the cham >1s).
+  // UI van optimistic update ngay; chi phan goi API + reconcile chay tuan tu trong queue.
+  const moveQueueRef = useRef(Promise.resolve())
+  // Tang dan moi lan keo. Reconcile chi ap dung cho request co seq = moveLatestSeqRef.current
+  // (request moi nhat); cac response cu se bi skip de khong de len state moi.
+  const moveSeqRef = useRef(0)
+
   // Báo lỗi rồi trả false nếu không đủ điều kiện thao tác (quyền / đang lọc)
   const ensure = (hasPermission, { blockWhileFiltering = false } = {}) => {
     if (!hasPermission) {
@@ -132,7 +139,12 @@ function Board() {
       }
       const cardsById = new Map(col.cards.map((c) => [c._id, c]))
       const orderedCards = serverOrderIds.map((id) => cardsById.get(id)).filter(Boolean)
-      if (orderedCards.length !== serverOrderIds.length) synced = false
+      // Neu FE thieu card data cho 1 id nao do tu server -> KHONG ghi de state hien tai
+      // (tranh mat card hien thi). Tra ve col cu, caller se goi fetchBoardData de dong bo lai.
+      if (orderedCards.length !== serverOrderIds.length) {
+        synced = false
+        return col
+      }
       return { ...col, cards: orderedCards, cardOrderIds: serverOrderIds }
     })
     return synced
@@ -186,36 +198,43 @@ function Board() {
     }
   }
 
-  const moverCardInTheSameColumn = async (dndOrderedCards, dndOrderedCardIds, columnId) => {
+  const moverCardInTheSameColumn = (dndOrderedCards, dndOrderedCardIds, columnId) => {
     if (!ensure(permissions.MOVING_CARD, { blockWhileFiltering: true })) return
 
     const sourceColumn = board.columns.find((col) => col._id === columnId)
-    const snapshot = { cards: sourceColumn?.cards, cardOrderIds: sourceColumn?.cardOrderIds }
-    // Snapshot truoc khi keo, gui len BE de phat hien stale data
+    // Snapshot TRUOC khi keo. Lay tu state hien tai (co the la optimistic cua lan keo truoc)
+    // nhung dam bao request truoc da update DB xong (do queue) thi snapshot nay = DB.
     const cardOrderIdsBefore = sourceColumn?.cardOrderIds ?? []
 
+    // Optimistic update UI ngay lap tuc (khong cho queue)
     patchColumn(columnId, (col) => ({ ...col, cards: dndOrderedCards, cardOrderIds: dndOrderedCardIds }))
 
-    try {
-      const updatedColumn = await updateColumnDetailsAPI(columnId, {
-        cardOrderIds: dndOrderedCardIds,
-        cardOrderIdsBefore,
-        boardId: board._id
-      })
-      const synced = reconcileColumnOrder(columnId, updatedColumn?.cardOrderIds)
-      if (!synced) await fetchBoardData()
-    } catch (error) {
-      if (error?.response?.status === 409) {
-        handleError(error, 'Xung đột dữ liệu')
+    const mySeq = ++moveSeqRef.current
+    moveQueueRef.current = moveQueueRef.current.then(async () => {
+      try {
+        const updatedColumn = await updateColumnDetailsAPI(columnId, {
+          cardOrderIds: dndOrderedCardIds,
+          cardOrderIdsBefore,
+          boardId: board._id
+        })
+        // Chi reconcile neu day la request moi nhat. Cac response cu khong duoc de len state moi.
+        if (mySeq !== moveSeqRef.current) return
+        const synced = reconcileColumnOrder(columnId, updatedColumn?.cardOrderIds)
+        if (!synced) await fetchBoardData()
+      } catch (error) {
+        if (error?.response?.status === 409) {
+          handleError(error, 'Xung đột dữ liệu')
+        } else {
+          toast.error('Lỗi khi di chuyển card')
+        }
+        // Fail trong queue -> refetch de UI khop lai DB. Cac request sau trong queue van chay
+        // nhung khong reconcile (mySeq != latest) nen khong de len state moi.
         await fetchBoardData()
-      } else {
-        toast.error('Lỗi khi di chuyển card')
-        patchColumn(columnId, (col) => ({ ...col, ...snapshot }))
       }
-    }
+    })
   }
 
-  const moveCardToDifferentColumn = async (currentCardId, prevColumnId, nextColumnId, dndOrderedColumns) => {
+  const moveCardToDifferentColumn = (currentCardId, prevColumnId, nextColumnId, dndOrderedColumns) => {
     if (!ensure(permissions.MOVING_CARD, { blockWhileFiltering: true })) return
 
     const snapshot = {
@@ -229,13 +248,14 @@ function Board() {
     const rawNextBefore = snapshot.next?.cardOrderIds || []
     const nextCardOrderIdsBefore = isPlaceholderId(rawNextBefore?.[0]) ? [] : rawNextBefore
 
+    // Optimistic update UI ngay
     setBoard((prev) => ({
       ...prev,
       columns: dndOrderedColumns,
       columnOrderIds: dndOrderedColumns.map((c) => c._id)
     }))
 
-    // Thu tu SAU khi keo (de BE update vao DB). Bo placeholder neu column tro nen trong sau khi keo.
+    // Thu tu SAU khi keo (de BE update vao DB). Bo placeholder neu column tro nen trong.
     const rawPrevAfter = dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds || []
     const prevCardOrderIdsAfter = isPlaceholderId(rawPrevAfter?.[0]) ? [] : rawPrevAfter
     const rawNextAfter = dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds || []
@@ -252,27 +272,23 @@ function Board() {
       boardId: board._id
     }
 
-    try {
-      const result = await moveCardToDifferentColumnAPI(data)
-      const okPrev = reconcileColumnOrder(prevColumnId, result?.prevCardOrderIds)
-      const okNext = reconcileColumnOrder(nextColumnId, result?.nextCardOrderIds)
-      if (!okPrev || !okNext) await fetchBoardData()
-    } catch (error) {
-      if (error?.response?.status === 409) {
-        handleError(error, 'Xung đột dữ liệu')
+    const mySeq = ++moveSeqRef.current
+    moveQueueRef.current = moveQueueRef.current.then(async () => {
+      try {
+        const result = await moveCardToDifferentColumnAPI(data)
+        if (mySeq !== moveSeqRef.current) return
+        const okPrev = reconcileColumnOrder(prevColumnId, result?.prevCardOrderIds)
+        const okNext = reconcileColumnOrder(nextColumnId, result?.nextCardOrderIds)
+        if (!okPrev || !okNext) await fetchBoardData()
+      } catch (error) {
+        if (error?.response?.status === 409) {
+          handleError(error, 'Xung đột dữ liệu')
+        } else {
+          toast.error('Lỗi khi di chuyển card')
+        }
         await fetchBoardData()
-      } else {
-        toast.error('Lỗi khi di chuyển card')
-        setBoard((prev) => ({
-          ...prev,
-          columns: prev.columns.map((col) => {
-            if (col._id === prevColumnId && snapshot.prev) return snapshot.prev
-            if (col._id === nextColumnId && snapshot.next) return snapshot.next
-            return col
-          })
-        }))
       }
-    }
+    })
   }
 
   const deleteColumnDetails = async (columnId) => {
