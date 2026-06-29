@@ -21,11 +21,6 @@ export const initBoardSocket = (
   // Join phong board. joinBoard cung luu currentBoardId de auto re-join khi socket reconnect.
   joinBoard(boardId)
 
-  // [DEBUG] catch-all log: in moi event server bay toi tab nay
-  // eslint-disable-next-line no-console
-  const onAny = (event, ...args) => console.log('[socket] event received:', event, args)
-  socket.onAny(onAny)
-
   const listeners = [
     { event: 'column:created', handler: onColumnCreated },
     { event: 'column:updated', handler: onColumnUpdated },
@@ -53,7 +48,6 @@ export const initBoardSocket = (
     listeners.forEach(({ event, handler }) => {
       if (handler) socket.off(event, handler)
     })
-    socket.offAny(onAny)
     leaveBoard(boardId)
   }
 }

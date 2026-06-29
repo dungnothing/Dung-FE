@@ -17,7 +17,14 @@ function AddMemberInCard({ disabled, card, fetchBoarData, renderTrigger }) {
   const [term, setTerm] = useState('')
   const debouncedTerm = useDebounce(term, 500)
   const [users, setUsers] = useState([])
-  const [selectedUsers, setSelectedUsers] = useState(card?.memberIds || [])
+  // Draft chi co y nghia khi popover mo. Init lai tu card.memberIds moi lan mo de phan anh
+  // state moi nhat (vd khi nguoi khac da add member qua socket).
+  const [selectedUsers, setSelectedUsers] = useState([])
+  useEffect(() => {
+    if (openAnchor) {
+      setSelectedUsers(card?.memberIds || [])
+    }
+  }, [openAnchor, card?.memberIds])
 
   const findUserInBoard = async () => {
     try {

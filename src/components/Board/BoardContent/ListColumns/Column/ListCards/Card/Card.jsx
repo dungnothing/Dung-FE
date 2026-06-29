@@ -27,7 +27,8 @@ function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = fals
   const [isExpired, setIsExpired] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
   const [comments, setComments] = useState([])
-  const [commentCount, setCommentCount] = useState(card?.commentIds?.length || 0)
+  // Derive tu prop -> tu cap nhat khi socket update card.commentIds
+  const commentCount = card?.commentIds?.length || 0
 
   // Tự động mở dialog nếu URL có ?card=cardId
   useEffect(() => {
@@ -212,7 +213,6 @@ function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = fals
         setComments={setComments}
         boardState={boardState}
         isBoardClosed={isBoardClosed}
-        onCommentCountChange={setCommentCount}
       />
     </>
   )

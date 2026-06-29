@@ -13,6 +13,7 @@ function CardDescription({
   setDescription,
   isEditting,
   setIsEditting,
+  openEdit,
   isBoardClosed,
   handleChangeDescription,
   iconColor
@@ -25,6 +26,10 @@ function CardDescription({
   const [previewSrc, setPreviewSrc] = useState('')
   const contentRef = useRef(null)
 
+  // Khi khong edit: hien thi mo ta tu prop (tu dong sync khi socket update).
+  // Khi edit: hien thi draft cua user dang go.
+  const displayDescription = isEditting ? description : card?.description
+
   useEffect(() => {
     if (!contentRef.current) return
     const imgs = contentRef.current.querySelectorAll('img')
@@ -35,7 +40,7 @@ function CardDescription({
         setPreviewOpen(true)
       }
     })
-  }, [description])
+  }, [displayDescription])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
@@ -47,8 +52,8 @@ function CardDescription({
         </Box>
 
         {/* Nút Chỉnh sửa */}
-        {description?.trim() && canEdit && !isEditting && (
-          <IconButton size="small" onClick={() => setIsEditting(true)}>
+        {card?.description?.trim() && canEdit && !isEditting && (
+          <IconButton size="small" onClick={openEdit}>
             <EditIcon fontSize="small" sx={{ color: textColor }} />
           </IconButton>
         )}
@@ -61,11 +66,11 @@ function CardDescription({
         </Box>
       ) : (
         <Box sx={{ pl: 3.5, width: '100%' }}>
-          {description?.trim() ? (
-            <div ref={contentRef} dangerouslySetInnerHTML={{ __html: description }} style={{ color: textColor2 }} />
+          {displayDescription?.trim() ? (
+            <div ref={contentRef} dangerouslySetInnerHTML={{ __html: displayDescription }} style={{ color: textColor2 }} />
           ) : (
             <Box
-              onClick={() => { if (canEdit) setIsEditting(true) }}
+              onClick={() => { if (canEdit) openEdit() }}
               sx={{
                 bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1e293b' : '#f1f5f9'),
                 color: 'text.secondary',
@@ -96,10 +101,7 @@ function CardDescription({
             Lưu
           </Button>
           <Button
-            onClick={() => {
-              setIsEditting(false)
-              setDescription(card.description)
-            }}
+            onClick={() => setIsEditting(false)}
             variant="outlined"
             sx={{ color: textColor }}
           >

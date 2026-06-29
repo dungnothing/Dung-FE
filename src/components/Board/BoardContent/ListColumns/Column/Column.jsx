@@ -64,9 +64,11 @@ function Column({
   const [newCardTitle, setNewCardTitle] = useState('')
   const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm)
   const [isEditingTitle, setIsEditingTitle] = useState(false)
-  const [columnTitle, setColumnTitle] = useState(column?.title)
-  const columnTitleRef = useRef(columnTitle)
+  // Draft chi co y nghia khi dang edit. Khi khong edit, hien thi column.title tu prop.
+  const [columnTitleDraft, setColumnTitleDraft] = useState('')
+  const columnTitleRef = useRef('')
   const isEditingTitleRef = useRef(false)
+  const displayTitle = isEditingTitle ? columnTitleDraft : column?.title || ''
 
   const addNewCard = () => {
     if (!newCardTitle) {
@@ -105,8 +107,6 @@ function Column({
         return newBoard
       })
     } catch (error) {
-      setColumnTitle(column?.title || '')
-      columnTitleRef.current = column?.title || ''
       handleError(error)
     } finally {
       setIsEditingTitle(false)
@@ -114,15 +114,14 @@ function Column({
     }
   }
 
-  // Khi isEditingTitle bật lên, sync ref
+  // Khi isEditingTitle bat -> init draft tu column.title hien tai
   useEffect(() => {
     isEditingTitleRef.current = isEditingTitle
-  }, [isEditingTitle])
-
-  // Sync columnTitleRef mỗi khi columnTitle thay đổi
-  useEffect(() => {
-    columnTitleRef.current = columnTitle
-  }, [columnTitle])
+    if (isEditingTitle) {
+      setColumnTitleDraft(column?.title || '')
+      columnTitleRef.current = column?.title || ''
+    }
+  }, [isEditingTitle, column?.title])
 
   // Khi component unmount hoặc isEditingTitle tắt đột ngột (do click sang cột khác),
   // vẫn đảm bảo save được gọi
@@ -142,8 +141,6 @@ function Column({
       handleUpdateColumnTitle()
     }
     if (event.key === 'Escape') {
-      setColumnTitle(column?.title || '')
-      columnTitleRef.current = column?.title || ''
       setIsEditingTitle(false)
       isEditingTitleRef.current = false
     }
@@ -213,9 +210,9 @@ function Column({
           }}
         >
           <TextField
-            value={columnTitle}
+            value={displayTitle}
             onChange={(e) => {
-              setColumnTitle(e.target.value)
+              setColumnTitleDraft(e.target.value)
               columnTitleRef.current = e.target.value
             }}
             onBlur={() => isEditingTitle && handleUpdateColumnTitle()}

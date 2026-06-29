@@ -3,7 +3,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { toast } from 'react-toastify'
 import { updateCardAPI } from '~/apis/cards'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import EditTimeCard from './CardTime'
 import { useTheme } from '@mui/material/styles'
 import { cloneDeep } from 'lodash'
@@ -24,22 +24,14 @@ function CardDialog({
   comments,
   setComments,
   boardState,
-  isBoardClosed,
-  onCommentCountChange
+  isBoardClosed
 }) {
   const [openTimeDialog, setOpenTimeDialog] = useState(false)
-  const [cardTitle, setCardTitle] = useState(card?.title)
   const [editTitle, setEditTitle] = useState(false)
-  const [description, setDescription] = useState(card?.description)
+  // Local draft chi ton tai khi user dang edit. Khi khong edit, hien thi card.title tu prop.
+  const [titleDraft, setTitleDraft] = useState('')
   const [isEditting, setIsEditting] = useState(false)
-  const [commentCount, setCommentCount] = useState(card?.commentIds?.length || 0)
-
-  // Forward comment count changes to parent Card component
-  useEffect(() => {
-    if (onCommentCountChange) {
-      onCommentCountChange(commentCount)
-    }
-  }, [commentCount, onCommentCountChange])
+  const [descriptionDraft, setDescriptionDraft] = useState('')
 
   const theme = useTheme()
   const iconColor = theme.palette.mode === 'dark' ? '#B6C2CF' : '#172b4d'
@@ -55,7 +47,7 @@ function CardDialog({
 
   const handleChangeDescription = async () => {
     try {
-      const newDescription = description?.trim() === '' ? '' : description
+      const newDescription = descriptionDraft?.trim() === '' ? '' : descriptionDraft
       const formData = { cardId: card._id, description: newDescription, boardId: board._id }
       await updateCardAPI(card._id, formData)
       setIsEditting(false)
@@ -67,19 +59,30 @@ function CardDialog({
 
   const handleUpdateCardTitle = async () => {
     try {
-      if (cardTitle.trim().length > 50) {
-        setCardTitle(card?.title)
+      const trimmed = titleDraft.trim()
+      if (trimmed.length > 50) return
+      if (trimmed.length === 0 || trimmed === card?.title) {
+        setEditTitle(false)
         return
       }
-      const formData = { cardId: card._id, title: cardTitle, boardId: board._id }
+      const formData = { cardId: card._id, title: titleDraft, boardId: board._id }
       await updateCardAPI(card._id, formData)
       setEditTitle(false)
-      setNewData('title', cardTitle)
+      setNewData('title', titleDraft)
     } catch (error) {
       toast.error(error.response.data.message)
-      setCardTitle(card?.title)
       setEditTitle(false)
     }
+  }
+
+  const openTitleEdit = () => {
+    setTitleDraft(card?.title ?? '')
+    setEditTitle(true)
+  }
+
+  const openDescriptionEdit = () => {
+    setDescriptionDraft(card?.description ?? '')
+    setIsEditting(true)
   }
 
   const handleToggleDone = async () => {
@@ -130,14 +133,11 @@ function CardDialog({
         {/* Phần title / TextField */}
         {editTitle && !isBoardClosed ? (
           <TextField
-            value={cardTitle}
-            onChange={(e) => setCardTitle(e.target.value)}
-            onBlur={() => {
-              handleUpdateCardTitle()
-              setEditTitle(false)
-            }}
-            error={cardTitle.trim().length > 50}
-            helperText={cardTitle.trim().length > 50 ? 'Tiêu đề không được vượt quá 50 ký tự' : ' '}
+            value={titleDraft}
+            onChange={(e) => setTitleDraft(e.target.value)}
+            onBlur={handleUpdateCardTitle}
+            error={titleDraft.trim().length > 50}
+            helperText={titleDraft.trim().length > 50 ? 'Tiêu đề không được vượt quá 50 ký tự' : ' '}
             fullWidth
             variant="standard"
             size="small"
@@ -169,9 +169,9 @@ function CardDialog({
               fontWeight: 600,
               lineHeight: 1.4
             }}
-            onClick={() => !isBoardClosed && setEditTitle(true)}
+            onClick={() => !isBoardClosed && openTitleEdit()}
           >
-            {cardTitle}
+            {card?.title}
           </DialogTitle>
         )}
 
@@ -270,10 +270,11 @@ function CardDialog({
           />
           <CardDescription
             card={card}
-            description={description}
-            setDescription={setDescription}
+            description={descriptionDraft}
+            setDescription={setDescriptionDraft}
             isEditting={isEditting}
             setIsEditting={setIsEditting}
+            openEdit={openDescriptionEdit}
             boardState={boardState}
             isBoardClosed={isBoardClosed}
             handleChangeDescription={handleChangeDescription}
@@ -289,7 +290,6 @@ function CardDialog({
           setComments={setComments}
           boardState={boardState}
           isBoardClosed={isBoardClosed}
-          onCommentCountChange={setCommentCount}
         />
       </Box>
       <EditTimeCard

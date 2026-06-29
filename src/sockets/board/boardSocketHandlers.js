@@ -130,8 +130,6 @@ export const getBoardSocketCallbacks = (setBoard, navigate) => ({
   },
 
   onCardUpdated: (updatedCard) => {
-    // eslint-disable-next-line no-console
-    console.log('[socket] card:updated received', { id: updatedCard?._id, isDone: updatedCard?.isDone, raw: updatedCard })
     setBoard((prev) => updateCardInBoard(prev, updatedCard._id, updatedCard))
   },
 

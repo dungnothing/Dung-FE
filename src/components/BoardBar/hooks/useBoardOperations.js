@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { updateBoardDetailsAPI, deleteBoardAPI, changeAdminAPI } from '~/apis/boards'
@@ -7,8 +7,15 @@ import { getErrorMessage } from '~/utils/messageHelper'
 
 export const useBoardOperations = (board, setBoard) => {
   const [isEditing, setIsEditing] = useState(false)
-  const [editedTitle, setEditedTitle] = useState(board?.title)
-  const [visibility, setVisibility] = useState(board?.visibility)
+  // Draft chi co y nghia khi dang edit. Khi khong edit, render board.title tu prop.
+  const [editedTitle, setEditedTitle] = useState('')
+  // Khi user click edit, init draft tu board.title hien tai
+  useEffect(() => {
+    if (isEditing) setEditedTitle(board?.title || '')
+  }, [isEditing, board?.title])
+
+  // Derive thang tu prop, tu sync khi socket update visibility
+  const visibility = board?.visibility
   const [memberId, setMemberId] = useState(null)
   const [openDialog, setOpenDialog] = useState(false)
   const [visibilityLoading, setVisibilityLoading] = useState(false)
@@ -16,8 +23,9 @@ export const useBoardOperations = (board, setBoard) => {
 
   const handleUpdateTitle = async () => {
     try {
-      await updateBoardDetailsAPI(board._id, { title: editedTitle.trim() })
-      setBoard({ ...board, title: editedTitle.trim() })
+      const trimmed = editedTitle.trim()
+      await updateBoardDetailsAPI(board._id, { title: trimmed })
+      setBoard({ ...board, title: trimmed })
       setIsEditing(false)
     } catch (error) {
       toast.error(getErrorMessage(error, 'Lỗi khi cập nhật tiêu đề'))
@@ -29,8 +37,9 @@ export const useBoardOperations = (board, setBoard) => {
   const handleVisibilityChange = async (isPrivate) => {
     try {
       setVisibilityLoading(true)
-      await updateBoardDetailsAPI(board._id, { visibility: isPrivate ? 'PRIVATE' : 'PUBLIC' })
-      setVisibility(isPrivate ? 'PRIVATE' : 'PUBLIC')
+      const newVisibility = isPrivate ? 'PRIVATE' : 'PUBLIC'
+      await updateBoardDetailsAPI(board._id, { visibility: newVisibility })
+      setBoard({ ...board, visibility: newVisibility })
       toast.success('Trạng thái bảng đã thay đổi')
     } catch (error) {
       toast.error(getErrorMessage(error, 'Lỗi khi thay đổi trạng thái bảng'))
@@ -93,7 +102,6 @@ export const useBoardOperations = (board, setBoard) => {
     editedTitle,
     setEditedTitle,
     visibility,
-    setVisibility,
     visibilityLoading,
     memberId,
     setMemberId,

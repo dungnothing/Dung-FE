@@ -4,22 +4,28 @@ import { textColor } from '~/utils/constants'
 import { TimePicker } from '@mui/x-date-pickers'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { updateCardAPI, updateCancelCardAPI } from '~/apis/cards'
 import { toast } from 'react-toastify'
 import { cloneDeep } from 'lodash'
 import { getErrorMessage } from '~/utils/messageHelper'
 
 function EditTimeCard({ openTimeDialog, handleCloseTimeDialog, card, board, setBoard }) {
-  const [time, setTime] = useState(card?.endTime ? dayjs(card?.endTime) : null)
+  // Draft cua picker chi co y nghia trong luc dialog mo. Khi dialog mo, init lai tu card.endTime
+  // de phan anh state moi nhat (vd khi nguoi khac update card qua socket).
+  const [time, setTime] = useState(null)
+  useEffect(() => {
+    if (openTimeDialog) {
+      setTime(card?.endTime ? dayjs(card?.endTime) : null)
+    }
+  }, [openTimeDialog, card?.endTime])
 
-  const setNewTime = (time) => {
+  const setNewTime = (newTime) => {
     const newBoard = cloneDeep(board)
     const column = newBoard.columns.find((col) => col.cardOrderIds?.includes(card._id))
     if (!column) return
     const cardIndex = column.cards.findIndex((c) => c._id === card._id)
-    column.cards[cardIndex].endTime = time?.toISOString()
-    setTime(time)
+    column.cards[cardIndex].endTime = newTime ? newTime.toISOString() : null
     setBoard(newBoard)
   }
 
@@ -40,11 +46,10 @@ function EditTimeCard({ openTimeDialog, handleCloseTimeDialog, card, board, setB
 
   const handleCancelEndTime = async () => {
     try {
-      const timeEC = null
-      const formData = { cardId: card._id, endTime: timeEC }
+      const formData = { cardId: card._id, endTime: null }
       await updateCancelCardAPI(card._id, formData)
       handleCloseTimeDialog()
-      setNewTime(timeEC)
+      setNewTime(null)
     } catch (error) {
       toast.error(getErrorMessage(error, 'Lỗi khi hủy thời gian'))
     }
