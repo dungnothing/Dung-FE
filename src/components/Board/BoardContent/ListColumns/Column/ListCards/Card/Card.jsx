@@ -22,7 +22,8 @@ import { useSearchParams } from 'react-router-dom'
 function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = false, setBoard, board }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [hover, setHover] = useState(false)
-  const [isDone, setIsDone] = useState(card?.isDone ?? false)
+  // Doc thang tu prop, khong copy vao state. Khi socket update thi prop doi -> Card re-render dung.
+  const isDone = !!card?.isDone
   const [isExpired, setIsExpired] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
   const [comments, setComments] = useState([])
@@ -69,7 +70,15 @@ function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = fals
       const newStatus = !isDone
       const formData = { cardId: card._id, isDone: newStatus, boardId: board._id }
       await updateCardAPI(card._id, formData)
-      setIsDone(newStatus)
+      // Cap nhat isDone trong board state -> re-render Card (va dong bo voi socket cua user khac)
+      setBoard((prev) => ({
+        ...prev,
+        columns: prev.columns.map((col) =>
+          col.cards?.some((c) => c._id === card._id)
+            ? { ...col, cards: col.cards.map((c) => (c._id === card._id ? { ...c, isDone: newStatus } : c)) }
+            : col
+        )
+      }))
     } catch (error) {
       toast.error('Đổi nội dung thất bại')
     }
