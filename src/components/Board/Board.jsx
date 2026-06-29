@@ -22,6 +22,7 @@ import { PERMISSIONS_MAP } from '~/utils/permissions'
 import { handleError } from '~/utils/messageHelper'
 import { initBoardSocket, getBoardSocketCallbacks } from '~/sockets/board'
 import useDebounce from '~/helpers/hooks/useDebonce'
+import { useMoveCardQueue } from '~/helpers/hooks/useMoveCardQueue'
 
 const EMPTY_FILTERS = { term: '', overdue: '', dueTomorrow: '', noDue: '' }
 const isPlaceholderId = (id) => typeof id === 'string' && id.includes('placehorlder-card')
@@ -48,12 +49,8 @@ function Board() {
   const firstFilterRun = useRef(true)
   const isFiltering = Object.values(debouncedFilters).some(Boolean)
 
-  // Serialize move-card requests de tranh race khi user keo nhanh (BE co the cham >1s).
-  // UI van optimistic update ngay; chi phan goi API + reconcile chay tuan tu trong queue.
-  const moveQueueRef = useRef(Promise.resolve())
-  // Tang dan moi lan keo. Reconcile chi ap dung cho request co seq = moveLatestSeqRef.current
-  // (request moi nhat); cac response cu se bi skip de khong de len state moi.
-  const moveSeqRef = useRef(0)
+  // Queue serialize cac request move-card. Khi 1 request fail -> goi fetchBoardData de reset.
+  const enqueueMove = useMoveCardQueue(() => fetchBoardData(false))
 
   // Báo lỗi rồi trả false nếu không đủ điều kiện thao tác (quyền / đang lọc)
   const ensure = (hasPermission, { blockWhileFiltering = false } = {}) => {
@@ -128,28 +125,6 @@ function Board() {
       columns: prev.columns.map((col) => (col._id === columnId ? updater(col) : col))
     }))
 
-  // Ghi đè thứ tự card của 1 column bằng order thật từ BE. Trả false nếu FE thiếu card (cần refetch)
-  const reconcileColumnOrder = (columnId, serverOrderIds) => {
-    if (!serverOrderIds) return true
-    let synced = true
-    patchColumn(columnId, (col) => {
-      if (isEmpty(serverOrderIds)) {
-        const placeholder = generatePlaceholderCard(col)
-        return { ...col, cards: [placeholder], cardOrderIds: [placeholder._id] }
-      }
-      const cardsById = new Map(col.cards.map((c) => [c._id, c]))
-      const orderedCards = serverOrderIds.map((id) => cardsById.get(id)).filter(Boolean)
-      // Neu FE thieu card data cho 1 id nao do tu server -> KHONG ghi de state hien tai
-      // (tranh mat card hien thi). Tra ve col cu, caller se goi fetchBoardData de dong bo lai.
-      if (orderedCards.length !== serverOrderIds.length) {
-        synced = false
-        return col
-      }
-      return { ...col, cards: orderedCards, cardOrderIds: serverOrderIds }
-    })
-    return synced
-  }
-
   const createNewColumn = async (newColumnData) => {
     if (!ensure(permissions.CREATE_COLUMN)) return
     const newColumn = await createNewColumnAPI({ ...newColumnData, boardId: board._id })
@@ -201,52 +176,31 @@ function Board() {
   const moverCardInTheSameColumn = (dndOrderedCards, dndOrderedCardIds, columnId) => {
     if (!ensure(permissions.MOVING_CARD, { blockWhileFiltering: true })) return
 
-    const sourceColumn = board.columns.find((col) => col._id === columnId)
-    // Snapshot TRUOC khi keo. Lay tu state hien tai (co the la optimistic cua lan keo truoc)
-    // nhung dam bao request truoc da update DB xong (do queue) thi snapshot nay = DB.
-    const cardOrderIdsBefore = sourceColumn?.cardOrderIds ?? []
+    // Snapshot TRUOC khi keo. Do queue serialize, snapshot nay luon khop DB tai thoi diem
+    // request duoc gui di (request truoc da xong).
+    const cardOrderIdsBefore = board.columns.find((col) => col._id === columnId)?.cardOrderIds ?? []
 
-    // Optimistic update UI ngay lap tuc (khong cho queue)
+    // Optimistic update UI ngay lap tuc
     patchColumn(columnId, (col) => ({ ...col, cards: dndOrderedCards, cardOrderIds: dndOrderedCardIds }))
 
-    const mySeq = ++moveSeqRef.current
-    moveQueueRef.current = moveQueueRef.current.then(async () => {
-      try {
-        const updatedColumn = await updateColumnDetailsAPI(columnId, {
-          cardOrderIds: dndOrderedCardIds,
-          cardOrderIdsBefore,
-          boardId: board._id
-        })
-        // Chi reconcile neu day la request moi nhat. Cac response cu khong duoc de len state moi.
-        if (mySeq !== moveSeqRef.current) return
-        const synced = reconcileColumnOrder(columnId, updatedColumn?.cardOrderIds)
-        if (!synced) await fetchBoardData()
-      } catch (error) {
-        if (error?.response?.status === 409) {
-          handleError(error, 'Xung đột dữ liệu')
-        } else {
-          toast.error('Lỗi khi di chuyển card')
-        }
-        // Fail trong queue -> refetch de UI khop lai DB. Cac request sau trong queue van chay
-        // nhung khong reconcile (mySeq != latest) nen khong de len state moi.
-        await fetchBoardData()
-      }
-    })
+    enqueueMove(() =>
+      updateColumnDetailsAPI(columnId, {
+        cardOrderIds: dndOrderedCardIds,
+        cardOrderIdsBefore,
+        boardId: board._id
+      })
+    )
   }
 
   const moveCardToDifferentColumn = (currentCardId, prevColumnId, nextColumnId, dndOrderedColumns) => {
     if (!ensure(permissions.MOVING_CARD, { blockWhileFiltering: true })) return
 
-    const snapshot = {
-      prev: board.columns.find((c) => c._id === prevColumnId),
-      next: board.columns.find((c) => c._id === nextColumnId)
-    }
+    // Bo placeholder ID (column trong dung placeholder card de hien thi)
+    const clean = (ids) => (isPlaceholderId(ids?.[0]) ? [] : ids || [])
 
-    // Snapshot TRUOC khi keo (de BE check stale)
-    const rawPrevBefore = snapshot.prev?.cardOrderIds || []
-    const prevCardOrderIdsBefore = isPlaceholderId(rawPrevBefore?.[0]) ? [] : rawPrevBefore
-    const rawNextBefore = snapshot.next?.cardOrderIds || []
-    const nextCardOrderIdsBefore = isPlaceholderId(rawNextBefore?.[0]) ? [] : rawNextBefore
+    // Snapshot TRUOC khi keo (lay tu state hien tai, do queue dam bao state = DB)
+    const prevCardOrderIdsBefore = clean(board.columns.find((c) => c._id === prevColumnId)?.cardOrderIds)
+    const nextCardOrderIdsBefore = clean(board.columns.find((c) => c._id === nextColumnId)?.cardOrderIds)
 
     // Optimistic update UI ngay
     setBoard((prev) => ({
@@ -255,40 +209,22 @@ function Board() {
       columnOrderIds: dndOrderedColumns.map((c) => c._id)
     }))
 
-    // Thu tu SAU khi keo (de BE update vao DB). Bo placeholder neu column tro nen trong.
-    const rawPrevAfter = dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds || []
-    const prevCardOrderIdsAfter = isPlaceholderId(rawPrevAfter?.[0]) ? [] : rawPrevAfter
-    const rawNextAfter = dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds || []
-    const nextCardOrderIdsAfter = isPlaceholderId(rawNextAfter?.[0]) ? [] : rawNextAfter
+    // Thu tu SAU khi keo
+    const prevCardOrderIdsAfter = clean(dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds)
+    const nextCardOrderIdsAfter = clean(dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds)
 
-    const data = {
-      currentCardId,
-      prevColumnId,
-      prevCardOrderIdsBefore,
-      prevCardOrderIdsAfter,
-      nextColumnId,
-      nextCardOrderIdsBefore,
-      nextCardOrderIdsAfter,
-      boardId: board._id
-    }
-
-    const mySeq = ++moveSeqRef.current
-    moveQueueRef.current = moveQueueRef.current.then(async () => {
-      try {
-        const result = await moveCardToDifferentColumnAPI(data)
-        if (mySeq !== moveSeqRef.current) return
-        const okPrev = reconcileColumnOrder(prevColumnId, result?.prevCardOrderIds)
-        const okNext = reconcileColumnOrder(nextColumnId, result?.nextCardOrderIds)
-        if (!okPrev || !okNext) await fetchBoardData()
-      } catch (error) {
-        if (error?.response?.status === 409) {
-          handleError(error, 'Xung đột dữ liệu')
-        } else {
-          toast.error('Lỗi khi di chuyển card')
-        }
-        await fetchBoardData()
-      }
-    })
+    enqueueMove(() =>
+      moveCardToDifferentColumnAPI({
+        currentCardId,
+        prevColumnId,
+        prevCardOrderIdsBefore,
+        prevCardOrderIdsAfter,
+        nextColumnId,
+        nextCardOrderIdsBefore,
+        nextCardOrderIdsAfter,
+        boardId: board._id
+      })
+    )
   }
 
   const deleteColumnDetails = async (columnId) => {
