@@ -103,7 +103,18 @@ function CardComments({ card, isBoardClosed, onCommentCountChange }) {
   }
 
   return (
-    <Box sx={{ pt: 2.5, pb: 3, flexDirection: 'column', gap: 2, display: 'flex', width: { xs: '100%', sm: '38%' }, px: { xs: 2, sm: 2.5 }, flexShrink: 0 }}>
+    <Box
+      sx={{
+        pt: 2.5,
+        pb: 3,
+        flexDirection: 'column',
+        gap: 2,
+        display: 'flex',
+        width: { xs: '100%', sm: '38%' },
+        px: { xs: 2, sm: 2.5 },
+        flexShrink: 0
+      }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AutoAwesomeMosaicIcon sx={{ color: textColor, fontSize: 20 }} />
@@ -118,11 +129,7 @@ function CardComments({ card, isBoardClosed, onCommentCountChange }) {
 
       {/* Composer: avatar + input pill + Send */}
       <Box sx={{ display: 'flex', gap: 1.25, alignItems: 'flex-start', width: '100%' }}>
-        <Avatar
-          alt={user?.userName}
-          src={user?.avatar || ''}
-          sx={{ width: 32, height: 32, flexShrink: 0, mt: 0.25 }}
-        />
+        <Avatar alt={user?.userName} src={user?.avatar || ''} sx={{ width: 32, height: 32, flexShrink: 0, mt: 0.25 }} />
         <TextField
           fullWidth
           placeholder="Viết bình luận..."
@@ -186,7 +193,7 @@ function CardComments({ card, isBoardClosed, onCommentCountChange }) {
           display: 'flex',
           flexDirection: 'column',
           gap: 1.5,
-          maxHeight: '420px',
+          // maxHeight: '420px',
           pr: 0.5,
           width: '100%',
           height: '100%',
