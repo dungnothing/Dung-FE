@@ -213,8 +213,8 @@ function Board() {
     const prevCardOrderIdsAfter = clean(dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds)
     const nextCardOrderIdsAfter = clean(dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds)
 
-    enqueueMove(() =>
-      moveCardToDifferentColumnAPI({
+    enqueueMove(async () => {
+      const result = await moveCardToDifferentColumnAPI({
         currentCardId,
         prevColumnId,
         prevCardOrderIdsBefore,
@@ -224,7 +224,31 @@ function Board() {
         nextCardOrderIdsAfter,
         boardId: board._id
       })
-    )
+      // Reconcile voi order that tu DB de tranh lech state sau concurrent move
+      if (result?.prevCardOrderIds && result?.nextCardOrderIds) {
+        setBoard((prev) => ({
+          ...prev,
+          columns: prev.columns.map((col) => {
+            if (col._id === prevColumnId) {
+              const newIds = result.prevCardOrderIds
+              const newCards = newIds.length === 0
+                ? [generatePlaceholderCard(col)]
+                : mapOrder(col.cards.filter((c) => !c.FE_PlaceholderCard), newIds, '_id')
+              return { ...col, cardOrderIds: newIds.length === 0 ? [] : newIds, cards: newCards }
+            }
+            if (col._id === nextColumnId) {
+              const newIds = result.nextCardOrderIds
+              return {
+                ...col,
+                cardOrderIds: newIds,
+                cards: mapOrder(col.cards.filter((c) => !c.FE_PlaceholderCard), newIds, '_id')
+              }
+            }
+            return col
+          })
+        }))
+      }
+    })
   }
 
   const deleteColumnDetails = async (columnId) => {

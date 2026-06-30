@@ -46,35 +46,39 @@ export const getBoardSocketCallbacks = (setBoard, navigate) => ({
   },
 
   onMoveCardToDifferentColumn: (data) => {
-    setBoard((prev) => {
-      const newBoard = { ...prev }
-      const nextColumn = newBoard.columns.find((col) => col._id === data.nextColumnId)
-      if (nextColumn) {
-        nextColumn.cardOrderIds = data.nextCardOrderIds
-        // Neu nextColumn chi co 1 card thi de card moi len card placeholder
-        if (nextColumn.cardOrderIds.length === 1) {
-          nextColumn.cards = [data.cardMove]
-          nextColumn.cardOrderIds = [data.cardMove._id]
-        } else {
-          nextColumn.cards.push(data.cardMove)
+    setBoard((prev) => ({
+      ...prev,
+      columns: prev.columns.map((col) => {
+        if (col._id === data.nextColumnId) {
+          const mergedCards = col.cards.some((c) => c._id === data.cardMove._id)
+            ? col.cards
+            : [...col.cards.filter((c) => !c.FE_PlaceholderCard), data.cardMove]
+          return {
+            ...col,
+            cardOrderIds: data.nextCardOrderIds,
+            cards: mapOrder(mergedCards, data.nextCardOrderIds, '_id')
+          }
         }
-        nextColumn.cards = mapOrder(nextColumn.cards, data.nextCardOrderIds, '_id')
-      }
 
-      // Xu li prev column
-      const prevColumn = newBoard.columns.find((col) => col._id === data.prevColumnId)
-      if (prevColumn) {
-        prevColumn.cardOrderIds = data.prevCardOrderIds
-        if (prevColumn.cardOrderIds.length === 0) {
-          prevColumn.cards = [generatePlaceholderCard(prevColumn)]
-          prevColumn.cardOrderIds = [generatePlaceholderCard(prevColumn)._id]
-        } else {
-          prevColumn.cards = prevColumn.cards.filter((card) => card._id !== data.cardMove._id)
+        if (col._id === data.prevColumnId) {
+          if (data.prevCardOrderIds.length === 0) {
+            const placeholder = generatePlaceholderCard(col)
+            return { ...col, cardOrderIds: [], cards: [placeholder] }
+          }
+          return {
+            ...col,
+            cardOrderIds: data.prevCardOrderIds,
+            cards: mapOrder(
+              col.cards.filter((c) => c._id !== data.cardMove._id),
+              data.prevCardOrderIds,
+              '_id'
+            )
+          }
         }
-        prevColumn.cards = mapOrder(prevColumn.cards, data.prevCardOrderIds, '_id')
-      }
-      return newBoard
-    })
+
+        return col
+      })
+    }))
   },
 
   onColumnDeleted: (columnId) => {
