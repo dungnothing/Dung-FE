@@ -44,8 +44,8 @@ function CardButtonGroup({
   card,
   setOpenTimeDialog,
   isBoardClosed,
-  fetchBoarData,
-  handleToggleDone
+  handleToggleDone,
+  onCardUpdated
 }) {
   const [isLoading, setIsLoading] = useState(false)
   const [loadingFile, setLoadingFile] = useState(false)
@@ -69,8 +69,8 @@ function CardButtonGroup({
       }
       const formData = new FormData()
       formData.append('cardBackground', image)
-      await updateCardBackgroundAPI(card._id, formData)
-      fetchBoarData()
+      const updatedCard = await updateCardBackgroundAPI(card._id, formData)
+      onCardUpdated(updatedCard)
     } catch (error) {
       toast.error(getErrorMessage(error, 'Lỗi khi thay đổi ảnh bìa'))
     } finally {
@@ -89,8 +89,8 @@ function CardButtonGroup({
       }
       const formData = new FormData()
       formData.append('file', file, file.name)
-      await uploadFileAPI(card._id, formData)
-      fetchBoarData()
+      const updatedCard = await uploadFileAPI(card._id, formData)
+      onCardUpdated(updatedCard)
     } catch (error) {
       toast.error(error.response.data.message)
     } finally {
@@ -118,7 +118,7 @@ function CardButtonGroup({
         disabled={isBoardClosed}
         boardId={card?.boardId}
         card={card}
-        fetchBoarData={fetchBoarData}
+        onCardUpdated={onCardUpdated}
         renderTrigger={(onClick) => (
           <ActionBtn
             title="Thành viên"

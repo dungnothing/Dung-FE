@@ -11,7 +11,7 @@ import useDebounce from '~/helpers/hooks/useDebonce'
 import { useParams } from 'react-router-dom'
 import { getErrorMessage } from '~/utils/messageHelper'
 
-function AddMemberInCard({ disabled, card, fetchBoarData, renderTrigger }) {
+function AddMemberInCard({ disabled, card, onCardUpdated, renderTrigger }) {
   const { boardId } = useParams()
   const [openAnchor, setOpenAnchor] = useState(null)
   const [term, setTerm] = useState('')
@@ -47,8 +47,8 @@ function AddMemberInCard({ disabled, card, fetchBoarData, renderTrigger }) {
 
   const handleSubmit = async () => {
     try {
-      await updateCardAPI(card._id, { memberIds: selectedUsers, cardId: card._id, boardId })
-      fetchBoarData()
+      const updatedCard = await updateCardAPI(card._id, { memberIds: selectedUsers, cardId: card._id, boardId })
+      onCardUpdated(updatedCard)
       setOpenAnchor(null)
     } catch (error) {
       toast.error(getErrorMessage(error, 'Lỗi khi thêm thành viên'))
