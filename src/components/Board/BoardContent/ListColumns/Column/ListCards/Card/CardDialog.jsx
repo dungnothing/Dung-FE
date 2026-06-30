@@ -11,6 +11,7 @@ import CardButtonGroup from './CardButton/CardButtonGroup'
 import CardDescription from './CardDescription'
 import CardAttachment from './CardAttachment'
 import CardComments from './CardComments'
+import { updateCardInBoard } from '~/utils/formatters'
 
 function CardDialog({
   card,
@@ -18,7 +19,6 @@ function CardDialog({
   setOpenDialog,
   time,
   isExpired,
-  fetchBoarData,
   board,
   setBoard,
   comments,
@@ -265,8 +265,8 @@ function CardDialog({
             card={card}
             setOpenTimeDialog={setOpenTimeDialog}
             isBoardClosed={isBoardClosed}
-            fetchBoarData={fetchBoarData}
             handleToggleDone={handleToggleDone}
+            onCardUpdated={(updatedCard) => setBoard((prev) => updateCardInBoard(prev, updatedCard._id, updatedCard))}
           />
           <CardDescription
             card={card}
@@ -281,7 +281,12 @@ function CardDialog({
             iconColor={iconColor}
           />
 
-          {card?.files?.length > 0 && <CardAttachment card={card} fetchBoarData={fetchBoarData} />}
+          {card?.files?.length > 0 && (
+            <CardAttachment
+              card={card}
+              onCardUpdated={(updatedCard) => setBoard((prev) => updateCardInBoard(prev, updatedCard._id, updatedCard))}
+            />
+          )}
         </Box>
         {/**Comment */}
         <CardComments

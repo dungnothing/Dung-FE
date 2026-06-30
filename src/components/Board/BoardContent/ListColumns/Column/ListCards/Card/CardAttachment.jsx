@@ -43,15 +43,15 @@ const RenderAttachment = ({ title, size, url }) => {
   )
 }
 
-function CardAttachment({ card, fetchBoarData }) {
+function CardAttachment({ card, onCardUpdated }) {
   const [anchorElMore, setAnchorElMore] = useState(null)
   const [fileDelete, setFileDelete] = useState(null)
 
   const handleDeleteFile = async () => {
     try {
       const formData = { cardId: card._id, fileLink: fileDelete.url }
-      await removeFileAPI(card._id, formData)
-      fetchBoarData()
+      const updatedCard = await removeFileAPI(card._id, formData)
+      onCardUpdated(updatedCard)
     } catch (error) {
       toast.error('Loi roi')
     } finally {
@@ -74,7 +74,7 @@ function CardAttachment({ card, fetchBoarData }) {
     <div className="flex flex-col gap-4 w-full">
       <div className="flex gap-2">
         <AttachFileIcon fontSize="small" sx={{ color: textColor }} />
-        <Typography sx={{ color: textColor }}>Tập tin đính kèm</Typography>
+        <Typography sx={{ color: textColor, fontWeight: 600, fontSize: '15px' }}>Tập tin đính kèm</Typography>
       </div>
       {card?.files?.map((file, index) => (
         <div className="flex items-center gap-2 pl-6" key={index}>
