@@ -14,7 +14,7 @@ export const useCommentSocketHandlers = (cardId, setComments, setTotalCount) => 
 
     // Handler cho comment created event
     const handleCommentCreated = (newComment) => {
-      if (newComment.cardId?.toString() === cardId?.toString() && newComment.userInfo?._id !== user?.userId) {
+      if (newComment.cardId?.toString() === cardId?.toString() && newComment.userInfo?._id?.toString() !== user?.userId) {
         setComments((prevComments) => [newComment, ...prevComments])
         setTotalCount((prev) => prev + 1)
       }

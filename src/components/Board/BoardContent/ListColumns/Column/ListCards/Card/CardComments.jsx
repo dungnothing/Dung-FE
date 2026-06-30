@@ -61,6 +61,7 @@ function CardComments({ card, isBoardClosed, onCommentCountChange }) {
       const result = await getCommentsAPI(card._id, nextPage, limit)
 
       setComments((prev) => [...prev, ...(result.comments || [])])
+      setTotalCount(result.totalCount || 0)
       setCurrentPage(result.currentPage || nextPage)
       setHasMore(result.hasMore || false)
     } catch (error) {
