@@ -1,13 +1,11 @@
 import { mapOrder } from '~/utils/sort'
-import { generatePlaceholderCard } from '~/utils/formatters'
 import { toast } from 'react-toastify'
 import { updateCardInBoard } from '~/utils/formatters'
 
 export const getBoardSocketCallbacks = (setBoard, navigate) => ({
   onColumnCreated: (newColumn) => {
-    const placeholderCard = generatePlaceholderCard(newColumn)
-    newColumn.cards = [placeholderCard]
-    newColumn.cardOrderIds = [placeholderCard._id]
+    newColumn.cards = []
+    newColumn.cardOrderIds = []
     setBoard((prev) => ({
       ...prev,
       columns: [...prev.columns, newColumn],
@@ -62,8 +60,7 @@ export const getBoardSocketCallbacks = (setBoard, navigate) => ({
 
         if (col._id === data.prevColumnId) {
           if (data.prevCardOrderIds.length === 0) {
-            const placeholder = generatePlaceholderCard(col)
-            return { ...col, cardOrderIds: [], cards: [placeholder] }
+            return { ...col, cardOrderIds: [], cards: [] }
           }
           return {
             ...col,

@@ -2,7 +2,6 @@ import Container from '@mui/material/Container'
 import { Box } from '@mui/material'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState, useRef } from 'react'
-import { isEmpty } from 'lodash'
 import { toast } from 'react-toastify'
 import AppBar from '~/components/AppBar/AppBar'
 import BoardBar from '../BoardBar/BoardBar'
@@ -15,7 +14,6 @@ import {
 } from '~/apis/boards'
 import { createNewCardAPI } from '~/apis/cards'
 import { createNewColumnAPI, deleteColumnDetailsAPI, updateColumnDetailsAPI } from '~/apis/columns'
-import { generatePlaceholderCard } from '~/utils/formatters'
 import { mapOrder } from '~/utils/sort'
 import BasicLoading from '~/helpers/components/BasicLoading'
 import { PERMISSIONS_MAP } from '~/utils/permissions'
@@ -25,17 +23,6 @@ import useDebounce from '~/helpers/hooks/useDebonce'
 import { useMoveCardQueue } from '~/helpers/hooks/useMoveCardQueue'
 
 const EMPTY_FILTERS = { term: '', overdue: '', dueTomorrow: '', noDue: '' }
-const isPlaceholderId = (id) => typeof id === 'string' && id.includes('placehorlder-card')
-
-// Column rong -> gan placeholder card de dnd-kit collision detection co diem bam
-// Thu tu columns/cards da duoc BE sort san theo columnOrderIds/cardOrderIds
-const withPlaceholderIfEmpty = (column) => {
-  if (isEmpty(column.cardOrderIds)) {
-    const placeholder = generatePlaceholderCard(column)
-    return { ...column, cards: [placeholder], cardOrderIds: [placeholder._id] }
-  }
-  return column
-}
 
 function Board() {
   const { boardId } = useParams()
@@ -73,7 +60,7 @@ function Board() {
         term: debouncedFilters.term?.trim() || undefined
       }
       const boardRes = await fetchBoardDetailsAPI(boardId, params)
-      boardRes.columns = (boardRes.columns || []).map(withPlaceholderIfEmpty)
+      // boardRes.columns = (boardRes.columns || []).map(withPlaceholderIfEmpty)
       setBoard(boardRes)
       setPermissions(PERMISSIONS_MAP[boardRes.userRole])
     } catch (error) {
@@ -129,10 +116,9 @@ function Board() {
   const createNewColumn = async (newColumnData) => {
     if (!ensure(permissions.CREATE_COLUMN)) return
     const newColumn = await createNewColumnAPI({ ...newColumnData, boardId: board._id })
-    const placeholder = generatePlaceholderCard(newColumn)
     setBoard((prev) => ({
       ...prev,
-      columns: [...prev.columns, { ...newColumn, cards: [placeholder], cardOrderIds: [placeholder._id] }],
+      columns: [...prev.columns, { ...newColumn, cards: [], cardOrderIds: [] }],
       columnOrderIds: [...prev.columnOrderIds, newColumn._id]
     }))
   }
@@ -196,12 +182,9 @@ function Board() {
   const moveCardToDifferentColumn = (currentCardId, prevColumnId, nextColumnId, dndOrderedColumns) => {
     if (!ensure(permissions.MOVING_CARD, { blockWhileFiltering: true })) return
 
-    // Bo placeholder ID (column trong dung placeholder card de hien thi)
-    const clean = (ids) => (isPlaceholderId(ids?.[0]) ? [] : ids || [])
-
     // Snapshot TRUOC khi keo (lay tu state hien tai, do queue dam bao state = DB)
-    const prevCardOrderIdsBefore = clean(board.columns.find((c) => c._id === prevColumnId)?.cardOrderIds)
-    const nextCardOrderIdsBefore = clean(board.columns.find((c) => c._id === nextColumnId)?.cardOrderIds)
+    const prevCardOrderIdsBefore = board.columns.find((c) => c._id === prevColumnId)?.cardOrderIds ?? []
+    const nextCardOrderIdsBefore = board.columns.find((c) => c._id === nextColumnId)?.cardOrderIds ?? []
 
     // Optimistic update UI ngay
     setBoard((prev) => ({
@@ -211,8 +194,8 @@ function Board() {
     }))
 
     // Thu tu SAU khi keo
-    const prevCardOrderIdsAfter = clean(dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds)
-    const nextCardOrderIdsAfter = clean(dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds)
+    const prevCardOrderIdsAfter = dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds ?? []
+    const nextCardOrderIdsAfter = dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds ?? []
 
     enqueueMove(async () => {
       const result = await moveCardToDifferentColumnAPI({
@@ -232,17 +215,23 @@ function Board() {
           columns: prev.columns.map((col) => {
             if (col._id === prevColumnId) {
               const newIds = result.prevCardOrderIds
-              const newCards = newIds.length === 0
-                ? [generatePlaceholderCard(col)]
-                : mapOrder(col.cards.filter((c) => !c.FE_PlaceholderCard), newIds, '_id')
-              return { ...col, cardOrderIds: newIds.length === 0 ? [] : newIds, cards: newCards }
+              const newCards = mapOrder(
+                col.cards.filter((c) => !c.FE_PlaceholderCard),
+                newIds,
+                '_id'
+              )
+              return { ...col, cardOrderIds: newIds, cards: newCards }
             }
             if (col._id === nextColumnId) {
               const newIds = result.nextCardOrderIds
               return {
                 ...col,
                 cardOrderIds: newIds,
-                cards: mapOrder(col.cards.filter((c) => !c.FE_PlaceholderCard), newIds, '_id')
+                cards: mapOrder(
+                  col.cards.filter((c) => !c.FE_PlaceholderCard),
+                  newIds,
+                  '_id'
+                )
               }
             }
             return col
