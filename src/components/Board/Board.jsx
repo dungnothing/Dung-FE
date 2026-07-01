@@ -27,13 +27,14 @@ import { useMoveCardQueue } from '~/helpers/hooks/useMoveCardQueue'
 const EMPTY_FILTERS = { term: '', overdue: '', dueTomorrow: '', noDue: '' }
 const isPlaceholderId = (id) => typeof id === 'string' && id.includes('placehorlder-card')
 
-// Gắn cards (đã sắp xếp) vào mỗi column; column rỗng dùng placeholder card
-const withOrderedCards = (column) => {
+// Column rong -> gan placeholder card de dnd-kit collision detection co diem bam
+// Thu tu columns/cards da duoc BE sort san theo columnOrderIds/cardOrderIds
+const withPlaceholderIfEmpty = (column) => {
   if (isEmpty(column.cardOrderIds)) {
     const placeholder = generatePlaceholderCard(column)
     return { ...column, cards: [placeholder], cardOrderIds: [placeholder._id] }
   }
-  return { ...column, cards: mapOrder(column.cards, column.cardOrderIds, '_id') }
+  return column
 }
 
 function Board() {
@@ -72,7 +73,7 @@ function Board() {
         term: debouncedFilters.term?.trim() || undefined
       }
       const boardRes = await fetchBoardDetailsAPI(boardId, params)
-      boardRes.columns = mapOrder(boardRes.columns, boardRes.columnOrderIds, '_id').map(withOrderedCards)
+      boardRes.columns = (boardRes.columns || []).map(withPlaceholderIfEmpty)
       setBoard(boardRes)
       setPermissions(PERMISSIONS_MAP[boardRes.userRole])
     } catch (error) {
