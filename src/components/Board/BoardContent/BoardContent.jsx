@@ -1,27 +1,26 @@
-import Box from '@mui/material/Box'
-import ListColumns from './ListColumns/ListColumns'
 import {
   DndContext,
-  useSensor,
-  useSensors,
   DragOverlay,
-  defaultDropAnimationSideEffects,
   closestCorners,
+  defaultDropAnimationSideEffects,
+  getFirstCollision,
   pointerWithin,
-  getFirstCollision
+  useSensor,
+  useSensors
 } from '@dnd-kit/core'
-import { MouseSensor, TouchSensor } from '~/helpers/hooks/DndKitSensor'
-import { useCallback, useEffect, useRef, useState } from 'react'
 import { arrayMove } from '@dnd-kit/sortable'
-import { cloneDeep, isEmpty } from 'lodash'
-import { generatePlaceholderCard } from '~/utils/formatters'
+import Box from '@mui/material/Box'
+import { cloneDeep } from 'lodash'
+import { useCallback, useEffect, useState } from 'react'
+import { MouseSensor, TouchSensor } from '~/helpers/hooks/DndKitSensor'
+import ListColumns from './ListColumns/ListColumns'
+import { toast } from 'react-toastify'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
-import { toast } from 'react-toastify'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
-  COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
-  CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
+  COLUMN: 'COLUMN',
+  CARD: 'CARD'
 }
 
 function BoardContent({
@@ -54,16 +53,16 @@ function BoardContent({
   const [activeDragData, setActiveDragData] = useState(null)
   const [oldColumn, setOldColumn] = useState(null) // oldColumnWhenDraggingCard
 
-  const lastOverId = useRef(null)
-
   useEffect(() => {
     setColumns(board?.columns || [])
   }, [board])
 
   const isBoardClosed = board?.boardState === 'CLOSED'
 
-  const findColumnByCardId = (cardId) => {
-    return columns.find((column) => column?.cards?.map((card) => card._id)?.includes(cardId))
+  const findContainer = (id) => {
+    const asColumn = columns.find((column) => column._id === id)
+    if (asColumn) return asColumn
+    return columns.find((column) => column?.cards?.some((card) => card._id === id))
   }
 
   const moveCardBetweenDifferentColumns = (
@@ -91,10 +90,6 @@ function BoardContent({
 
       if (source) {
         source.cards = source.cards.filter((card) => card._id !== draggingCardId)
-
-        if (isEmpty(source.cards)) {
-          source.cards = [generatePlaceholderCard(source)]
-        }
 
         source.cardOrderIds = source.cards.map((card) => card._id)
       }
@@ -124,13 +119,11 @@ function BoardContent({
 
   const handleDragStart = (event) => {
     setActiveDragId(event?.active?.id)
-    setActiveDragType(
-      event?.active?.data?.current?.cardOrderIds ? ACTIVE_DRAG_ITEM_TYPE.COLUMN : ACTIVE_DRAG_ITEM_TYPE.CARD
-    )
+    setActiveDragType(event?.active?.data?.current?.type)
     setActiveDragData(event?.active?.data?.current)
 
     if (!event?.active?.data?.current?.cardOrderIds) {
-      setOldColumn(findColumnByCardId(event?.active?.id))
+      setOldColumn(findContainer(event?.active?.id))
     }
   }
 
@@ -139,13 +132,14 @@ function BoardContent({
     if (activeDragType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) return
 
     const { active, over } = event
+
     if (!active || !over) return
 
     const draggingCardId = active.id
     const overCardId = over.id
 
-    const sourceCol = findColumnByCardId(draggingCardId)
-    const targetCol = findColumnByCardId(overCardId)
+    const sourceCol = findContainer(draggingCardId)
+    const targetCol = findContainer(overCardId)
 
     if (!sourceCol || !targetCol) return
 
@@ -187,8 +181,8 @@ function BoardContent({
       const draggingCardId = active.id
       const overCardId = over.id
 
-      const sourceCol = findColumnByCardId(draggingCardId)
-      const targetCol = findColumnByCardId(overCardId)
+      const sourceCol = findContainer(draggingCardId)
+      const targetCol = findContainer(overCardId)
       if (!sourceCol || !targetCol) return
 
       if (oldColumn._id !== targetCol._id) {
@@ -263,19 +257,16 @@ function BoardContent({
       if (overId) {
         const checkColumn = columns.find((column) => column._id === overId)
         if (checkColumn) {
-          overId = closestCorners({
+          const nearestCardId = closestCorners({
             ...args,
             droppableContainers: args.droppableContainers.filter((container) => {
               return container.id !== overId && checkColumn?.cardOrderIds?.includes(container.id)
             })
           })[0]?.id
+          overId = nearestCardId ?? overId
         }
-
-        lastOverId.current = overId
         return [{ id: overId }]
       }
-
-      return lastOverId.current ? [{ id: lastOverId.current }] : []
     },
     [activeDragType, columns]
   )

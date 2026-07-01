@@ -37,12 +37,12 @@ function Column({
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
-    data: { ...column }
+    data: { ...column, type: 'COLUMN' }
   })
 
   const dndKitColumnStyless = {
     /**
-     * Su dung CSS.Tranform se sinh ra bug bang bi keo dai va xau
+     * Su dung CSS. Tranform se sinh ra bug bang bi keo dai va xau
      * https://github.com/clauderic/dnd-kit/issues/183#issuecomment-812569512
      */
     // touchAction: 'none', // Danh cho sensor default dang PointerSensor

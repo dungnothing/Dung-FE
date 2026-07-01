@@ -38,16 +38,6 @@ export const checkTime = (time) => {
   return `${Math.floor(diffTime / 2592000)} tháng trước`
 }
 
-// Dung de tao ra 1 card moi khi 1 column trong, trong do card do duoc an di khoi giao dien nguoi dung
-export const generatePlaceholderCard = (column) => {
-  return {
-    _id: `${column._id}-placehorlder-card`,
-    boardId: column.boardId,
-    columnId: column._id,
-    FE_PlaceholderCard: true
-  }
-}
-
 export const updateCardInBoard = (board, cardId, updatedCard) => {
   const nextBoard = cloneDeep(board)
 

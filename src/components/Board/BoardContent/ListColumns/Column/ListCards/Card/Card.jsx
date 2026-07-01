@@ -22,12 +22,10 @@ import { useSearchParams } from 'react-router-dom'
 function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = false, setBoard, board }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [hover, setHover] = useState(false)
-  // Doc thang tu prop, khong copy vao state. Khi socket update thi prop doi -> Card re-render dung.
   const isDone = !!card?.isDone
   const [isExpired, setIsExpired] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
   const [comments, setComments] = useState([])
-  // Derive tu prop -> tu cap nhat khi socket update card.commentIds
   const commentCount = card?.commentIds?.length || 0
 
   // Tự động mở dialog nếu URL có ?card=cardId
@@ -49,8 +47,8 @@ function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = fals
   // Sap xep card
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card._id,
-    data: { ...card },
-    disabled: openDialog // Disable sorting when dialog is open
+    data: { ...card, type: 'CARD' },
+    disabled: openDialog
   })
 
   const ghostMode = isDragging || isOverlay
@@ -103,11 +101,6 @@ function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = fals
           cursor: 'pointer',
           flexShrink: 0,
           boxShadow: '0 1px 1px  rgba(0, 0, 0, 0.2)',
-          opacity: card.FE_PlaceholderCard ? '0' : '1',
-          minWidth: card.FE_PlaceholderCard ? '242px' : 'unset',
-          minHeight: card.FE_PlaceholderCard ? '0px' : 'unset',
-          height: card.FE_PlaceholderCard ? '0px' : 'unset',
-          pointerEvents: card.FE_PlaceholderCard ? 'none' : 'auto',
           border: '#A9B5DF',
           '&:hover': { borderColor: (theme) => theme.palette.primary.main }
         }}
