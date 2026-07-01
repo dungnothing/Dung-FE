@@ -231,9 +231,14 @@ function Board() {
           columns: prev.columns.map((col) => {
             if (col._id === prevColumnId) {
               const newIds = result.prevCardOrderIds
-              const newCards = newIds.length === 0
-                ? [generatePlaceholderCard(col)]
-                : mapOrder(col.cards.filter((c) => !c.FE_PlaceholderCard), newIds, '_id')
+              const newCards =
+                newIds.length === 0
+                  ? [generatePlaceholderCard(col)]
+                  : mapOrder(
+                      col.cards.filter((c) => !c.FE_PlaceholderCard),
+                      newIds,
+                      '_id'
+                    )
               return { ...col, cardOrderIds: newIds.length === 0 ? [] : newIds, cards: newCards }
             }
             if (col._id === nextColumnId) {
@@ -241,7 +246,11 @@ function Board() {
               return {
                 ...col,
                 cardOrderIds: newIds,
-                cards: mapOrder(col.cards.filter((c) => !c.FE_PlaceholderCard), newIds, '_id')
+                cards: mapOrder(
+                  col.cards.filter((c) => !c.FE_PlaceholderCard),
+                  newIds,
+                  '_id'
+                )
               }
             }
             return col
