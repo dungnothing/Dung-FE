@@ -73,7 +73,6 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
   const inputRef = useRef(null)
   const ignoreSearch = useRef(false)
 
-  // Xac dinh role cua user hien tai tren board
   const members = Array.isArray(allUserInBoard) ? allUserInBoard : []
   const myMembership = members.find((m) => m.userId?.toString() === user?.userId?.toString())
   const myRole = myMembership?.role
@@ -126,7 +125,6 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
         toast.error('Email không hợp lệ')
         return
       }
-      // Bao ve UX truoc khi phong Admin
       if (inviteRole === BOARD_ROLES.ADMIN) {
         try {
           await confirm({
@@ -277,7 +275,17 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
 
         {canInvite && (
           <Box>
-            <DialogContent sx={{ display: 'flex', gap: 1, position: 'relative' }}>
+            <DialogContent
+              sx={{
+                display: 'flex',
+                gap: 1,
+                alignItems: 'stretch',
+                position: 'relative',
+                pb: 1,
+                '& .MuiOutlinedInput-root': { height: 36 },
+                '& .MuiButton-root': { height: 36 }
+              }}
+            >
               <ClickAwayListener onClickAway={() => setShowPopper(false)}>
                 <Box sx={{ flex: 1, position: 'relative' }}>
                   <TextField
@@ -298,7 +306,6 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
                     slotProps={{
                       input: {
                         sx: {
-                          height: 40,
                           '& input': { padding: '0 14px', fontSize: '14px', color: textColor }
                         }
                       }
@@ -352,7 +359,11 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
                 </Box>
               </ClickAwayListener>
               <FormControl size="small" sx={{ minWidth: 120 }}>
-                <Select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
+                <Select
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value)}
+                  sx={{ '& .MuiSelect-select': { py: 0, display: 'flex', alignItems: 'center' } }}
+                >
                   {availableInviteRoles.map((r) => (
                     <MenuItem key={r} value={r}>
                       {ROLE_LABELS[r]}
@@ -370,7 +381,12 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
               </Button>
               <Button
                 variant="outlined"
-                sx={{ color: textColor, borderColor: textColor, minWidth: 'unset', '&:hover': { borderColor: textColor } }}
+                sx={{
+                  color: textColor,
+                  borderColor: textColor,
+                  minWidth: 'unset',
+                  '&:hover': { borderColor: textColor }
+                }}
                 onClick={() => {
                   setOpen(false)
                   setShareLinkOpen(true)
@@ -382,8 +398,8 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
           </Box>
         )}
 
-        <DialogTitle sx={{ pt: 0, color: textColor }}>Danh sách</DialogTitle>
-        <Box sx={{ maxHeight: '260px', overflowY: 'auto', px: 3, gap: 2, display: 'flex', flexDirection: 'column' }}>
+        <DialogTitle sx={{ pt: 1, pb: 1, color: textColor, fontSize: '1rem' }}>Danh sách</DialogTitle>
+        <Box sx={{ maxHeight: '260px', overflowY: 'auto', px: 3, pb: 2, gap: 2, display: 'flex', flexDirection: 'column' }}>
           {loadingUser ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
               <CircularProgress size={32} />
@@ -408,19 +424,28 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
                 return (
                   <Box
                     key={m.userId?.toString()}
-                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      py: 0.5
+                    }}
                   >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Avatar alt={m.userName} src={m.avatar || ''} />
-                      <div className="flex flex-col gap-1">
-                        <p style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          {m.userName}
-                          {isSelf && <span className="text-xs opacity-60">(bạn)</span>}
-                        </p>
-                        <p className="text-xs opacity-50">{m.email}</p>
-                      </div>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+                      <Avatar alt={m.userName} src={m.avatar || ''} sx={{ width: 40, height: 40 }} />
+                      <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                          <Typography sx={{ color: textColor, fontWeight: 500, fontSize: '0.9rem' }}>
+                            {m.userName}
+                          </Typography>
+                          {isSelf && (
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>(bạn)</Typography>
+                          )}
+                        </Box>
+                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{m.email}</Typography>
+                      </Box>
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
                       {canChangeRole ? (
                         <FormControl size="small" sx={{ minWidth: 110 }}>
                           <Select
