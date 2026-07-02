@@ -26,10 +26,17 @@ export const getBoardSocketCallbacks = (setBoard, navigate) => ({
   onColumnUpdated: (updatedColumn) => {
     setBoard((prev) => {
       const newBoard = { ...prev }
-      const col = newBoard.columns.find((c) => c._id === updatedColumn._id)
-      if (col) {
-        col.cardOrderIds = updatedColumn.cardOrderIds
-        col.cards = mapOrder(col.cards, updatedColumn.cardOrderIds, '_id')
+      const colIndex = newBoard.columns.findIndex((c) => c._id === updatedColumn._id)
+      if (colIndex === -1) return newBoard
+
+      const prevCol = newBoard.columns[colIndex]
+      const cardOrderIds = updatedColumn.cardOrderIds ?? prevCol.cardOrderIds
+      newBoard.columns = [...newBoard.columns]
+      newBoard.columns[colIndex] = {
+        ...prevCol,
+        ...updatedColumn,
+        cardOrderIds,
+        cards: mapOrder(prevCol.cards, cardOrderIds, '_id')
       }
       return newBoard
     })

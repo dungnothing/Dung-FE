@@ -65,6 +65,10 @@ function BoardContent({
     return columns.find((column) => column?.cards?.some((card) => card._id === id))
   }
 
+  // Chi Owner/Admin (permissions.LOCK_COLUMN) moi thao tac duoc card trong column bi khoa
+  const canBypassLock = permissions?.LOCK_COLUMN
+  const isColumnBlocked = (column) => column?.isLocked && !canBypassLock
+
   const moveCardBetweenDifferentColumns = (
     targetColumn,
     targetCardId,
@@ -143,6 +147,9 @@ function BoardContent({
 
     if (!sourceCol || !targetCol) return
 
+    // Khong preview keo qua/ra khoi column bi khoa (tru Owner/Admin)
+    if (isColumnBlocked(sourceCol) || isColumnBlocked(targetCol)) return
+
     if (sourceCol._id !== targetCol._id) {
       moveCardBetweenDifferentColumns(
         targetCol,
@@ -170,11 +177,19 @@ function BoardContent({
     if (activeDragType === ACTIVE_DRAG_ITEM_TYPE.CARD) {
       if (!permissions.MOVING_CARD) {
         toast.error('Bạn không có quyền')
+        setActiveDragId(null)
+        setActiveDragType(null)
+        setActiveDragData(null)
+        setOldColumn(null)
         return
       }
 
       if (isFiltering) {
         toast.error('Không thể thực hiện khi đang lọc')
+        setActiveDragId(null)
+        setActiveDragType(null)
+        setActiveDragData(null)
+        setOldColumn(null)
         return
       }
 
@@ -184,6 +199,18 @@ function BoardContent({
       const sourceCol = findContainer(draggingCardId)
       const targetCol = findContainer(overCardId)
       if (!sourceCol || !targetCol) return
+
+      // Column nguon (luc bat dau keo) hoac column dich dang bi khoa -> chan hoan tac,
+      // reset ve dung vi tri cu (phong truong hop handleDragOver chua kip chan).
+      if (isColumnBlocked(oldColumn) || isColumnBlocked(sourceCol) || isColumnBlocked(targetCol)) {
+        toast.error('Cột đã bị khoá — không thể di chuyển thẻ')
+        setColumns(board?.columns || [])
+        setActiveDragId(null)
+        setActiveDragType(null)
+        setActiveDragData(null)
+        setOldColumn(null)
+        return
+      }
 
       if (oldColumn._id !== targetCol._id) {
         moveCardBetweenDifferentColumns(
