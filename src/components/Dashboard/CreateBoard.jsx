@@ -1,4 +1,4 @@
-import { Dialog, Box, Typography, IconButton, TextField, Select, MenuItem, Button } from '@mui/material'
+import { Dialog, Box, Typography, IconButton, TextField, Button } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { useState, useEffect } from 'react'
@@ -13,9 +13,9 @@ function CreateBoard({ open, onClose, templateId = null }) {
   const [listBackground, setListBackground] = useState([])
   const [loading, setLoading] = useState(false)
 
+  // Visibility hien tam co dinh PRIVATE. Feature SHOWCASE/WORKSPACE lam sau, khong gui field tu FE.
   const defaultValues = {
     title: '',
-    visibility: 'PRIVATE',
     boardBackground: ''
   }
 
@@ -50,11 +50,13 @@ function CreateBoard({ open, onClose, templateId = null }) {
         newBoard = await cloneTemplateAPI({
           templateId,
           title: data.title,
-          visibility: data.visibility,
           boardBackground: data.boardBackground
         })
       } else {
-        newBoard = await createNewBoardAPI(data)
+        newBoard = await createNewBoardAPI({
+          title: data.title,
+          boardBackground: data.boardBackground
+        })
       }
 
       await addRecentBoardAPI(newBoard._id)
@@ -78,7 +80,7 @@ function CreateBoard({ open, onClose, templateId = null }) {
       onClose={handleCloseDialog}
       sx={{
         '& .MuiDialog-paper': {
-          height: { xs: 'auto', sm: '450px' },
+          height: { xs: 'auto', sm: '400px' },
           width: { xs: '100%', sm: '520px' },
           borderRadius: '10px'
         }
@@ -129,21 +131,6 @@ function CreateBoard({ open, onClose, templateId = null }) {
           onChange={(e) => form.setValue('title', e.target.value)}
           sx={{ width: '100%' }}
         />
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Typography sx={{ color: textColor }}>Quyền xem</Typography>
-          <Select
-            value={form.watch('visibility')}
-            onChange={(e) => form.setValue('visibility', e.target.value)}
-            sx={{ width: '100%' }}
-          >
-            <MenuItem value="PRIVATE" sx={{ color: textColor }}>
-              Private
-            </MenuItem>
-            <MenuItem value="PUBLIC" sx={{ color: textColor }}>
-              Public
-            </MenuItem>
-          </Select>
-        </Box>
 
         <div className="flex justify-end w-full">
           <Button

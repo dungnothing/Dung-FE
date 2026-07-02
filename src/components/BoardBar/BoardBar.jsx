@@ -5,7 +5,8 @@ import MemberManage from './MemberManage'
 import DialogChangeAdmin from './DialogChangeAdmin'
 import FilterTable from './FilterTable'
 import BoardTitle from './components/BoardTitle'
-import VisibilityToggle from './components/VisibilityToggle'
+// VisibilityToggle tam an — hien tai chi ho tro PRIVATE, feature SHOWCASE/WORKSPACE lam sau.
+// import VisibilityToggle from './components/VisibilityToggle'
 import StarButton from './components/StarButton'
 import BoardActionsMenu from './components/BoardActionsMenu'
 import UserAvatars from './components/UserAvatars'
@@ -64,16 +65,6 @@ function BoardBar({
           setEditedTitle={boardOps.setEditedTitle}
           boardTitle={board?.title}
           handleUpdateTitle={boardOps.handleUpdateTitle}
-        />
-
-        <VisibilityToggle
-          visibility={boardOps.visibility}
-          anchorEl={menuStates.anchorEl}
-          setAnchorEl={menuStates.setAnchorEl}
-          open={menuStates.open}
-          setOpen={menuStates.setOpen}
-          handleVisibilityChange={boardOps.handleVisibilityChange}
-          loading={boardOps.visibilityLoading}
         />
 
         <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
