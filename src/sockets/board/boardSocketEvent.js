@@ -24,6 +24,7 @@ export const initBoardSocket = (
   const listeners = [
     { event: 'column:created', handler: onColumnCreated },
     { event: 'column:updated', handler: onColumnUpdated },
+    { event: 'column:lockChanged', handler: onColumnUpdated },
     { event: 'column:deleted', handler: onColumnDeleted },
     { event: 'card:created', handler: onCardCreated },
     { event: 'card:move-diff', handler: onMoveCardToDifferentColumn },

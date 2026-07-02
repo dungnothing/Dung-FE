@@ -29,7 +29,7 @@ function Board() {
   const navigate = useNavigate()
   const [board, setBoard] = useState(null)
   const [permissions, setPermissions] = useState(null)
-  const [allUserInBoard, setAllUserInBoard] = useState({ admin: {}, members: [] })
+  const [allUserInBoard, setAllUserInBoard] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [filterLoading, setFilterLoading] = useState(false)
   const [filters, setFilters] = useState(EMPTY_FILTERS)

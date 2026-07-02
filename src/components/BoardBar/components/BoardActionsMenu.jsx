@@ -56,8 +56,8 @@ function BoardActionsMenu({
         <MenuItem disabled={!permissions?.DELETE_BOARD} onClick={() => { handleConfirmDeleteBoard(); setAnchorElMore(null) }}>
           Xóa bảng
         </MenuItem>
-        <MenuItem disabled={!permissions?.CHANGE_ADMIN} onClick={() => { setOpenDialog(true); setAnchorElMore(null) }}>
-          Thay đổi admin
+        <MenuItem disabled={!permissions?.TRANSFER_OWNERSHIP} onClick={() => { setOpenDialog(true); setAnchorElMore(null) }}>
+          Chuyển quyền Owner
         </MenuItem>
       </Menu>
 
@@ -99,33 +99,27 @@ function BoardActionsMenu({
         <Divider />
 
         {/* Members */}
-        {allUserInBoard && (
+        {Array.isArray(allUserInBoard) && allUserInBoard.length > 0 && (
           <>
             <Box sx={{ px: 2, pt: 1.5, pb: 1 }}>
               <Typography variant="caption" fontWeight={600} sx={{ color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', mb: 1 }}>
                 Thành viên
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                {/* Admin */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Avatar src={allUserInBoard.admin?.adminAvatar} alt={allUserInBoard.admin?.adminName} sx={{ width: 32, height: 32, fontSize: 13 }} />
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="body2" fontWeight={600} sx={{ color: textColor, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {allUserInBoard.admin?.adminName}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>Quản trị viên</Typography>
-                  </Box>
-                  <Chip size="small" label="Admin" sx={{ height: 18, fontSize: '0.65rem', bgcolor: '#635FFF', color: '#fff', fontWeight: 600 }} />
-                </Box>
-                {/* Members */}
-                {allUserInBoard.members?.map((m, i) => (
-                  <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Avatar src={m.memberAvatar} alt={m.memberName} sx={{ width: 32, height: 32, fontSize: 13 }} />
-                    <Typography variant="body2" sx={{ color: textColor, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {m.memberName}
-                    </Typography>
-                  </Box>
-                ))}
+                {[...allUserInBoard]
+                  .sort((a, b) => {
+                    const p = { OWNER: 0, ADMIN: 1, MEMBER: 2, OBSERVER: 3 }
+                    return (p[a.role] ?? 99) - (p[b.role] ?? 99)
+                  })
+                  .map((m) => (
+                    <Box key={m.userId?.toString()} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Avatar src={m.avatar} alt={m.userName} sx={{ width: 32, height: 32, fontSize: 13 }} />
+                      <Typography variant="body2" sx={{ color: textColor, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {m.userName}
+                      </Typography>
+                      <Chip size="small" label={m.role} sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600 }} />
+                    </Box>
+                  ))}
               </Box>
             </Box>
             <Divider />
@@ -152,11 +146,11 @@ function BoardActionsMenu({
             <ListItemText primary={isClosed ? 'Mở cửa trái tim' : 'Đóng cửa trái tim'} primaryTypographyProps={{ fontSize: '0.9rem' }} />
           </ListItemButton>
 
-          <ListItemButton disabled={!permissions?.CHANGE_ADMIN} onClick={() => { setOpenDialog(true); closeAll() }}>
+          <ListItemButton disabled={!permissions?.TRANSFER_OWNERSHIP} onClick={() => { setOpenDialog(true); closeAll() }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
               <AdminPanelSettingsIcon sx={{ fontSize: 20 }} />
             </ListItemIcon>
-            <ListItemText primary="Thay đổi admin" primaryTypographyProps={{ fontSize: '0.9rem' }} />
+            <ListItemText primary="Chuyển quyền Owner" primaryTypographyProps={{ fontSize: '0.9rem' }} />
           </ListItemButton>
 
           <ListItemButton

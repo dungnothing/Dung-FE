@@ -16,3 +16,8 @@ export const deleteColumnDetailsAPI = async (columnId, boardId) => {
   })
   return response.data
 }
+
+export const setColumnLockAPI = async (columnId, boardId, isLocked) => {
+  const response = await axiosInstance.put(`/v1/columns/${columnId}/lock`, { boardId, isLocked })
+  return response.data
+}

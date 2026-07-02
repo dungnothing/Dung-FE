@@ -6,20 +6,22 @@ import Button from '@mui/material/Button'
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { textColor } from '~/utils/constants'
+import { BOARD_ROLES } from '~/utils/permissions'
 
 function DialogChangeAdmin({ open, onClose, allUserInBoard, setMemberId, handleConfirmChangeAdmin, memberId }) {
+  const members = Array.isArray(allUserInBoard) ? allUserInBoard : []
+  // Loai Owner khoi danh sach chon (khong the transfer cho chinh Owner)
+  const candidates = members.filter((m) => m.role !== BOARD_ROLES.OWNER)
+
   return (
     <Dialog open={open} onClose={onClose} sx={{ '& .MuiDialog-paper': { width: '400px' } }}>
-      <DialogTitle sx={{ color: textColor }}>Thay đổi admin</DialogTitle>
+      <DialogTitle sx={{ color: textColor }}>Chuyển quyền Owner</DialogTitle>
       <DialogContent>
         <Autocomplete
-          placeholder="Chọn thành viên"
-          variant="outlined"
-          options={allUserInBoard?.members}
+          options={candidates}
           getOptionLabel={(option) => option.userName || ''}
-          onChange={(event, value) => {
-            setMemberId(value?._id || '')
-          }}
+          isOptionEqualToValue={(option, value) => option.userId?.toString() === value?.userId?.toString()}
+          onChange={(event, value) => setMemberId(value?.userId?.toString() || '')}
           renderInput={(params) => <TextField {...params} placeholder="Chọn thành viên" variant="outlined" />}
         />
       </DialogContent>
@@ -33,7 +35,7 @@ function DialogChangeAdmin({ open, onClose, allUserInBoard, setMemberId, handleC
           sx={{ color: textColor, borderColor: 'purple' }}
           disabled={!memberId}
         >
-          Thay đổi
+          Chuyển
         </Button>
       </DialogActions>
     </Dialog>

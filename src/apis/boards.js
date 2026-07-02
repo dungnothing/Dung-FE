@@ -35,13 +35,33 @@ export const updateBoardDetailsAPI = async (boardId, updateData) => {
   return response.data
 }
 
-export const addMemberToBoardAPI = async (boardId, inviteData) => {
+// inviteData: { email, role? } — role: OWNER khong duoc phep, ADMIN chi Owner moi duoc
+export const inviteMemberAPI = async (boardId, inviteData) => {
   const response = await axiosInstance.post(`/v1/boards/${boardId}/members`, inviteData)
   return response.data
 }
 
-export const removeMemberFromBoardAPI = async (boardId, memberId) => {
+// Backward compat: cac component cu dang goi addMemberToBoardAPI
+export const addMemberToBoardAPI = inviteMemberAPI
+
+export const kickMemberAPI = async (boardId, memberId) => {
   const response = await axiosInstance.delete(`/v1/boards/${boardId}/members/${memberId}`)
+  return response.data
+}
+export const removeMemberFromBoardAPI = kickMemberAPI
+
+export const changeMemberRoleAPI = async (boardId, memberId, newRole) => {
+  const response = await axiosInstance.put(`/v1/boards/${boardId}/members/${memberId}/role`, { newRole })
+  return response.data
+}
+
+export const leaveBoardAPI = async (boardId) => {
+  const response = await axiosInstance.post(`/v1/boards/${boardId}/leave`)
+  return response.data
+}
+
+export const getMyBoardPermissionsAPI = async (boardId) => {
+  const response = await axiosInstance.get(`/v1/boards/${boardId}/my-permissions`)
   return response.data
 }
 
@@ -95,9 +115,13 @@ export const addRecentBoardAPI = async (boardId) => {
   return response.data
 }
 
-export const changeAdminAPI = async (boardId, memberId) => {
-  const response = await axiosInstance.put(`/v1/boards/${boardId}/changeAdmin`, { memberId })
+export const transferOwnershipAPI = async (boardId, targetUserId) => {
+  const response = await axiosInstance.put(`/v1/boards/${boardId}/transferOwnership`, { targetUserId })
   return response.data
+}
+// Backward compat
+export const changeAdminAPI = async (boardId, memberId) => {
+  return transferOwnershipAPI(boardId, memberId)
 }
 
 export const findUserInBoardAPI = async (boardId, query) => {

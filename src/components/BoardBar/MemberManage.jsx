@@ -1,7 +1,18 @@
 import CloseIcon from '@mui/icons-material/Close'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import ShareIcon from '@mui/icons-material/Share'
-import { CircularProgress, ClickAwayListener, IconButton, MenuItem, MenuList, Paper, Popper } from '@mui/material'
+import {
+  CircularProgress,
+  ClickAwayListener,
+  IconButton,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
+  Select,
+  FormControl,
+  Chip
+} from '@mui/material'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -10,18 +21,39 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { UserMinus } from 'lucide-react'
+import { UserMinus, Crown } from 'lucide-react'
 import { useConfirm } from 'material-ui-confirm'
 import { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { addMemberToBoardAPI, removeMemberFromBoardAPI, searchUserAPI } from '~/apis/boards'
+import {
+  inviteMemberAPI,
+  kickMemberAPI,
+  searchUserAPI,
+  changeMemberRoleAPI,
+  transferOwnershipAPI
+} from '~/apis/boards'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { textColor } from '~/utils/constants'
+import { BOARD_ROLES } from '~/utils/permissions'
 import { handleError } from '~/utils/messageHelper'
 import validation from '~/utils/validation'
 import ShareLink from './ShareLink'
+
+const ROLE_LABELS = {
+  OWNER: 'Owner',
+  ADMIN: 'Admin',
+  MEMBER: 'Member',
+  OBSERVER: 'Observer'
+}
+
+const ROLE_COLORS = {
+  OWNER: 'warning',
+  ADMIN: 'primary',
+  MEMBER: 'success',
+  OBSERVER: 'default'
+}
 
 function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
   const { boardId } = useParams()
@@ -33,13 +65,26 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
   const [open, setOpen] = useState(false)
   const [showPopper, setShowPopper] = useState(false)
   const [input, setInput] = useState('')
+  const [inviteRole, setInviteRole] = useState(BOARD_ROLES.MEMBER)
   const [isTyping, setIsTyping] = useState(false)
   const [searchResult, setSearchResult] = useState([])
   const [shareLinkOpen, setShareLinkOpen] = useState(false)
   const searchTerm = useDebounce(input, 500)
   const inputRef = useRef(null)
-
   const ignoreSearch = useRef(false)
+
+  // Xac dinh role cua user hien tai tren board
+  const members = Array.isArray(allUserInBoard) ? allUserInBoard : []
+  const myMembership = members.find((m) => m.userId?.toString() === user?.userId?.toString())
+  const myRole = myMembership?.role
+  const isOwner = myRole === BOARD_ROLES.OWNER
+  const isAdmin = myRole === BOARD_ROLES.ADMIN
+  const canInvite = isOwner || isAdmin
+  const canManage = isOwner || isAdmin
+
+  const availableInviteRoles = isOwner
+    ? [BOARD_ROLES.ADMIN, BOARD_ROLES.MEMBER, BOARD_ROLES.OBSERVER]
+    : [BOARD_ROLES.MEMBER, BOARD_ROLES.OBSERVER]
 
   const handleSearchUser = async () => {
     if (ignoreSearch.current) {
@@ -51,7 +96,6 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
       setIsTyping(false)
       return
     }
-
     try {
       setSearchLoading(true)
       const response = await searchUserAPI(searchTerm)
@@ -82,9 +126,24 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
         toast.error('Email không hợp lệ')
         return
       }
+      // Bao ve UX truoc khi phong Admin
+      if (inviteRole === BOARD_ROLES.ADMIN) {
+        try {
+          await confirm({
+            title: 'Mời làm Admin',
+            description:
+              'Admin sẽ có quyền quản lý workflow (tạo/sửa/xoá/khoá cột) và mời/kick thành viên thường. Chỉ phong Admin cho người bạn tin tưởng.',
+            confirmationText: 'Tôi hiểu, mời',
+            cancellationText: 'Hủy'
+          })
+        } catch {
+          return
+        }
+      }
       setLoading(true)
-      await addMemberToBoardAPI(boardId, { email: input })
+      await inviteMemberAPI(boardId, { email: input, role: inviteRole })
       toast.success('Mời thành công')
+      setInput('')
       getAllUser()
     } catch (error) {
       handleError(error)
@@ -93,14 +152,64 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
     }
   }
 
-  const handleRemove = async (userId) => {
+  const handleKick = async (targetUserId, targetName, targetRole) => {
     try {
+      await confirm({
+        title: 'Xóa thành viên',
+        description: (
+          <span>
+            Bạn có chắc muốn xóa{' '}
+            <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>{targetName}</span>{' '}
+            ({ROLE_LABELS[targetRole]}) khỏi bảng?
+          </span>
+        ),
+        confirmationText: 'Xóa',
+        cancellationText: 'Hủy'
+      })
       setLoading(true)
-      await removeMemberFromBoardAPI(board._id, userId)
+      await kickMemberAPI(board._id, targetUserId)
       toast.success('Xóa thành công')
       getAllUser()
     } catch (error) {
+      if (error?.name !== 'CancelledError') handleError(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleChangeRole = async (targetUserId, newRole) => {
+    try {
+      setLoading(true)
+      await changeMemberRoleAPI(board._id, targetUserId, newRole)
+      toast.success('Đổi vai trò thành công')
+      getAllUser()
+    } catch (error) {
       handleError(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleTransferOwnership = async (targetUserId, targetName) => {
+    try {
+      await confirm({
+        title: 'Chuyển quyền Owner',
+        description: (
+          <span>
+            Bạn sẽ chuyển quyền Owner cho{' '}
+            <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>{targetName}</span>
+            . Sau khi chuyển, bạn sẽ trở thành Member thường. Hành động này không thể hoàn tác.
+          </span>
+        ),
+        confirmationText: 'Chuyển quyền',
+        cancellationText: 'Hủy'
+      })
+      setLoading(true)
+      await transferOwnershipAPI(board._id, targetUserId)
+      toast.success('Chuyển Owner thành công')
+      getAllUser()
+    } catch (error) {
+      if (error?.name !== 'CancelledError') handleError(error)
     } finally {
       setLoading(false)
     }
@@ -114,6 +223,11 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
     if (!boardId || !open) return
     getAllUser()
   }, [boardId, open])
+
+  const sortedMembers = [...members].sort((a, b) => {
+    const rolePriority = { OWNER: 0, ADMIN: 1, MEMBER: 2, OBSERVER: 3 }
+    return (rolePriority[a.role] ?? 99) - (rolePriority[b.role] ?? 99)
+  })
 
   return (
     <>
@@ -132,7 +246,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
           onClick={() => setOpen(true)}
         >
           <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-            Mời
+            Thành viên
           </Box>
         </Button>
       </Box>
@@ -144,15 +258,10 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
           setSearchResult([])
           setShowPopper(false)
         }}
-        sx={{
-          '& .MuiDialog-paper': {
-            width: '1060px',
-            height: '400px'
-          }
-        }}
+        sx={{ '& .MuiDialog-paper': { width: '1060px', height: '500px' } }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <DialogTitle sx={{ pb: 0, color: textColor }}>Mời thêm các thành viên</DialogTitle>
+          <DialogTitle sx={{ pb: 0, color: textColor }}>Quản lý thành viên</DialogTitle>
           <IconButton
             onClick={() => {
               setOpen(false)
@@ -165,181 +274,198 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
             <CloseIcon />
           </IconButton>
         </Box>
-        <Box>
-          <DialogContent sx={{ display: 'flex', gap: 1, position: 'relative' }}>
-            <ClickAwayListener onClickAway={() => setShowPopper(false)}>
-              <Box sx={{ flex: 1, position: 'relative' }}>
-                <TextField
-                  fullWidth
-                  ref={inputRef}
-                  placeholder="Tên/Email"
-                  variant="outlined"
-                  value={input}
-                  onChange={(e) => {
-                    setInput(e.target.value)
-                    setShowPopper(true)
-                    setIsTyping(true)
-                    ignoreSearch.current = false
-                  }}
-                  onFocus={() => {
-                    if (input.trim() !== '') setShowPopper(true)
-                  }}
-                  slotProps={{
-                    input: {
-                      sx: {
-                        height: 40,
-                        '& input': {
-                          padding: '0 14px',
-                          fontSize: '14px',
-                          color: textColor
+
+        {canInvite && (
+          <Box>
+            <DialogContent sx={{ display: 'flex', gap: 1, position: 'relative' }}>
+              <ClickAwayListener onClickAway={() => setShowPopper(false)}>
+                <Box sx={{ flex: 1, position: 'relative' }}>
+                  <TextField
+                    fullWidth
+                    ref={inputRef}
+                    placeholder="Tên/Email"
+                    variant="outlined"
+                    value={input}
+                    onChange={(e) => {
+                      setInput(e.target.value)
+                      setShowPopper(true)
+                      setIsTyping(true)
+                      ignoreSearch.current = false
+                    }}
+                    onFocus={() => {
+                      if (input.trim() !== '') setShowPopper(true)
+                    }}
+                    slotProps={{
+                      input: {
+                        sx: {
+                          height: 40,
+                          '& input': { padding: '0 14px', fontSize: '14px', color: textColor }
                         }
                       }
-                    }
-                  }}
-                />
-                <Popper
-                  open={showPopper && input.trim() !== ''}
-                  anchorEl={inputRef.current}
-                  placement="bottom-start"
-                  style={{ zIndex: 1300, width: inputRef.current?.offsetWidth }}
-                  disablePortal={false}
-                >
-                  <Paper
-                    elevation={3}
-                    sx={{
-                      maxHeight: 300,
-                      overflowY: 'auto',
-                      mt: 0.5,
-                      boxShadow: '0px 4px 20px rgba(0,0,0,0.1)'
                     }}
+                  />
+                  <Popper
+                    open={showPopper && input.trim() !== ''}
+                    anchorEl={inputRef.current}
+                    placement="bottom-start"
+                    style={{ zIndex: 1300, width: inputRef.current?.offsetWidth }}
+                    disablePortal={false}
                   >
-                    <MenuList>
-                      {(searchLoading || isTyping) && input.trim() !== '' ? (
-                        <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
-                          <CircularProgress size={24} />
-                        </MenuItem>
-                      ) : searchResult?.length > 0 ? (
-                        searchResult?.map((user, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => {
-                              ignoreSearch.current = true
-                              setInput(user?.email || user?.userName)
-                              setShowPopper(false)
-                            }}
-                            sx={{
-                              display: 'flex',
-                              gap: 1.5,
-                              alignItems: 'center',
-                              py: 1.5
-                            }}
-                          >
-                            <Avatar alt={user?.userName} src={user?.userAvatar || ''} sx={{ width: 36, height: 36 }} />
-                            <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                              <Typography variant="body2" sx={{ color: textColor, fontWeight: 500 }}>
-                                {user?.userName}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                {user?.email}
-                              </Typography>
-                            </Box>
+                    <Paper elevation={3} sx={{ maxHeight: 300, overflowY: 'auto', mt: 0.5 }}>
+                      <MenuList>
+                        {(searchLoading || isTyping) && input.trim() !== '' ? (
+                          <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
+                            <CircularProgress size={24} />
                           </MenuItem>
-                        ))
-                      ) : input.trim() !== '' ? (
-                        <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            Không tìm thấy người dùng
-                          </Typography>
-                        </MenuItem>
-                      ) : null}
-                    </MenuList>
-                  </Paper>
-                </Popper>
-              </Box>
-            </ClickAwayListener>
-            <Button
-              variant="outlined"
-              onClick={handleInvite}
-              sx={{ color: textColor, borderColor: textColor }}
-              disabled={loading || input.trim() === ''}
-            >
-              Mời
-            </Button>
-            <Button
-              variant="outlined"
-              sx={{
-                color: textColor,
-                borderColor: textColor,
-                minWidth: 'unset',
-                '&:hover': { borderColor: textColor }
-              }}
-              onClick={() => {
-                setOpen(false)
-                setShareLinkOpen(true)
-              }}
-            >
-              <ShareIcon size={20} />
-            </Button>
-          </DialogContent>
-        </Box>
-        <DialogTitle sx={{ pt: 0, color: textColor }}>Thành viên</DialogTitle>
-        <Box sx={{ maxHeight: '200px', overflowY: 'auto', px: 3, gap: 2, display: 'flex', flexDirection: 'column' }}>
+                        ) : searchResult?.length > 0 ? (
+                          searchResult?.map((u, index) => (
+                            <MenuItem
+                              key={index}
+                              onClick={() => {
+                                ignoreSearch.current = true
+                                setInput(u?.email || u?.userName)
+                                setShowPopper(false)
+                              }}
+                              sx={{ display: 'flex', gap: 1.5, alignItems: 'center', py: 1.5 }}
+                            >
+                              <Avatar alt={u?.userName} src={u?.userAvatar || ''} sx={{ width: 36, height: 36 }} />
+                              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                <Typography variant="body2" sx={{ color: textColor, fontWeight: 500 }}>
+                                  {u?.userName}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                  {u?.email}
+                                </Typography>
+                              </Box>
+                            </MenuItem>
+                          ))
+                        ) : input.trim() !== '' ? (
+                          <MenuItem disabled sx={{ justifyContent: 'center', py: 2 }}>
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                              Không tìm thấy người dùng
+                            </Typography>
+                          </MenuItem>
+                        ) : null}
+                      </MenuList>
+                    </Paper>
+                  </Popper>
+                </Box>
+              </ClickAwayListener>
+              <FormControl size="small" sx={{ minWidth: 120 }}>
+                <Select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
+                  {availableInviteRoles.map((r) => (
+                    <MenuItem key={r} value={r}>
+                      {ROLE_LABELS[r]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Button
+                variant="outlined"
+                onClick={handleInvite}
+                sx={{ color: textColor, borderColor: textColor }}
+                disabled={loading || input.trim() === ''}
+              >
+                Mời
+              </Button>
+              <Button
+                variant="outlined"
+                sx={{ color: textColor, borderColor: textColor, minWidth: 'unset', '&:hover': { borderColor: textColor } }}
+                onClick={() => {
+                  setOpen(false)
+                  setShareLinkOpen(true)
+                }}
+              >
+                <ShareIcon size={20} />
+              </Button>
+            </DialogContent>
+          </Box>
+        )}
+
+        <DialogTitle sx={{ pt: 0, color: textColor }}>Danh sách</DialogTitle>
+        <Box sx={{ maxHeight: '260px', overflowY: 'auto', px: 3, gap: 2, display: 'flex', flexDirection: 'column' }}>
           {loadingUser ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
               <CircularProgress size={32} />
             </Box>
           ) : (
-            <>
-              {/* Hiển thị admin nếu có */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar alt={allUserInBoard?.admin?.adminName} src={allUserInBoard?.admin?.adminAvatar || ''} />
-                <div className="flex flex-col gap-1">
-                  <p>
-                    {allUserInBoard?.admin?.adminName} <span>(Admin)</span>
-                  </p>
-                  <p className="text-xs opacity-50">{allUserInBoard?.admin?.adminEmail}</p>
-                </div>
-              </Box>
+            <Box className="flex flex-col gap-2">
+              {sortedMembers.map((m) => {
+                const isSelf = m.userId?.toString() === user?.userId?.toString()
+                const targetIsOwner = m.role === BOARD_ROLES.OWNER
+                const targetIsAdmin = m.role === BOARD_ROLES.ADMIN
+                const canKick =
+                  canManage && !isSelf && !targetIsOwner && (isOwner || (isAdmin && !targetIsAdmin))
+                const canChangeRole =
+                  canManage && !isSelf && !targetIsOwner &&
+                  (isOwner || (isAdmin && !targetIsAdmin))
+                const canTransferHere = isOwner && !isSelf && !targetIsOwner
 
-              {/* Hiển thị danh sách members */}
-              <Box className="flex flex-col gap-2">
-                {allUserInBoard?.members?.map((member, index) => (
-                  <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                const availableTargetRoles = isOwner
+                  ? [BOARD_ROLES.ADMIN, BOARD_ROLES.MEMBER, BOARD_ROLES.OBSERVER]
+                  : [BOARD_ROLES.MEMBER, BOARD_ROLES.OBSERVER]
+
+                return (
+                  <Box
+                    key={m.userId?.toString()}
+                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                  >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Avatar alt={member?.memberName} src={member?.memberAvatar || ''} />
+                      <Avatar alt={m.userName} src={m.avatar || ''} />
                       <div className="flex flex-col gap-1">
-                        <p>{member?.memberName}</p>
-                        <p className="text-xs opacity-50">{member?.memberEmail}</p>
+                        <p style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          {m.userName}
+                          {isSelf && <span className="text-xs opacity-60">(bạn)</span>}
+                        </p>
+                        <p className="text-xs opacity-50">{m.email}</p>
                       </div>
                     </Box>
-                    {user?.userId === board?.adminId && (
-                      <IconButton
-                        onClick={() => {
-                          confirm({
-                            title: 'Xóa thành viên',
-                            description: (
-                              <span>
-                                Bạn có chắc muốn xóa thành viên{' '}
-                                <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>
-                                  {member?.memberName}
-                                </span>{' '}
-                                chứ?
-                              </span>
-                            ),
-                            confirmationText: 'Xóa',
-                            cancellationText: 'Hủy'
-                          }).then(() => {
-                            handleRemove(member?.memberId)
-                          })
-                        }}
-                      >
-                        <UserMinus size={16} />
-                      </IconButton>
-                    )}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {canChangeRole ? (
+                        <FormControl size="small" sx={{ minWidth: 110 }}>
+                          <Select
+                            value={m.role}
+                            onChange={(e) => handleChangeRole(m.userId?.toString(), e.target.value)}
+                            disabled={loading}
+                          >
+                            {availableTargetRoles.map((r) => (
+                              <MenuItem key={r} value={r}>
+                                {ROLE_LABELS[r]}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      ) : (
+                        <Chip
+                          label={ROLE_LABELS[m.role] || m.role}
+                          color={ROLE_COLORS[m.role]}
+                          size="small"
+                          icon={targetIsOwner ? <Crown size={14} /> : undefined}
+                        />
+                      )}
+                      {canTransferHere && (
+                        <IconButton
+                          title="Chuyển quyền Owner"
+                          onClick={() => handleTransferOwnership(m.userId?.toString(), m.userName)}
+                          disabled={loading}
+                        >
+                          <Crown size={16} />
+                        </IconButton>
+                      )}
+                      {canKick && (
+                        <IconButton
+                          title="Xóa khỏi bảng"
+                          onClick={() => handleKick(m.userId?.toString(), m.userName, m.role)}
+                          disabled={loading}
+                        >
+                          <UserMinus size={16} />
+                        </IconButton>
+                      )}
+                    </Box>
                   </Box>
-                ))}
-              </Box>
-            </>
+                )
+              })}
+            </Box>
           )}
         </Box>
       </Dialog>

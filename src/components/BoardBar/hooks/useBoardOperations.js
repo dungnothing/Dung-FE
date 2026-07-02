@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { updateBoardDetailsAPI, deleteBoardAPI, changeAdminAPI } from '~/apis/boards'
+import { updateBoardDetailsAPI, deleteBoardAPI, transferOwnershipAPI } from '~/apis/boards'
 import useConfirmDialog from '~/helpers/hooks/useConfirmDialog'
 import { getErrorMessage } from '~/utils/messageHelper'
 
@@ -34,18 +34,9 @@ export const useBoardOperations = (board, setBoard) => {
     }
   }
 
-  const handleVisibilityChange = async (isPrivate) => {
-    try {
-      setVisibilityLoading(true)
-      const newVisibility = isPrivate ? 'PRIVATE' : 'PUBLIC'
-      await updateBoardDetailsAPI(board._id, { visibility: newVisibility })
-      setBoard({ ...board, visibility: newVisibility })
-      toast.success('Trạng thái bảng đã thay đổi')
-    } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi thay đổi trạng thái bảng'))
-    } finally {
-      setVisibilityLoading(false)
-    }
+  // Visibility hien tai co dinh la PRIVATE. Feature SHOWCASE/WORKSPACE lam sau.
+  const handleVisibilityChange = async () => {
+    toast.info('Bảng chỉ hỗ trợ chế độ PRIVATE ở phiên bản hiện tại')
   }
 
   const handleChangStateBoard = async () => {
@@ -75,11 +66,11 @@ export const useBoardOperations = (board, setBoard) => {
 
   const handleChangeAdmin = async () => {
     try {
-      await changeAdminAPI(board._id, memberId)
-      toast.success('Thay đổi admin thành công')
+      await transferOwnershipAPI(board._id, memberId)
+      toast.success('Chuyển quyền Owner thành công')
       navigate('/dashboard')
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi thay đổi admin'))
+      toast.error(getErrorMessage(error, 'Lỗi khi chuyển quyền Owner'))
     }
   }
 

@@ -21,8 +21,10 @@ import { useConfirm } from 'material-ui-confirm'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { Plus } from 'lucide-react'
-import { updateColumnDetailsAPI } from '~/apis/columns'
+import { updateColumnDetailsAPI, setColumnLockAPI } from '~/apis/columns'
 import { handleError } from '~/utils/messageHelper'
+import LockIcon from '@mui/icons-material/Lock'
+import LockOpenIcon from '@mui/icons-material/LockOpen'
 
 function Column({
   column,
@@ -33,7 +35,8 @@ function Column({
   fetchBoarData,
   isOverlay,
   setBoard,
-  board
+  board,
+  permissions
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
@@ -197,9 +200,28 @@ function Column({
           borderRadius: '12px',
           height: 'fit-content',
           maxHeight: (theme) => `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`,
-          opacity: isOverlay ? 0.5 : undefined
+          opacity: isOverlay ? 0.5 : undefined,
+          outline: column?.isLocked ? '2px solid rgba(245, 166, 35, 0.8)' : 'none'
         }}
       >
+        {column?.isLocked && (
+          <Tooltip title="Cột đã khoá — chỉ Owner/Admin thao tác được">
+            <Box
+              sx={{
+                px: 1,
+                pt: 0.5,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                color: '#F5A623',
+                fontSize: '12px',
+                fontWeight: 600
+              }}
+            >
+              <LockIcon sx={{ fontSize: 14 }} /> Đã khoá
+            </Box>
+          </Tooltip>
+        )}
         {/* Box Column Header */}
         <Box
           sx={{
@@ -289,7 +311,33 @@ function Column({
                   }
                 }}
               >
-                <MenuItem onClick={handleDeleteColumn}>
+                {permissions?.LOCK_COLUMN && (
+                  <MenuItem
+                    onClick={async () => {
+                      handleClose()
+                      try {
+                        const updated = await setColumnLockAPI(column._id, board._id, !column.isLocked)
+                        setBoard((prev) => ({
+                          ...prev,
+                          columns: prev.columns.map((c) =>
+                            c._id === column._id ? { ...c, ...updated, cards: c.cards } : c
+                          )
+                        }))
+                        toast.success(updated.isLocked ? 'Đã khoá cột' : 'Đã mở khoá cột')
+                      } catch (error) {
+                        handleError(error)
+                      }
+                    }}
+                  >
+                    <ListItemIcon>
+                      {column.isLocked ? <LockOpenIcon fontSize="small" /> : <LockIcon fontSize="small" />}
+                    </ListItemIcon>
+                    <ListItemText sx={{ color: textColor }}>
+                      {column.isLocked ? 'Mở khoá cột' : 'Khoá cột'}
+                    </ListItemText>
+                  </MenuItem>
+                )}
+                <MenuItem onClick={handleDeleteColumn} disabled={!permissions?.DELETE_COLUMN}>
                   <ListItemIcon>
                     <DeleteForeverIcon className="delete-forever-icon" fontSize="small" />
                   </ListItemIcon>
@@ -311,7 +359,7 @@ function Column({
         />
 
         {/* Box Column Footer */}
-        {(!isBoardClosed || isOverlay) && (
+        {(!isBoardClosed || isOverlay) && !(column?.isLocked && !permissions?.LOCK_COLUMN) && (
           <Box
             sx={{
               height: theme.trello.columnFooterHeight,

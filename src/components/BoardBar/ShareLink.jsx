@@ -29,7 +29,8 @@ function ShareLink({ board, open, onClose }) {
   const [expiresAt, setExpiresAt] = useState(null)
   const [tempExpiresAt, setTempExpiresAt] = useState(null)
 
-  const isAdmin = user?.userId === board?.adminId
+  const myRole = (board?.members || []).find((m) => m.userId?.toString() === user?.userId?.toString())?.role
+  const isAdmin = myRole === 'OWNER' || myRole === 'ADMIN'
 
   const fetchShareLink = async () => {
     try {
