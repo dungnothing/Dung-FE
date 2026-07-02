@@ -126,17 +126,14 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
         return
       }
       if (inviteRole === BOARD_ROLES.ADMIN) {
-        try {
-          await confirm({
-            title: 'Mời làm Admin',
-            description:
-              'Admin sẽ có quyền quản lý workflow (tạo/sửa/xoá/khoá cột) và mời/kick thành viên thường. Chỉ phong Admin cho người bạn tin tưởng.',
-            confirmationText: 'Tôi hiểu, mời',
-            cancellationText: 'Hủy'
-          })
-        } catch {
-          return
-        }
+        const { confirmed } = await confirm({
+          title: 'Mời làm Admin',
+          description:
+            'Admin sẽ có quyền quản lý workflow (tạo/sửa/xoá/khoá cột) và mời/kick thành viên thường. Chỉ phong Admin cho người bạn tin tưởng.',
+          confirmationText: 'Tôi hiểu, mời',
+          cancellationText: 'Hủy'
+        })
+        if (!confirmed) return
       }
       setLoading(true)
       await inviteMemberAPI(boardId, { email: input, role: inviteRole })
@@ -151,25 +148,27 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
   }
 
   const handleKick = async (targetUserId, targetName, targetRole) => {
+    const { confirmed } = await confirm({
+      title: 'Xóa thành viên',
+      description: (
+        <span>
+          Bạn có chắc muốn xóa{' '}
+          <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>{targetName}</span>{' '}
+          ({ROLE_LABELS[targetRole]}) khỏi bảng?
+        </span>
+      ),
+      confirmationText: 'Xóa',
+      cancellationText: 'Hủy'
+    })
+    if (!confirmed) return
+
     try {
-      await confirm({
-        title: 'Xóa thành viên',
-        description: (
-          <span>
-            Bạn có chắc muốn xóa{' '}
-            <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>{targetName}</span>{' '}
-            ({ROLE_LABELS[targetRole]}) khỏi bảng?
-          </span>
-        ),
-        confirmationText: 'Xóa',
-        cancellationText: 'Hủy'
-      })
       setLoading(true)
       await kickMemberAPI(board._id, targetUserId)
       toast.success('Xóa thành công')
       getAllUser()
     } catch (error) {
-      if (error?.name !== 'CancelledError') handleError(error)
+      handleError(error)
     } finally {
       setLoading(false)
     }
@@ -189,25 +188,27 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
   }
 
   const handleTransferOwnership = async (targetUserId, targetName) => {
+    const { confirmed } = await confirm({
+      title: 'Chuyển quyền Owner',
+      description: (
+        <span>
+          Bạn sẽ chuyển quyền Owner cho{' '}
+          <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>{targetName}</span>
+          . Sau khi chuyển, bạn sẽ trở thành Member thường. Hành động này không thể hoàn tác.
+        </span>
+      ),
+      confirmationText: 'Chuyển quyền',
+      cancellationText: 'Hủy'
+    })
+    if (!confirmed) return
+
     try {
-      await confirm({
-        title: 'Chuyển quyền Owner',
-        description: (
-          <span>
-            Bạn sẽ chuyển quyền Owner cho{' '}
-            <span style={{ fontFamily: 'cursive', fontStyle: 'italic', color: 'purple' }}>{targetName}</span>
-            . Sau khi chuyển, bạn sẽ trở thành Member thường. Hành động này không thể hoàn tác.
-          </span>
-        ),
-        confirmationText: 'Chuyển quyền',
-        cancellationText: 'Hủy'
-      })
       setLoading(true)
       await transferOwnershipAPI(board._id, targetUserId)
       toast.success('Chuyển Owner thành công')
       getAllUser()
     } catch (error) {
-      if (error?.name !== 'CancelledError') handleError(error)
+      handleError(error)
     } finally {
       setLoading(false)
     }
