@@ -14,6 +14,7 @@ import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule'
 import TitleIcon from '@mui/icons-material/Title'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
+import { handleError } from '~/utils/messageHelper'
 import { uploadDescriptionAPI } from '~/apis/cards'
 import { useTheme } from '@mui/material/styles'
 
@@ -96,7 +97,7 @@ function RichTextEditor({ value, onChange, cardId }) {
       const res = await uploadDescriptionAPI(cardId, formData)
       if (res) editor.chain().focus().setImage({ src: res }).run()
     } catch (err) {
-      toast.error(err.message)
+      handleError(err, 'Lỗi khi tải ảnh mô tả')
     } finally {
       setUploading(false)
     }

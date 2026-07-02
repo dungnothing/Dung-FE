@@ -7,6 +7,7 @@ import { Box, Menu, MenuItem } from '@mui/material'
 import { useState } from 'react'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { toast } from 'react-toastify'
+import { handleError } from '~/utils/messageHelper'
 import useConfirmDialog from '~/helpers/hooks/useConfirmDialog'
 import { removeFileAPI } from '~/apis/cards'
 
@@ -53,7 +54,7 @@ function CardAttachment({ card, onCardUpdated }) {
       const updatedCard = await removeFileAPI(card._id, formData)
       onCardUpdated(updatedCard)
     } catch (error) {
-      toast.error('Loi roi')
+      handleError(error, 'Lỗi khi xoá tập tin')
     } finally {
       setAnchorElMore(null)
       setFileDelete(null)

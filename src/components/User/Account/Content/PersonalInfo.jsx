@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux'
 import { updateUserInfo } from '~/redux/features/comon'
 import { textColor } from '~/utils/constants'
 import BasicLoading from '~/helpers/components/BasicLoading'
+import { handleError } from '~/utils/messageHelper'
 
 function PersonalInfo() {
   const user = useSelector((state) => state.comon.user)
@@ -46,7 +47,7 @@ function PersonalInfo() {
       avatarRef.current.value = null
       toast.success('Upload thành công')
     } catch (error) {
-      toast.error('Upload thất bại:', error)
+      handleError(error, 'Upload avatar thất bại')
     } finally {
       setIsLoading(false)
     }

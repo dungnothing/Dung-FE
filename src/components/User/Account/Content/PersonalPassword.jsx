@@ -7,6 +7,7 @@ import RHFInputCustom from '~/helpers/hook-form/RHFInputCustom'
 import { updatePasswordAPI } from '~/apis/auth'
 import { toast } from 'react-toastify'
 import { textColor } from '~/utils/constants'
+import { handleError } from '~/utils/messageHelper'
 
 const ChangePasswordSchema = v.object({
   currentPassword: v.pipe(v.string('Mật cũ là bắt buộc'), v.nonEmpty('Mật cũ là bắt buộc')),
@@ -39,7 +40,7 @@ const ChangePasswordForm = () => {
       toast.success('Cập nhật mật khẩu thành công')
       form.reset()
     } catch (error) {
-      toast.error(error.response.data.message)
+      handleError(error, 'Lỗi khi cập nhật mật khẩu')
     }
   }
 

@@ -11,7 +11,7 @@ import RHFInputCustom from '~/helpers/hook-form/RHFInputCustom'
 import { useForm, FormProvider } from 'react-hook-form'
 import { useState } from 'react'
 import { forgotPasswordAPI, verifyOtpAPI, resetPasswordAPI } from '~/apis/auth'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 
 // Schema từng bước
 const emailSchema = v.object({
@@ -51,7 +51,7 @@ function ForgotPassword({ open, handleClose }) {
       setValidateOption(otpSchema)
       reset({ otp: '' })
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Có lỗi xảy ra khi gửi OTP!'))
+      handleError(error, 'Có lỗi xảy ra khi gửi OTP!')
     } finally {
       setLoading(false)
     }
@@ -66,7 +66,7 @@ function ForgotPassword({ open, handleClose }) {
       setValidateOption(passwordSchema)
       reset({ password: '', confirmPassword: '' })
     } catch (error) {
-      toast.error(getErrorMessage(error, 'OTP không hợp lệ!'))
+      handleError(error, 'OTP không hợp lệ!')
       reset({ otp: '' })
     } finally {
       setLoading(false)
@@ -87,7 +87,7 @@ function ForgotPassword({ open, handleClose }) {
       reset({ email: '' })
       setOtp('')
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Không thể đặt lại mật khẩu!'))
+      handleError(error, 'Không thể đặt lại mật khẩu!')
     } finally {
       setLoading(false)
     }

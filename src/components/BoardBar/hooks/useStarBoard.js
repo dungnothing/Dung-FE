@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { toast } from 'react-toastify'
 import { addStarBoardAPI, removeStarBoardAPI } from '~/apis/boards'
 import { setStarBoards } from '~/redux/features/comon'
+import { handleError } from '~/utils/messageHelper'
 
 export const useStarBoard = (board) => {
   const common = useSelector((state) => state.comon)
@@ -21,7 +21,7 @@ export const useStarBoard = (board) => {
         dispatch(setStarBoards([...common.starBoards, { _id: board._id, title: board.title }]))
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message || error?.message)
+      handleError(error, 'Lỗi khi cập nhật đánh dấu bảng')
     } finally {
       setStarLoading(false)
     }

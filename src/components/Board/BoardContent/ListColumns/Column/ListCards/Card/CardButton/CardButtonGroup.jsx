@@ -8,7 +8,7 @@ import { Box, Button, CircularProgress } from '@mui/material'
 import { useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { updateCardBackgroundAPI, uploadFileAPI } from '~/apis/cards'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 import AddMemberInCard from './AddMemberInCard'
 
 const ActionBtn = ({ title, icon, onClick, disabled, active = false, activeColor = '#635FFF' }) => (
@@ -72,7 +72,7 @@ function CardButtonGroup({
       const updatedCard = await updateCardBackgroundAPI(card._id, formData)
       onCardUpdated(updatedCard)
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi thay đổi ảnh bìa'))
+      handleError(error, 'Lỗi khi thay đổi ảnh bìa')
     } finally {
       setIsLoading(false)
       backgroundRef.current.value = null
@@ -92,7 +92,7 @@ function CardButtonGroup({
       const updatedCard = await uploadFileAPI(card._id, formData)
       onCardUpdated(updatedCard)
     } catch (error) {
-      toast.error(error.response.data.message)
+      handleError(error, 'Lỗi khi tải file lên')
     } finally {
       setLoadingFile(false)
       fileRef.current.value = null

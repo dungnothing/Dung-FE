@@ -1,5 +1,6 @@
 import { useRef, useCallback, useEffect } from 'react'
 import { toast } from 'react-toastify'
+import { getErrorMessage } from '~/utils/messageHelper'
 
 /**
  * Queue tuan tu cho cac request move-card.
@@ -37,9 +38,9 @@ export function useMoveCardQueue(onReset) {
         isResettingRef.current = true
         const status = error?.response?.status
         if (status === 409) {
-          toast.warn('Dữ liệu đã thay đổi, đang tải lại...')
+          toast.warn(getErrorMessage(error, 'Dữ liệu đã thay đổi') + ', đang tải lại...')
         } else {
-          toast.error('Lỗi khi di chuyển card, đang tải lại...')
+          toast.error(getErrorMessage(error, 'Lỗi khi di chuyển card') + ', đang tải lại...')
         }
         try {
           await onResetRef.current?.()

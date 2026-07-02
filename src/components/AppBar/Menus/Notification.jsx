@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getNotificationAPI, markAllAsReadAPI, markAsReadAPI } from '~/apis/notification'
 import { setMarkAsRead, setNotifications } from '~/redux/features/comon'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 import CircularProgress from '@mui/material/CircularProgress'
 
 function Notification() {
@@ -34,7 +34,7 @@ function Notification() {
       const response = await getNotificationAPI()
       dipatch(setNotifications(response))
     } catch (error) {
-      toast.error(getErrorMessage(error))
+      handleError(error)
     } finally {
       setLoading(false)
     }
@@ -48,7 +48,7 @@ function Notification() {
       }
       dipatch(setMarkAsRead(data._id))
     } catch (error) {
-      toast.error(getErrorMessage(error))
+      handleError(error)
     }
   }
 
@@ -59,7 +59,7 @@ function Notification() {
       dipatch(setNotifications(newNotifications))
       toast.success('Đánh dấu thành công')
     } catch (error) {
-      toast.error(getErrorMessage(error))
+      handleError(error)
     }
   }
 

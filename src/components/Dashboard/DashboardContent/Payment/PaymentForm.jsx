@@ -1,6 +1,7 @@
 import { Box, Button, Typography, CircularProgress } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { handleError } from '~/utils/messageHelper'
 import * as v from 'valibot'
 import { FormProvider, useForm } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
@@ -110,7 +111,7 @@ function PaymentForm({ pkg, setSelectedPackage }) {
       toast.success('Thanh toán thành công')
       navigate('/dashboard/boards')
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Thanh toán thất bại')
+      handleError(error, 'Thanh toán thất bại')
     }
   }
 

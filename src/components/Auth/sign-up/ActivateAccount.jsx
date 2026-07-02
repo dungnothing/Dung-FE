@@ -2,6 +2,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { activateAccountAPI } from '~/apis/auth'
 import { useEffect } from 'react'
 import { toast } from 'react-toastify'
+import { handleError } from '~/utils/messageHelper'
 
 const ActivateAccount = () => {
   const [search] = useSearchParams()
@@ -17,7 +18,7 @@ const ActivateAccount = () => {
         navigate('/sign-in')
       }, 2000)
     } catch (error) {
-      toast.error('Có lỗi xảy ra')
+      handleError(error, 'Có lỗi xảy ra khi kích hoạt tài khoản')
     }
   }
 

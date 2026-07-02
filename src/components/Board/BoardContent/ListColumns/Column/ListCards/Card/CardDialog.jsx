@@ -2,6 +2,7 @@ import { Dialog, IconButton, Typography, Box, TextField, DialogTitle } from '@mu
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { toast } from 'react-toastify'
+import { handleError } from '~/utils/messageHelper'
 import { updateCardAPI } from '~/apis/cards'
 import { useState } from 'react'
 import EditTimeCard from './CardTime'
@@ -53,7 +54,7 @@ function CardDialog({
       setIsEditting(false)
       setNewData('description', newDescription)
     } catch (error) {
-      toast.error('Loi roi')
+      handleError(error, 'Lỗi khi cập nhật mô tả')
     }
   }
 
@@ -70,7 +71,7 @@ function CardDialog({
       setEditTitle(false)
       setNewData('title', titleDraft)
     } catch (error) {
-      toast.error(error.response.data.message)
+      handleError(error, 'Lỗi khi cập nhật tiêu đề thẻ')
       setEditTitle(false)
     }
   }
@@ -92,7 +93,7 @@ function CardDialog({
       await updateCardAPI(card._id, formData)
       setNewData('isDone', newStatus)
     } catch (error) {
-      toast.error('Lỗi cập nhật trạng thái')
+      handleError(error, 'Lỗi cập nhật trạng thái')
     }
   }
 

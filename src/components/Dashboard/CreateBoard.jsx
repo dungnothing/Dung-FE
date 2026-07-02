@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import { createNewBoardAPI, getListBackgroundAPI, addRecentBoardAPI, cloneTemplateAPI } from '~/apis/boards'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 
 function CreateBoard({ open, onClose, templateId = null }) {
   const navigate = useNavigate()
@@ -36,7 +36,7 @@ function CreateBoard({ open, onClose, templateId = null }) {
           boardBackground: listBackgroundData?.[0]?.url
         })
       } catch (error) {
-        toast.error('Có lỗi xảy ra khi tải danh sách background')
+        handleError(error, 'Có lỗi xảy ra khi tải danh sách background')
       }
     }
     loadListBackground()
@@ -63,7 +63,7 @@ function CreateBoard({ open, onClose, templateId = null }) {
       navigate(`/boards/${newBoard._id}`)
       toast.success('Tạo bảng mới thành công!')
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi tạo bảng mới'))
+      handleError(error, 'Lỗi khi tạo bảng mới')
     } finally {
       setLoading(false)
     }

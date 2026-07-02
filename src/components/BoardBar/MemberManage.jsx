@@ -100,7 +100,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
       const response = await searchUserAPI(searchTerm)
       setSearchResult(response)
     } catch (error) {
-      toast.error('Lỗi khi tìm kiếm người dùng')
+      handleError(error, 'Lỗi khi tìm kiếm người dùng')
       setSearchResult([])
     } finally {
       setSearchLoading(false)
@@ -113,7 +113,7 @@ function MemberManage({ board, allUserInBoard, fetchAllUserInBoard }) {
       setLoadingUser(true)
       await fetchAllUserInBoard()
     } catch (error) {
-      toast.error('Lỗi khi lấy thông tin người dùng')
+      handleError(error, 'Lỗi khi lấy thông tin người dùng')
     } finally {
       setLoadingUser(false)
     }

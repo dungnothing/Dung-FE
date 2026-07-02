@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
 import { toast } from 'react-toastify'
 import { textColor } from '~/utils/constants'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 
 function Setting() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
@@ -15,7 +15,7 @@ function Setting() {
       setOpenDeleteDialog(false)
       toast.success('Đã xóa hết bảng!')
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi xóa hết bảng'))
+      handleError(error, 'Lỗi khi xóa hết bảng')
     }
   }
 

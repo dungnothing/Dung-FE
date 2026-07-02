@@ -9,7 +9,7 @@ import { findUserInBoardAPI } from '~/apis/boards'
 import { updateCardAPI } from '~/apis/cards'
 import useDebounce from '~/helpers/hooks/useDebonce'
 import { useParams } from 'react-router-dom'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 
 function AddMemberInCard({ disabled, card, onCardUpdated, renderTrigger }) {
   const { boardId } = useParams()
@@ -31,7 +31,7 @@ function AddMemberInCard({ disabled, card, onCardUpdated, renderTrigger }) {
       const response = await findUserInBoardAPI(boardId, term)
       setUsers(response)
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi tìm kiếm người dùng'))
+      handleError(error, 'Lỗi khi tìm kiếm người dùng')
     }
   }
 
@@ -51,7 +51,7 @@ function AddMemberInCard({ disabled, card, onCardUpdated, renderTrigger }) {
       onCardUpdated(updatedCard)
       setOpenAnchor(null)
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi thêm thành viên'))
+      handleError(error, 'Lỗi khi thêm thành viên')
     }
   }
 

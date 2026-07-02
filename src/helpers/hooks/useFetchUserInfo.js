@@ -9,6 +9,7 @@ import { initFcm, disableFcm } from '~/utils/fcm'
 import { toast } from 'react-toastify'
 import Cookie from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
+import { handleError } from '~/utils/messageHelper'
 
 const getCookie = (name) => Cookie.get(name)
 
@@ -62,7 +63,7 @@ export const useFetchUserInfo = () => {
         toast.error('Phiên đăng nhập hết hạn')
         handleLogout()
       } else {
-        toast.error('Lỗi tải dữ liệu người dùng')
+        handleError(err, 'Lỗi tải dữ liệu người dùng')
       }
     }
   }, [refreshToken])

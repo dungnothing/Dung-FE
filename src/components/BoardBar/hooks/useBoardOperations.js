@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { updateBoardDetailsAPI, deleteBoardAPI, transferOwnershipAPI } from '~/apis/boards'
 import useConfirmDialog from '~/helpers/hooks/useConfirmDialog'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 
 export const useBoardOperations = (board, setBoard) => {
   const [isEditing, setIsEditing] = useState(false)
@@ -14,11 +14,8 @@ export const useBoardOperations = (board, setBoard) => {
     if (isEditing) setEditedTitle(board?.title || '')
   }, [isEditing, board?.title])
 
-  // Derive thang tu prop, tu sync khi socket update visibility
-  const visibility = board?.visibility
   const [memberId, setMemberId] = useState(null)
   const [openDialog, setOpenDialog] = useState(false)
-  const [visibilityLoading, setVisibilityLoading] = useState(false)
   const navigate = useNavigate()
 
   const handleUpdateTitle = async () => {
@@ -28,15 +25,10 @@ export const useBoardOperations = (board, setBoard) => {
       setBoard({ ...board, title: trimmed })
       setIsEditing(false)
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi cập nhật tiêu đề'))
+      handleError(error, 'Lỗi khi cập nhật tiêu đề')
     } finally {
       setIsEditing(false)
     }
-  }
-
-  // Visibility hien tai co dinh la PRIVATE. Feature SHOWCASE/WORKSPACE lam sau.
-  const handleVisibilityChange = async () => {
-    toast.info('Bảng chỉ hỗ trợ chế độ PRIVATE ở phiên bản hiện tại')
   }
 
   const handleChangStateBoard = async () => {
@@ -48,7 +40,7 @@ export const useBoardOperations = (board, setBoard) => {
         toast.success('Bảng đã được đóng và dữ liệu sẽ không thể chỉnh sửa')
       }
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi thay đổi trạng thái bảng'))
+      handleError(error, 'Lỗi khi thay đổi trạng thái bảng')
     }
   }
 
@@ -60,7 +52,7 @@ export const useBoardOperations = (board, setBoard) => {
         navigate('/dashboard')
       }, [1000])
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi xóa bảng'))
+      handleError(error, 'Lỗi khi xóa bảng')
     }
   }
 
@@ -70,7 +62,7 @@ export const useBoardOperations = (board, setBoard) => {
       toast.success('Chuyển quyền Owner thành công')
       navigate('/dashboard')
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi chuyển quyền Owner'))
+      handleError(error, 'Lỗi khi chuyển quyền Owner')
     }
   }
 
@@ -92,14 +84,11 @@ export const useBoardOperations = (board, setBoard) => {
     setIsEditing,
     editedTitle,
     setEditedTitle,
-    visibility,
-    visibilityLoading,
     memberId,
     setMemberId,
     openDialog,
     setOpenDialog,
     handleUpdateTitle,
-    handleVisibilityChange,
     handleChangStateBoard,
     handleConfirmDeleteBoard,
     handleConfirmChangeAdmin

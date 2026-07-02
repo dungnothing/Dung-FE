@@ -10,7 +10,7 @@ import { textColor } from '~/utils/constants'
 import { useSelector } from 'react-redux'
 import StarIcon from '@mui/icons-material/Star'
 import { addRecentBoardAPI } from '~/apis/boards'
-import { toast } from 'react-toastify'
+import { handleError } from '~/utils/messageHelper'
 
 function Starred() {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -29,7 +29,7 @@ function Starred() {
       await addRecentBoardAPI(boardId)
       navigate(`/boards/${boardId}`)
     } catch (error) {
-      toast.error('Có lỗi xảy ra khi tải bảng')
+      handleError(error, 'Có lỗi xảy ra khi tải bảng')
     }
   }
 

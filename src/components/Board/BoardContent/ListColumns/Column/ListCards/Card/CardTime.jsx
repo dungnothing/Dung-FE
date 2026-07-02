@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react'
 import { updateCardAPI, updateCancelCardAPI } from '~/apis/cards'
 import { toast } from 'react-toastify'
 import { cloneDeep } from 'lodash'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 
 function EditTimeCard({ openTimeDialog, handleCloseTimeDialog, card, board, setBoard }) {
   // Draft cua picker chi co y nghia trong luc dialog mo. Khi dialog mo, init lai tu card.endTime
@@ -40,7 +40,7 @@ function EditTimeCard({ openTimeDialog, handleCloseTimeDialog, card, board, setB
       handleCloseTimeDialog()
       setNewTime(time)
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi cập nhật thời gian'))
+      handleError(error, 'Lỗi khi cập nhật thời gian')
     }
   }
 
@@ -51,7 +51,7 @@ function EditTimeCard({ openTimeDialog, handleCloseTimeDialog, card, board, setB
       handleCloseTimeDialog()
       setNewTime(null)
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi hủy thời gian'))
+      handleError(error, 'Lỗi khi hủy thời gian')
     }
   }
 

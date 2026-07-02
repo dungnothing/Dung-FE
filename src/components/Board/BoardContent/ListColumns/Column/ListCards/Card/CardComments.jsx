@@ -5,6 +5,7 @@ import SendIcon from '@mui/icons-material/Send'
 import { textColor } from '~/utils/constants'
 import { toast } from 'react-toastify'
 import { createCommentAPI, getCommentsAPI, deleteCommentAPI } from '~/apis/cards'
+import { handleError } from '~/utils/messageHelper'
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { checkTime } from '~/utils/formatters'
@@ -35,7 +36,7 @@ function CardComments({ card, isBoardClosed, onCommentCountChange }) {
         setCurrentPage(result.currentPage || 1)
         setHasMore(result.hasMore || false)
       } catch (error) {
-        toast.error(error.response?.data?.message || 'Lỗi tải comments')
+        handleError(error, 'Lỗi tải comments')
         setComments([])
         setTotalCount(0)
         setCurrentPage(1)
@@ -65,7 +66,7 @@ function CardComments({ card, isBoardClosed, onCommentCountChange }) {
       setCurrentPage(result.currentPage || nextPage)
       setHasMore(result.hasMore || false)
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi tải thêm comments')
+      handleError(error, 'Lỗi tải thêm comments')
     } finally {
       setIsLoadingMore(false)
     }
@@ -84,7 +85,7 @@ function CardComments({ card, isBoardClosed, onCommentCountChange }) {
       setTotalCount((prev) => prev + 1)
       setContent('')
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi tạo comment')
+      handleError(error, 'Lỗi tạo comment')
     } finally {
       setIsCommentLoading(false)
     }
@@ -99,7 +100,7 @@ function CardComments({ card, isBoardClosed, onCommentCountChange }) {
 
       toast.success('Comment đã được xóa')
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi xóa comment')
+      handleError(error, 'Lỗi xóa comment')
     }
   }
 

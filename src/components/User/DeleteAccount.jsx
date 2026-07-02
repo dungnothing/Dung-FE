@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Checkbox, Button, Box } from '@mui/material'
 import { toast } from 'react-toastify'
 import { deleteAccountAPI, logoutAPI } from '~/apis/auth'
+import { handleError } from '~/utils/messageHelper'
 import { logout } from '~/redux/features/comon'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -31,8 +32,8 @@ const DeleteAccountSection = () => {
       toast.success('Xóa thành công', {
         onClose: () => navigate('/')
       })
-    } catch {
-      toast.error('Xóa thất bại')
+    } catch (error) {
+      handleError(error, 'Xóa tài khoản thất bại')
     }
   }
 

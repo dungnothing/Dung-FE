@@ -14,7 +14,7 @@ import RHFInput from '~/helpers/hook-form/RHFInput'
 import { FormProvider } from 'react-hook-form'
 import Cookies from 'js-cookie'
 import { useFetchUserInfo } from '~/helpers/hooks/useFetchUserInfo'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 import Brand from '~/assets/image-app/brand.png'
 
 const loginSchema = v.object({
@@ -49,7 +49,7 @@ function SignIn() {
       const redirectUrl = searchParams.get('redirect')
       navigate(redirectUrl || '/dashboard/boards')
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi đăng nhập'))
+      handleError(error, 'Lỗi khi đăng nhập')
     } finally {
       setIsLoading(false)
     }
@@ -60,7 +60,7 @@ function SignIn() {
       const response = await getGoogleAuthUrlAPI()
       window.location.href = response.url
     } catch (error) {
-      toast.error('Lỗi khi đăng nhập với Google')
+      handleError(error, 'Lỗi khi đăng nhập với Google')
     }
   }
 

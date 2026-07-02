@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
+import { handleError } from '~/utils/messageHelper'
 import { getAllAccessibleBoardsAPI, fetchBoardDetailsAPI } from '~/apis/boards'
 import { Card, CardMedia, Typography, Box, Grid } from '@mui/material'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
@@ -50,7 +51,7 @@ function Task() {
 
         setTaskList(tasks)
       } catch (error) {
-        toast.error(error?.message || 'Có lỗi xảy ra khi tải nhiệm vụ')
+        handleError(error, 'Có lỗi xảy ra khi tải nhiệm vụ')
         setTaskList([])
       } finally {
         setIsLoading(false)

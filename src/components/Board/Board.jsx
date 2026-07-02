@@ -134,7 +134,7 @@ function Board() {
           : { ...col, cards: [...col.cards, newCard], cardOrderIds: [...col.cardOrderIds, newCard._id] }
       })
     } catch (error) {
-      toast.error('Lỗi khi tạo card')
+      handleError(error, 'Lỗi khi tạo card')
     }
   }
 
@@ -155,7 +155,7 @@ function Board() {
         }))
       }
     } catch (error) {
-      toast.error('Lỗi khi di chuyển column')
+      handleError(error, 'Lỗi khi di chuyển column')
       setBoard((prev) => ({ ...prev, ...snapshot }))
     }
   }
@@ -252,7 +252,7 @@ function Board() {
       await deleteColumnDetailsAPI(columnId, boardId)
       toast.success('Xóa cột thành công')
     } catch (error) {
-      toast.error('Lỗi khi xóa cột')
+      handleError(error, 'Lỗi khi xóa cột')
     }
   }
 

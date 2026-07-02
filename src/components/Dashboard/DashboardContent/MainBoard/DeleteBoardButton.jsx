@@ -3,6 +3,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { toast } from 'react-toastify'
 import { deleteBoardAPI } from '~/apis/boards'
 import useConfirmDialog from '~/helpers/hooks/useConfirmDialog'
+import { handleError } from '~/utils/messageHelper'
 
 function DeleteBoardButton({ boardId, boardTitle, onDeleteSuccess, setLoading }) {
   const handleDeleteBoard = async () => {
@@ -16,7 +17,7 @@ function DeleteBoardButton({ boardId, boardTitle, onDeleteSuccess, setLoading })
         onDeleteSuccess(boardId)
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi xóa bảng')
+      handleError(error, 'Có lỗi xảy ra khi xóa bảng')
     } finally {
       setLoading(false)
     }

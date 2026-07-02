@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
 import RHFInput from '~/helpers/hook-form/RHFInput'
 import { FormProvider } from 'react-hook-form'
-import { getErrorMessage } from '~/utils/messageHelper'
+import { handleError } from '~/utils/messageHelper'
 import Brand from '~/assets/image-app/brand.png'
 
 const signUpSchema = v.object({
@@ -45,7 +45,7 @@ function SignUp() {
       navigate('/sign-in')
       toast.success('Đã đăng ký thành công, vui lòng kiểm tra email để kích hoạt')
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Lỗi khi đăng ký'))
+      handleError(error, 'Lỗi khi đăng ký')
     } finally {
       setIsLoading(false)
     }
@@ -57,7 +57,7 @@ function SignUp() {
       const response = await getGoogleAuthUrlAPI()
       window.location.href = response.url
     } catch (error) {
-      toast.error('Lỗi khi đăng nhập với Google')
+      handleError(error, 'Lỗi khi đăng nhập với Google')
     } finally {
       setIsLoading(false)
     }

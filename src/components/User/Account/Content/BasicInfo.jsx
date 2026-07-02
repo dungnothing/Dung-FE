@@ -5,6 +5,7 @@ import * as v from 'valibot'
 import { toast } from 'react-toastify'
 import RHFInputCustom from '~/helpers/hook-form/RHFInputCustom'
 import { updateInfoAPI } from '~/apis/auth'
+import { handleError } from '~/utils/messageHelper'
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { updateUserInfo } from '~/redux/features/comon'
@@ -54,7 +55,7 @@ function BasicInfo() {
       toast.success('Cập nhật thông tin thành công')
       dipatch(updateUserInfo(input))
     } catch (error) {
-      toast.error(error.message)
+      handleError(error, 'Lỗi khi cập nhật thông tin')
     }
   }
 

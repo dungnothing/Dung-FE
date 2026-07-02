@@ -15,6 +15,7 @@ import { updateCardAPI } from '~/apis/cards'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { toast } from 'react-toastify'
+import { handleError } from '~/utils/messageHelper'
 import { textColor } from '~/utils/constants'
 import CardDialog from './CardDialog'
 import { useSearchParams } from 'react-router-dom'
@@ -79,7 +80,7 @@ function Card({ card, boardState, isBoardClosed, fetchBoarData, isOverlay = fals
         )
       }))
     } catch (error) {
-      toast.error('Đổi nội dung thất bại')
+      handleError(error, 'Đổi nội dung thất bại')
     }
   }
 

@@ -18,6 +18,7 @@ import { useState, useEffect } from 'react'
 import CreateBoard from '~/components/Dashboard/CreateBoard'
 import { getTemplateAPI, fetchBoardDetailsAPI } from '~/apis/boards'
 import { toast } from 'react-toastify'
+import { handleError } from '~/utils/messageHelper'
 import ContentLoading from '~/helpers/components/ContentLoading'
 
 function BoardTemplateCreator() {
@@ -41,7 +42,7 @@ function BoardTemplateCreator() {
         const templates = await getTemplateAPI()
         setTemplateData(templates)
       } catch (error) {
-        toast.error(error?.response?.data?.message || 'Không thể tải danh sách template')
+        handleError(error, 'Không thể tải danh sách template')
       } finally {
         setIsLoading(false)
       }
@@ -57,7 +58,7 @@ function BoardTemplateCreator() {
       const detail = await fetchBoardDetailsAPI(templateId)
       setPreviewTemplate(detail)
     } catch (error) {
-      toast.error('Không thể tải chi tiết template')
+      handleError(error, 'Không thể tải chi tiết template')
       setPreviewOpen(false)
     } finally {
       setLoadingPreview(false)

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { getAllAccessibleBoardsAPI, addStarBoardAPI, removeStarBoardAPI, addRecentBoardAPI } from '~/apis/boards'
 import { toast } from 'react-toastify'
+import { handleError } from '~/utils/messageHelper'
 import StarIcon from '@mui/icons-material/Star'
 import StarOutlineIcon from '@mui/icons-material/StarOutline'
 import { textColor } from '~/utils/constants'
@@ -32,7 +33,7 @@ function MainBoard() {
       navigate(`/boards/${boardId}`)
       await addRecentBoardAPI(boardId)
     } catch (error) {
-      toast.error('Có lỗi xảy ra khi tải bảng')
+      handleError(error, 'Có lỗi xảy ra khi tải bảng')
     }
   }
 
@@ -53,7 +54,7 @@ function MainBoard() {
 
       setBoards(sortedBoards)
     } catch (error) {
-      toast.error('Có lỗi xảy ra khi tải bảng')
+      handleError(error, 'Có lỗi xảy ra khi tải bảng')
       setBoards([])
     } finally {
       setLoadBoards(false)
@@ -75,7 +76,7 @@ function MainBoard() {
         dispatch(setStarBoards([...starBoards, { _id: boardId, title: add.title }]))
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message || error?.message)
+      handleError(error, 'Lỗi khi cập nhật đánh dấu')
     }
   }
 
