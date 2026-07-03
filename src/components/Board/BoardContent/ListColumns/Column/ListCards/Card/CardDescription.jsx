@@ -67,7 +67,41 @@ function CardDescription({
       ) : (
         <Box sx={{ pl: 3.5, width: '100%' }}>
           {displayDescription?.trim() ? (
-            <div ref={contentRef} dangerouslySetInnerHTML={{ __html: displayDescription }} style={{ color: textColor2 }} />
+            <Box
+              ref={contentRef}
+              dangerouslySetInnerHTML={{ __html: displayDescription }}
+              sx={{
+                color: textColor2,
+                fontSize: '0.9rem',
+                lineHeight: 1.6,
+                '& p': { margin: '0 0 4px' },
+                '& h2': { fontSize: '1.1rem', fontWeight: 700, margin: '8px 0 4px', color: textColor2 },
+                '& ul, & ol': { pl: '20px', my: '4px' },
+                '& li': { mb: '2px' },
+                '& blockquote': {
+                  borderLeft: '3px solid #635FFF',
+                  pl: '12px',
+                  ml: 0,
+                  color: theme.palette.mode === 'dark' ? '#8fa3bf' : '#6b778c',
+                  fontStyle: 'italic',
+                  my: '6px'
+                },
+                '& code': {
+                  bgcolor: theme.palette.mode === 'dark' ? '#1a1f27' : '#f0f1f3',
+                  color: '#e74c3c',
+                  borderRadius: '4px',
+                  px: '4px',
+                  py: '1px',
+                  fontSize: '0.85em',
+                  fontFamily: 'monospace'
+                },
+                '& hr': {
+                  border: 'none',
+                  borderTop: `1px solid ${theme.palette.mode === 'dark' ? '#3a3f47' : '#e0e3e7'}`,
+                  my: '10px'
+                }
+              }}
+            />
           ) : (
             <Box
               onClick={() => { if (canEdit) openEdit() }}
