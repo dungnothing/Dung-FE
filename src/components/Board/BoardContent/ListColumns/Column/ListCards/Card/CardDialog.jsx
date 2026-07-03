@@ -50,9 +50,10 @@ function CardDialog({
     try {
       const newDescription = descriptionDraft?.trim() === '' ? '' : descriptionDraft
       const formData = { cardId: card._id, description: newDescription, boardId: board._id }
-      await updateCardAPI(card._id, formData)
+      const updatedCard = await updateCardAPI(card._id, formData)
       setIsEditting(false)
-      setNewData('description', newDescription)
+      // Dung ban da qua sanitize tu BE, tranh lech voi HTML client gui len
+      setNewData('description', updatedCard?.description ?? newDescription)
     } catch (error) {
       handleError(error, 'Lỗi khi cập nhật mô tả')
     }
