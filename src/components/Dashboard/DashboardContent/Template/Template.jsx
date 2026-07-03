@@ -17,7 +17,6 @@ import { textColor } from '~/utils/constants'
 import { useState, useEffect } from 'react'
 import CreateBoard from '~/components/Dashboard/CreateBoard'
 import { getTemplateAPI, fetchBoardDetailsAPI } from '~/apis/boards'
-import { toast } from 'react-toastify'
 import { handleError } from '~/utils/messageHelper'
 import ContentLoading from '~/helpers/components/ContentLoading'
 

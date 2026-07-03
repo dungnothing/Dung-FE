@@ -1,22 +1,21 @@
-import { useState } from 'react'
-import Box from '@mui/material/Box'
-import ModeSelect from '~/components/ModeSelect/ModeSelect'
-import Typography from '@mui/material/Typography'
-import Recent from './Menus/Recent'
-import Template from './Menus/Template'
-import Starred from './Menus/Starred'
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-import Profiles from './Menus/Profiles'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
-import InputAdornment from '@mui/material/InputAdornment'
-import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
-import { textColor } from '~/utils/constants'
-import CreateBoard from '~/components/Dashboard/CreateBoard'
-import Notification from './Menus/Notification'
+import SearchIcon from '@mui/icons-material/Search'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import { Trello } from 'lucide-react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import CreateBoard from '~/components/Dashboard/CreateBoard'
+import ModeSelect from '~/components/ModeSelect/ModeSelect'
+import { textColor } from '~/utils/constants'
+import Notification from './Menus/Notification'
+import Profiles from './Menus/Profiles'
+import Recent from './Menus/Recent'
+import Starred from './Menus/Starred'
 
 function AppBar({ searchValue, setSearchValue, showSearch }) {
   const [open, setOpen] = useState(false)
@@ -73,7 +72,6 @@ function AppBar({ searchValue, setSearchValue, showSearch }) {
         >
           <Recent />
           <Starred />
-          <Template />
           <Button
             variant="outlined"
             endIcon={<AddCircleIcon />}
