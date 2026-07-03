@@ -10,6 +10,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen'
 import LockIcon from '@mui/icons-material/Lock'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
+import LogoutIcon from '@mui/icons-material/Logout'
 import CloseIcon from '@mui/icons-material/Close'
 import { textColor } from '~/utils/constants'
 import { useState } from 'react'
@@ -21,6 +22,7 @@ function BoardActionsMenu({
   permissions,
   handleChangStateBoard,
   handleConfirmDeleteBoard,
+  handleConfirmLeaveBoard,
   setOpenDialog,
   isStarred,
   handleStarBoard,
@@ -59,6 +61,11 @@ function BoardActionsMenu({
         <MenuItem disabled={!permissions?.TRANSFER_OWNERSHIP} onClick={() => { setOpenDialog(true); setAnchorElMore(null) }}>
           Chuyển quyền Owner
         </MenuItem>
+        {permissions?.LEAVE_BOARD && (
+          <MenuItem onClick={() => { handleConfirmLeaveBoard(); setAnchorElMore(null) }}>
+            Rời bảng
+          </MenuItem>
+        )}
       </Menu>
 
       {/* Mobile: Drawer từ phải */}
@@ -163,6 +170,15 @@ function BoardActionsMenu({
             </ListItemIcon>
             <ListItemText primary="Xóa bảng" primaryTypographyProps={{ fontSize: '0.9rem' }} />
           </ListItemButton>
+
+          {permissions?.LEAVE_BOARD && (
+            <ListItemButton onClick={() => { handleConfirmLeaveBoard(); closeAll() }}>
+              <ListItemIcon sx={{ minWidth: 36 }}>
+                <LogoutIcon sx={{ fontSize: 20 }} />
+              </ListItemIcon>
+              <ListItemText primary="Rời bảng" primaryTypographyProps={{ fontSize: '0.9rem' }} />
+            </ListItemButton>
+          )}
         </List>
       </Drawer>
     </Box>

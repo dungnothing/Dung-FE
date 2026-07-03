@@ -128,6 +128,7 @@ function BoardBar({
           permissions={permissions}
           handleChangStateBoard={boardOps.handleChangStateBoard}
           handleConfirmDeleteBoard={boardOps.handleConfirmDeleteBoard}
+          handleConfirmLeaveBoard={boardOps.handleConfirmLeaveBoard}
           setOpenDialog={boardOps.setOpenDialog}
           isStarred={starBoard.isStarred}
           handleStarBoard={starBoard.handleStarBoard}

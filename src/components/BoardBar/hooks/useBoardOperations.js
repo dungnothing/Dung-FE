@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { updateBoardDetailsAPI, deleteBoardAPI, transferOwnershipAPI } from '~/apis/boards'
+import { useConfirm } from 'material-ui-confirm'
+import { updateBoardDetailsAPI, deleteBoardAPI, transferOwnershipAPI, leaveBoardAPI } from '~/apis/boards'
 import useConfirmDialog from '~/helpers/hooks/useConfirmDialog'
 import { handleError } from '~/utils/messageHelper'
 
@@ -17,6 +18,7 @@ export const useBoardOperations = (board, setBoard) => {
   const [memberId, setMemberId] = useState(null)
   const [openDialog, setOpenDialog] = useState(false)
   const navigate = useNavigate()
+  const confirmLeave = useConfirm()
 
   const handleUpdateTitle = async () => {
     try {
@@ -66,6 +68,16 @@ export const useBoardOperations = (board, setBoard) => {
     }
   }
 
+  const handleLeaveBoard = async () => {
+    try {
+      await leaveBoardAPI(board._id)
+      toast.success('Bạn đã rời bảng')
+      navigate('/dashboard')
+    } catch (error) {
+      handleError(error, 'Lỗi khi rời bảng')
+    }
+  }
+
   const handleConfirmDeleteBoard = useConfirmDialog({
     type: 'bảng',
     title: board?.title,
@@ -79,6 +91,20 @@ export const useBoardOperations = (board, setBoard) => {
     isChange: true
   })
 
+  const handleConfirmLeaveBoard = async () => {
+    try {
+      await confirmLeave({
+        title: 'Rời bảng',
+        description: `Bạn có chắc muốn rời khỏi bảng "${board?.title}" không? Bạn sẽ mất quyền truy cập bảng này cho đến khi được mời lại.`,
+        confirmationText: 'Rời bảng',
+        cancellationText: 'Hủy'
+      })
+      handleLeaveBoard()
+    } catch {
+      // user huy, khong lam gi
+    }
+  }
+
   return {
     isEditing,
     setIsEditing,
@@ -91,6 +117,7 @@ export const useBoardOperations = (board, setBoard) => {
     handleUpdateTitle,
     handleChangStateBoard,
     handleConfirmDeleteBoard,
-    handleConfirmChangeAdmin
+    handleConfirmChangeAdmin,
+    handleConfirmLeaveBoard
   }
 }
