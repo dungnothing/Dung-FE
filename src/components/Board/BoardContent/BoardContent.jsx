@@ -177,6 +177,7 @@ function BoardContent({
     if (activeDragType === ACTIVE_DRAG_ITEM_TYPE.CARD) {
       if (!permissions.MOVING_CARD) {
         toast.error('Bạn không có quyền')
+        setColumns(board?.columns || [])
         setActiveDragId(null)
         setActiveDragType(null)
         setActiveDragData(null)
@@ -186,6 +187,7 @@ function BoardContent({
 
       if (isFiltering) {
         toast.error('Không thể thực hiện khi đang lọc')
+        setColumns(board?.columns || [])
         setActiveDragId(null)
         setActiveDragType(null)
         setActiveDragData(null)
