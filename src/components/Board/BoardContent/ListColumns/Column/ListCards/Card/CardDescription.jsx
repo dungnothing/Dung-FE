@@ -62,7 +62,7 @@ function CardDescription({
       {/* Nội dung */}
       {isEditting && canEdit ? (
         <Box sx={{ pl: 3.5, py: 0.5 }}>
-          <RichTextEditor value={description} onChange={setDescription} cardId={card.id} />
+          <RichTextEditor value={description} onChange={setDescription} cardId={card._id} />
         </Box>
       ) : (
         <Box sx={{ pl: 3.5, width: '100%' }}>
