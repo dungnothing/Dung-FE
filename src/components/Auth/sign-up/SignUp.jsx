@@ -1,18 +1,16 @@
-import { Box, Button, Typography, Link } from '@mui/material'
-import nen from '~/assets/image-background/nen1.jpg'
-import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
-import { toast } from 'react-toastify'
-import { signUpAPI, getGoogleAuthUrlAPI } from '~/apis/auth'
-import google from '~/assets/google.svg'
-import BasicLoading from '~/helpers/components/BasicLoading'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { useForm } from 'react-hook-form'
+import { Box, Button, Link, Typography } from '@mui/material'
+import { useState } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import * as v from 'valibot'
-import RHFInput from '~/helpers/hook-form/RHFInput'
-import { FormProvider } from 'react-hook-form'
-import { handleError } from '~/utils/messageHelper'
+import { getGoogleAuthUrlAPI, signUpAPI } from '~/apis/auth'
+import google from '~/assets/google.svg'
 import Brand from '~/assets/image-app/brand.png'
+import nen from '~/assets/image-background/nen1.jpg'
+import RHFInput from '~/helpers/hook-form/RHFInput'
+import { handleError } from '~/utils/messageHelper'
 
 const signUpSchema = v.object({
   name: v.pipe(v.string('Tên là bắt buộc'), v.nonEmpty('Tên là bắt buộc')),
@@ -61,14 +59,6 @@ function SignUp() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  if (isLoading) {
-    return (
-      <Box sx={{ width: '100%', height: '100vh' }}>
-        <BasicLoading />
-      </Box>
-    )
   }
 
   return (
@@ -143,6 +133,7 @@ function SignUp() {
                   px: 3
                 }}
                 variant="h4"
+                disabled={isLoading}
               >
                 Đăng ký
               </Typography>
@@ -205,6 +196,7 @@ function SignUp() {
                         display: 'flex',
                         justifyContent: 'center'
                       }}
+                      disabled={isLoading}
                     >
                       Google
                     </Button>

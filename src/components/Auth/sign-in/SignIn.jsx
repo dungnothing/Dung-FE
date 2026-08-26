@@ -1,21 +1,18 @@
-import { Box, Button, Typography, Link } from '@mui/material'
-import nen from '~/assets/image-background/nen1.jpg'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useState } from 'react'
-import { toast } from 'react-toastify'
-import { signInAPI, getGoogleAuthUrlAPI } from '~/apis/auth'
-import google from '~/assets/google.svg'
-import ForgotPassword from './ForgotPassword'
-import BasicLoading from '~/helpers/components/BasicLoading'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { useForm } from 'react-hook-form'
-import * as v from 'valibot'
-import RHFInput from '~/helpers/hook-form/RHFInput'
-import { FormProvider } from 'react-hook-form'
+import { Box, Button, Link, Typography } from '@mui/material'
 import Cookies from 'js-cookie'
+import { useState } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import * as v from 'valibot'
+import { getGoogleAuthUrlAPI, signInAPI } from '~/apis/auth'
+import google from '~/assets/google.svg'
+import Brand from '~/assets/image-app/brand.png'
+import nen from '~/assets/image-background/nen1.jpg'
+import RHFInput from '~/helpers/hook-form/RHFInput'
 import { useFetchUserInfo } from '~/helpers/hooks/useFetchUserInfo'
 import { handleError } from '~/utils/messageHelper'
-import Brand from '~/assets/image-app/brand.png'
+import ForgotPassword from './ForgotPassword'
 
 const loginSchema = v.object({
   email: v.pipe(v.string('Email là bắt buộc'), v.nonEmpty('Email là bắt buộc'), v.email('Email không hợp lệ')),
@@ -57,19 +54,14 @@ function SignIn() {
 
   const handleGoogleLogin = async () => {
     try {
+      setIsLoading(true)
       const response = await getGoogleAuthUrlAPI()
       window.location.href = response.url
     } catch (error) {
       handleError(error, 'Lỗi khi đăng nhập với Google')
+    } finally {
+      setIsLoading(false)
     }
-  }
-
-  if (isLoading) {
-    return (
-      <Box sx={{ width: '100%', height: '100vh' }}>
-        <BasicLoading />
-      </Box>
-    )
   }
 
   return (
@@ -186,6 +178,7 @@ function SignIn() {
                         py: 1
                       }}
                       type="submit"
+                      disabled={isLoading}
                     >
                       Đăng nhập
                     </Button>
@@ -206,6 +199,7 @@ function SignIn() {
                           display: 'flex',
                           justifyContent: 'center'
                         }}
+                        disabled={isLoading}
                       >
                         Google
                       </Button>

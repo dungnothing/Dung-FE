@@ -59,10 +59,7 @@ const PaymentComponent = () => {
 
   return (
     <Box className="flex flex-col p-4 gap-4">
-      <Typography
-        variant="h4"
-        sx={{ color: textColor, fontWeight: 600, fontSize: { xs: '1.5rem', md: '2.125rem' } }}
-      >
+      <Typography variant="h4" sx={{ color: textColor, fontWeight: 600, fontSize: { xs: '1.5rem', md: '2.125rem' } }}>
         Nâng cấp tài khoản lên VIP
       </Typography>
 
@@ -70,140 +67,123 @@ const PaymentComponent = () => {
       {!user ? (
         <ContentLoading message="Đang tải thông tin gói..." minHeight="400px" />
       ) : (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            gap: 3,
-            width: '100%',
-            alignItems: { xs: 'stretch', md: 'flex-start' }
-          }}
-        >
-          {/* Gói nâng cấp */}
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, flex: 2, width: '100%' }}>
-            {packages.map((pkg) => {
-              const isExpired = hasValidSubscription && new Date(supData?.expiresAt) < new Date()
-              const currentPlan = hasValidSubscription ? supData?.plan : null
-              const isCurrentPkg = currentPlan === pkg?.name.toUpperCase() && !isExpired
-              const remainingDays = isCurrentPkg ? getRemainingDays(supData.expiresAt) : null
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 4, flex: 2, width: '100%' }}>
+          {packages.map((pkg) => {
+            const isExpired = hasValidSubscription && new Date(supData?.expiresAt) < new Date()
+            const currentPlan = hasValidSubscription ? supData?.plan : null
+            const isCurrentPkg = currentPlan === pkg?.name.toUpperCase() && !isExpired
+            const remainingDays = isCurrentPkg ? getRemainingDays(supData.expiresAt) : null
 
-              const isPremiumDowngrade = currentPlan === 'PREMIUM' && !isExpired && pkg?.name === 'Pro'
-              const canBuy =
-                !hasValidSubscription || isExpired || (currentPlan === 'PRO' && !isExpired && pkg?.name === 'Premium')
-              const isActive = !isPremiumDowngrade && (canBuy || isCurrentPkg)
-              const buttonText =
-                currentPlan === 'PRO' && !isExpired && pkg?.name === 'Premium' ? 'Nâng cấp ngay' : 'Thanh toán ngay'
+            const isPremiumDowngrade = currentPlan === 'PREMIUM' && !isExpired && pkg?.name === 'Pro'
+            const canBuy =
+              !hasValidSubscription || isExpired || (currentPlan === 'PRO' && !isExpired && pkg?.name === 'Premium')
+            const isActive = !isPremiumDowngrade && (canBuy || isCurrentPkg)
+            const buttonText =
+              currentPlan === 'PRO' && !isExpired && pkg?.name === 'Premium' ? 'Nâng cấp ngay' : 'Thanh toán ngay'
 
-              return (
-                <Card
-                  key={pkg?.id}
-                  sx={{
-                    flex: 1,
-                    width: '100%',
-                    height: 'auto',
-                    borderRadius: '16px',
-                    border: isCurrentPkg ? `2px solid ${pkg?.bdcolor}` : '2px solid #E5E7EB',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: '0.25s',
-                    opacity: isActive ? 1 : 0.45,
-                    boxShadow: isCurrentPkg ? `0 4px 20px ${pkg?.bdcolor}30` : 'none',
-                    '&:hover': {
-                      transform: isActive ? 'translateY(-4px)' : 'none',
-                      boxShadow: isActive ? '0 6px 20px rgba(0,0,0,0.08)' : 'none'
-                    }
-                  }}
-                >
-                  <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 3, flex: 1, height: '100%' }}>
-                    {/* Header: Icon + Badge */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <Box
-                        sx={{
-                          width: 28,
-                          height: 28,
-                          bgcolor: 'white',
-                          borderRadius: '50%',
-                          border: `8px solid ${pkg?.bdcolor}`
-                        }}
-                      />
-                    </Box>
-
-                    {/* Tên và giá */}
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {pkg?.name}
-                    </Typography>
+            return (
+              <Card
+                key={pkg?.id}
+                sx={{
+                  flex: 1,
+                  width: '100%',
+                  height: 'auto',
+                  borderRadius: '16px',
+                  border: isCurrentPkg ? `2px solid ${pkg?.bdcolor}` : '2px solid #E5E7EB',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: '0.25s',
+                  opacity: isActive ? 1 : 0.45,
+                  boxShadow: isCurrentPkg ? `0 4px 20px ${pkg?.bdcolor}30` : 'none',
+                  '&:hover': {
+                    transform: isActive ? 'translateY(-4px)' : 'none',
+                    boxShadow: isActive ? '0 6px 20px rgba(0,0,0,0.08)' : 'none'
+                  }
+                }}
+              >
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 3, flex: 1, height: '100%' }}>
+                  {/* Header: Icon + Badge */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box
-                      sx={{ display: 'flex', alignItems: 'end', gap: 0.5, borderBottom: '1px solid #E5E7EB', pb: 1 }}
+                      sx={{
+                        width: 28,
+                        height: 28,
+                        bgcolor: 'white',
+                        borderRadius: '50%',
+                        border: `8px solid ${pkg?.bdcolor}`
+                      }}
+                    />
+                  </Box>
+
+                  {/* Tên và giá */}
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    {pkg?.name}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'end', gap: 0.5, borderBottom: '1px solid #E5E7EB', pb: 1 }}>
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                      {pkg?.price}
+                    </Typography>
+                    <Typography sx={{ pb: '4px', color: 'text.secondary' }}>/tháng</Typography>
+                  </Box>
+
+                  {/* Tính năng */}
+                  <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <FeatureItem label="Không giới hạn thành viên" enabled={!pkg?.limitedMember} />
+                    <FeatureItem label="Không giới hạn bảng" enabled={!pkg?.limitedBoard} />
+                    <FeatureItem label="Hỗ trợ chăm sóc khách hàng" enabled={pkg?.support} />
+                  </Box>
+
+                  {/* Nút hoặc thông tin còn lại */}
+                  {isCurrentPkg ? (
+                    <Box
+                      sx={{
+                        mt: 'auto',
+                        py: 1,
+                        px: 2,
+                        bgcolor: `${pkg?.bdcolor}10`,
+                        borderRadius: '10px',
+                        textAlign: 'center',
+                        border: `1px dashed ${pkg?.bdcolor}60`
+                      }}
                     >
-                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                        {pkg?.price}
+                      <Typography sx={{ fontWeight: 600, fontSize: '0.85rem', color: pkg?.bdcolor }}>
+                        Còn {remainingDays} ngày sử dụng
                       </Typography>
-                      <Typography sx={{ pb: '4px', color: 'text.secondary' }}>/tháng</Typography>
                     </Box>
-
-                    {/* Tính năng */}
-                    <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      <FeatureItem label="Không giới hạn thành viên" enabled={!pkg?.limitedMember} />
-                      <FeatureItem label="Không giới hạn bảng" enabled={!pkg?.limitedBoard} />
-                      <FeatureItem label="Hỗ trợ chăm sóc khách hàng" enabled={pkg?.support} />
-                    </Box>
-
-                    {/* Nút hoặc thông tin còn lại */}
-                    {isCurrentPkg ? (
-                      <Box
-                        sx={{
-                          mt: 'auto',
-                          py: 1,
-                          px: 2,
-                          bgcolor: `${pkg?.bdcolor}10`,
-                          borderRadius: '10px',
-                          textAlign: 'center',
-                          border: `1px dashed ${pkg?.bdcolor}60`
-                        }}
-                      >
-                        <Typography sx={{ fontWeight: 600, fontSize: '0.85rem', color: pkg?.bdcolor }}>
-                          Còn {remainingDays} ngày sử dụng
-                        </Typography>
-                      </Box>
-                    ) : canBuy ? (
-                      <Button
-                        fullWidth
-                        variant={pkg?.id === 2 ? 'contained' : 'outlined'}
-                        onClick={() => setSelectedPackage(pkg)}
-                        sx={{
-                          mt: 'auto',
-                          height: '40px',
-                          borderRadius: '10px',
-                          fontWeight: 600,
-                          textTransform: 'none',
-                          fontSize: '0.9rem',
-                          backgroundColor: pkg?.id === 2 ? '#615FFF' : 'transparent',
-                          color: pkg?.id === 2 ? '#fff' : '#615FFF',
-                          borderColor: '#615FFF',
-                          '&:hover': {
-                            backgroundColor: pkg?.id === 2 ? '#4E4BFF' : 'rgba(97,95,255,0.08)'
-                          }
-                        }}
-                      >
-                        {buttonText}
-                      </Button>
-                    ) : (
-                      <Box sx={{ height: '40px' }} />
-                    )}
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </Box>
-
-          {/* Form thanh toán */}
-          {selectedPackage && (
-            <Box sx={{ flex: 1, width: '100%' }}>
-              <PaymentForm pkg={selectedPackage} setSelectedPackage={setSelectedPackage} />
-            </Box>
-          )}
+                  ) : canBuy ? (
+                    <Button
+                      fullWidth
+                      variant={pkg?.id === 2 ? 'contained' : 'outlined'}
+                      onClick={() => setSelectedPackage(pkg)}
+                      sx={{
+                        mt: 'auto',
+                        height: '40px',
+                        borderRadius: '10px',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        fontSize: '0.9rem',
+                        backgroundColor: pkg?.id === 2 ? '#615FFF' : 'transparent',
+                        color: pkg?.id === 2 ? '#fff' : '#615FFF',
+                        borderColor: '#615FFF',
+                        '&:hover': {
+                          backgroundColor: pkg?.id === 2 ? '#4E4BFF' : 'rgba(97,95,255,0.08)'
+                        }
+                      }}
+                    >
+                      {buttonText}
+                    </Button>
+                  ) : (
+                    <Box sx={{ height: '40px' }} />
+                  )}
+                </CardContent>
+              </Card>
+            )
+          })}
         </Box>
       )}
+
+      <PaymentForm pkg={selectedPackage} setSelectedPackage={setSelectedPackage} />
+
       <PaymentRequiredDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </Box>
   )
